@@ -1,0 +1,144 @@
+{
+  "sources": {
+    "superpowers": "claude-plugins-official/superpowers",
+    "feature-dev": "claude-plugins-official/feature-dev",
+    "pr-review-toolkit": "claude-plugins-official/pr-review-toolkit",
+    "commit-commands": "claude-plugins-official/commit-commands"
+  },
+  "mappings": [
+    {
+      "praxis": "skills/systematic-debugging/SKILL.md",
+      "upstream": [{"plugin": "superpowers", "path": "skills/systematic-debugging/SKILL.md"}],
+      "adaptation": "near-copy"
+    },
+    {
+      "praxis": "skills/systematic-debugging/root-cause-tracing.md",
+      "upstream": [{"plugin": "superpowers", "path": "skills/systematic-debugging/root-cause-tracing.md"}],
+      "adaptation": "near-copy"
+    },
+    {
+      "praxis": "skills/systematic-debugging/defense-in-depth.md",
+      "upstream": [{"plugin": "superpowers", "path": "skills/systematic-debugging/defense-in-depth.md"}],
+      "adaptation": "near-copy"
+    },
+    {
+      "praxis": "skills/systematic-debugging/condition-based-waiting.md",
+      "upstream": [{"plugin": "superpowers", "path": "skills/systematic-debugging/condition-based-waiting.md"}],
+      "adaptation": "near-copy"
+    },
+    {
+      "praxis": "skills/test-driven-development/SKILL.md",
+      "upstream": [{"plugin": "superpowers", "path": "skills/test-driven-development/SKILL.md"}],
+      "adaptation": "near-copy"
+    },
+    {
+      "praxis": "skills/test-driven-development/testing-anti-patterns.md",
+      "upstream": [{"plugin": "superpowers", "path": "skills/test-driven-development/testing-anti-patterns.md"}],
+      "adaptation": "near-copy"
+    },
+    {
+      "praxis": "skills/verification-before-completion/SKILL.md",
+      "upstream": [{"plugin": "superpowers", "path": "skills/verification-before-completion/SKILL.md"}],
+      "adaptation": "near-copy"
+    },
+    {
+      "praxis": "skills/receiving-code-review/SKILL.md",
+      "upstream": [{"plugin": "superpowers", "path": "skills/receiving-code-review/SKILL.md"}],
+      "adaptation": "near-copy"
+    },
+    {
+      "praxis": "skills/team-workflows/SKILL.md",
+      "upstream": [],
+      "adaptation": "new"
+    },
+    {
+      "praxis": "commands/commit.md",
+      "upstream": [{"plugin": "commit-commands", "path": "commands/commit.md"}],
+      "adaptation": "near-copy"
+    },
+    {
+      "praxis": "commands/ship.md",
+      "upstream": [{"plugin": "commit-commands", "path": "commands/commit-push-pr.md"}],
+      "adaptation": "near-copy"
+    },
+    {
+      "praxis": "commands/clean-gone.md",
+      "upstream": [{"plugin": "commit-commands", "path": "commands/clean_gone.md"}],
+      "adaptation": "near-copy"
+    },
+    {
+      "praxis": "commands/finish.md",
+      "upstream": [{"plugin": "superpowers", "path": "skills/finishing-a-development-branch/SKILL.md"}],
+      "adaptation": "moderate"
+    },
+    {
+      "praxis": "commands/review.md",
+      "upstream": [{"plugin": "pr-review-toolkit", "path": "commands/review-pr.md"}],
+      "adaptation": "moderate"
+    },
+    {
+      "praxis": "commands/explore.md",
+      "upstream": [{"plugin": "feature-dev", "path": "commands/feature-dev.md"}],
+      "adaptation": "new"
+    },
+    {
+      "praxis": "commands/architect.md",
+      "upstream": [{"plugin": "feature-dev", "path": "commands/feature-dev.md"}],
+      "adaptation": "new"
+    },
+    {
+      "praxis": "commands/simplify.md",
+      "upstream": [],
+      "adaptation": "new"
+    },
+    {
+      "praxis": "agents/code-explorer.md",
+      "upstream": [{"plugin": "feature-dev", "path": "agents/code-explorer.md"}],
+      "adaptation": "near-copy"
+    },
+    {
+      "praxis": "agents/code-architect.md",
+      "upstream": [{"plugin": "feature-dev", "path": "agents/code-architect.md"}],
+      "adaptation": "near-copy"
+    },
+    {
+      "praxis": "agents/code-reviewer.md",
+      "upstream": [
+        {"plugin": "pr-review-toolkit", "path": "agents/code-reviewer.md"},
+        {"plugin": "superpowers", "path": "agents/code-reviewer.md"},
+        {"plugin": "superpowers", "path": "skills/requesting-code-review/code-reviewer.md"}
+      ],
+      "adaptation": "significant"
+    },
+    {
+      "praxis": "agents/spec-reviewer.md",
+      "upstream": [{"plugin": "superpowers", "path": "skills/subagent-driven-development/spec-reviewer-prompt.md"}],
+      "adaptation": "moderate"
+    },
+    {
+      "praxis": "agents/code-simplifier.md",
+      "upstream": [{"plugin": "pr-review-toolkit", "path": "agents/code-simplifier.md"}],
+      "adaptation": "near-copy"
+    },
+    {
+      "praxis": "agents/comment-analyzer.md",
+      "upstream": [{"plugin": "pr-review-toolkit", "path": "agents/comment-analyzer.md"}],
+      "adaptation": "near-copy"
+    },
+    {
+      "praxis": "agents/test-analyzer.md",
+      "upstream": [{"plugin": "pr-review-toolkit", "path": "agents/pr-test-analyzer.md"}],
+      "adaptation": "near-copy"
+    },
+    {
+      "praxis": "agents/silent-failure-hunter.md",
+      "upstream": [{"plugin": "pr-review-toolkit", "path": "agents/silent-failure-hunter.md"}],
+      "adaptation": "near-copy"
+    },
+    {
+      "praxis": "agents/type-analyzer.md",
+      "upstream": [{"plugin": "pr-review-toolkit", "path": "agents/type-design-analyzer.md"}],
+      "adaptation": "near-copy"
+    }
+  ]
+}
