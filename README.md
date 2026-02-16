@@ -7,7 +7,7 @@ Praxis consolidates the best of [superpowers](https://github.com/anthropics/clau
 ## Installation
 
 ```bash
-claude plugin add ~/Documents/Code/praxis
+claude plugin add github:moiri-gamboni/praxis
 ```
 
 Then disable the plugins it replaces:
