@@ -60,6 +60,12 @@ By default, review unstaged changes from `git diff`. The caller may specify diff
 
 **Code Quality**: Evaluate significant issues like code duplication, missing critical error handling, accessibility problems, and inadequate test coverage.
 
+**Production Readiness** (when reviewing for merge/PR):
+- Migration strategy if schema changes are involved
+- Backward compatibility with existing consumers
+- Documentation completeness for new APIs or behaviors
+- No scope creep beyond requirements
+
 ## Issue Confidence Scoring
 
 Rate each issue from 0-100:
@@ -88,4 +94,43 @@ Group issues by severity:
 
 If no high-confidence issues exist, confirm the code meets standards with a brief summary.
 
+End with a clear verdict:
+
+```
+### Assessment
+
+**Ready to merge?** [Yes / No / With fixes]
+
+**Reasoning:** [1-2 sentence technical assessment]
+```
+
 Be thorough but filter aggressively. Quality over quantity. Focus on issues that truly matter.
+
+## Example Output
+
+```
+### Strengths
+- Clean database schema with proper migrations (db.ts:15-42)
+- Comprehensive test coverage (18 tests, all edge cases)
+- Good error handling with fallbacks (summarizer.ts:85-92)
+
+### Issues
+
+#### Critical (95)
+1. **SQL injection in search query**
+   - File: search.ts:25-27
+   - Guideline: CLAUDE.md prohibits string interpolation in queries
+   - Fix: Use parameterized query with $1 placeholder
+
+#### Important (82)
+1. **Missing help text in CLI wrapper**
+   - File: index.ts:1-31
+   - Issue: No --help flag, users won't discover --concurrency
+   - Fix: Add --help case with usage examples
+
+### Assessment
+
+**Ready to merge?** With fixes
+
+**Reasoning:** Core implementation is solid with good architecture and tests. The SQL injection is critical and must be fixed. Help text is important for usability.
+```

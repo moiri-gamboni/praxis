@@ -14,9 +14,11 @@ Run a comprehensive code review using specialized agents, each focusing on a dif
 
 ### 1. Determine Review Scope
 
-- Check git status to identify changed files: `git diff --name-only`
-- Parse arguments to see which review aspects were requested
-- Default: Run all applicable reviews
+- Parse arguments for review aspects AND optional git range
+- If a git range is provided (e.g., `main..HEAD`, a SHA, a branch name): use `git diff <range> --name-only` to scope review
+- If no range: check git status to identify changed files with `git diff --name-only`
+- If a PR exists (`gh pr view`): use the PR's base..head as the range
+- Default review aspects: all applicable
 
 ### 2. Available Review Aspects
 
@@ -85,6 +87,12 @@ After agents complete, summarize findings:
 /review tests errors
 /review comments
 /review simplify
+```
+
+**Review a specific range:**
+```
+/review code main..HEAD
+/review all abc1234..def5678
 ```
 
 ## Tips
