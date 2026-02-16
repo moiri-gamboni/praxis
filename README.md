@@ -100,20 +100,20 @@ All agents use the Opus model.
 
 ## Upstream Tracking
 
-Praxis tracks changes to its source plugins so improvements can be incorporated.
+Praxis tracks changes to its source plugins and can automatically incorporate improvements via PR.
 
 ```bash
-# Check for upstream updates (uses worktree, safe)
+# Check for upstream updates (snapshots plugin cache into upstream branch)
 scripts/sync-upstream.sh
 
-# Analyze changes with Claude (interactive)
+# Analyze changes, apply improvements, and open a PR
 scripts/analyze-upstream.sh
 
 # Or non-interactive for cron
 scripts/analyze-upstream.sh --auto
 ```
 
-The `upstream` branch stores verbatim copies of the 4 source plugins. `upstream.json` maps each praxis file to its source(s) with adaptation level. Reports are saved to `reports/`.
+The `upstream` branch stores verbatim copies of the 4 source plugins. `upstream.json` maps each praxis file to its source(s) with adaptation level. When changes are found, Claude evaluates them conservatively (only genuine improvements, no cosmetic changes), applies them to a sync branch, and opens a PR for review.
 
 Weekly cron example:
 ```
