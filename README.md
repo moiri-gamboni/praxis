@@ -166,3 +166,9 @@ praxis/
     analyze-upstream.sh
   upstream.json
 ```
+
+## License
+
+AGPL-3.0. See [LICENSE](LICENSE) and [NOTICE](NOTICE) for details.
+
+Incorporates MIT-licensed material from [superpowers](https://github.com/jesse-c/superpowers) by Jesse Vincent. Components from Anthropic's [claude-plugins-official](https://github.com/anthropics/claude-plugins-official) (no license specified as of 2026-02-16).
