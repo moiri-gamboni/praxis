@@ -7,15 +7,14 @@ Praxis consolidates the best of [superpowers](https://github.com/anthropics/clau
 ## Installation
 
 ```bash
-claude plugin add github:moiri-gamboni/praxis
+# Add the marketplace
+/plugin marketplace add moiri-gamboni/praxis
+
+# Install the plugin
+/plugin install praxis@praxis-marketplace
 ```
 
-Then disable the plugins it replaces:
-
-- superpowers
-- feature-dev
-- pr-review-toolkit
-- commit-commands
+Updates are applied automatically, or manually with `/plugin marketplace update`.
 
 ## Components
 
@@ -127,6 +126,7 @@ Weekly cron example:
 praxis/
   .claude-plugin/
     plugin.json
+    marketplace.json
   skills/
     systematic-debugging/
       SKILL.md

@@ -1,0 +1,22 @@
+{
+  "name": "praxis-marketplace",
+  "owner": {
+    "name": "Moiri Gamboni"
+  },
+  "metadata": {
+    "description": "Unified development workflow plugin for Claude Code"
+  },
+  "plugins": [
+    {
+      "name": "praxis",
+      "source": ".",
+      "description": "Unified development workflow plugin combining behavioral discipline, composable commands, and specialized review agents",
+      "version": "0.1.0",
+      "author": {
+        "name": "Moiri Gamboni"
+      },
+      "license": "AGPL-3.0",
+      "keywords": ["workflow", "review", "tdd", "debugging", "git"]
+    }
+  ]
+}
