@@ -1,8 +1,8 @@
 # Praxis
 
-A unified Claude Code plugin combining behavioral discipline, composable commands, and specialized review agents.
+A Claude Code plugin for software development. Skills teach Claude structured approaches to debugging, testing, and code review. Commands give you `/commit`, `/ship`, `/review`, `/explore`, and more. Agents handle specialized analysis tasks like hunting silent failures or evaluating type design.
 
-Praxis consolidates the best of [superpowers](https://github.com/anthropics/claude-code-plugins), [feature-dev](https://github.com/anthropics/claude-code-plugins), [pr-review-toolkit](https://github.com/anthropics/claude-code-plugins), and [commit-commands](https://github.com/anthropics/claude-code-plugins) into one plugin that leverages plan mode and agent teams as first-class mechanisms.
+Praxis is built from four existing plugins ([superpowers](https://github.com/jesse-c/superpowers), [feature-dev](https://github.com/anthropics/claude-plugins-official), [pr-review-toolkit](https://github.com/anthropics/claude-plugins-official), [commit-commands](https://github.com/anthropics/claude-plugins-official)), picking the best version of each component and filling gaps between them.
 
 ## Installation
 
@@ -16,155 +16,102 @@ Praxis consolidates the best of [superpowers](https://github.com/anthropics/clau
 
 Updates are applied automatically, or manually with `/plugin marketplace update`.
 
-## Components
+## Skills
 
-### Skills (always-active behavioral discipline)
+Skills activate automatically based on context. They guide how Claude approaches a class of problem without you having to ask.
 
-| Skill | Triggers when... |
+| Skill | Activates when... |
 |-------|-----------------|
-| **systematic-debugging** | Encountering any bug, test failure, or unexpected behavior |
-| **test-driven-development** | Implementing any feature or bugfix |
+| **systematic-debugging** | Encountering a bug, test failure, or unexpected behavior |
+| **test-driven-development** | Implementing a feature or bugfix |
 | **verification-before-completion** | About to claim work is complete or passing |
 | **receiving-code-review** | Receiving code review feedback |
 | **team-workflows** | Working with agent teams on multi-step tasks |
 
-Skills activate automatically based on context. They enforce methodology (how to debug, how to do TDD, how to handle feedback) without orchestrating workflow.
+## Commands
 
-### Commands (composable building blocks)
-
-| Command | Purpose |
+| Command | What it does |
 |---------|---------|
 | `/commit` | Create a git commit from current changes |
 | `/ship` | Commit, push, and open a PR |
-| `/finish` | Test gate + merge/PR/keep/discard options + worktree cleanup |
-| `/clean-gone` | Clean up local branches deleted on remote |
-| `/review [aspects]` | Multi-dimensional code review (code, tests, comments, errors, types, simplify) |
-| `/explore [area]` | Deep codebase exploration with code-explorer agents |
-| `/architect <feature>` | Design feature architecture with competing approaches |
+| `/finish` | Run tests, then merge/PR/keep/discard with worktree cleanup |
+| `/clean-gone` | Delete local branches whose remote counterpart is gone |
+| `/review [aspects]` | Code review across multiple dimensions (code, tests, comments, errors, types, simplify) |
+| `/explore [area]` | Deep codebase exploration via code-explorer agents |
+| `/architect <feature>` | Design a feature with competing architectural approaches |
 | `/simplify [scope]` | Simplification pass on recently modified code |
 
-Commands can be invoked directly by users or by agent teammates via the Skill tool.
+Commands work standalone or as building blocks in agent team workflows.
 
-### Agents (specialized autonomous reviewers)
+## Agents
 
-| Agent | Purpose | Launched by |
+| Agent | What it does | Invoked by |
 |-------|---------|-------------|
-| **code-explorer** | Trace execution paths, map architecture, document dependencies | `/explore` |
-| **code-architect** | Design implementation blueprints from codebase patterns | `/architect` |
-| **code-reviewer** | Review against guidelines and/or plans, confidence-scored | `/review code` |
-| **spec-reviewer** | Verify implementation matches specification exactly | Team workflows |
-| **code-simplifier** | Simplify code for clarity while preserving functionality | `/review simplify` |
-| **comment-analyzer** | Check comment accuracy and long-term maintainability | `/review comments` |
-| **test-analyzer** | Review test coverage quality, behavioral over line coverage | `/review tests` |
-| **silent-failure-hunter** | Find silent failures and inadequate error handling | `/review errors` |
-| **type-analyzer** | Analyze type design: encapsulation, invariants, enforcement | `/review types` |
+| **code-explorer** | Traces execution paths, maps architecture, documents dependencies | `/explore` |
+| **code-architect** | Designs implementation blueprints from codebase patterns | `/architect` |
+| **code-reviewer** | Reviews code against project guidelines and plans, with confidence scoring | `/review code` |
+| **spec-reviewer** | Verifies implementation matches a specification | Team workflows |
+| **code-simplifier** | Simplifies code while preserving functionality | `/review simplify` |
+| **comment-analyzer** | Checks comment accuracy and long-term maintainability | `/review comments` |
+| **test-analyzer** | Reviews test coverage quality, prioritizing behavioral coverage | `/review tests` |
+| **silent-failure-hunter** | Finds swallowed errors and inadequate error handling | `/review errors` |
+| **type-analyzer** | Evaluates type design: encapsulation, invariants, enforcement | `/review types` |
 
-All agents use the Opus model.
+All agents run on Opus.
 
-## Design Principles
+## Design
 
-**Plan mode replaces brainstorming and plan-writing.** Plan mode's built-in scaffolding (explore, design, review, write plan, get approval) covers what superpowers' brainstorming and writing-plans skills did.
+**Plan mode for planning.** Instead of dedicated brainstorming or plan-writing skills, praxis relies on Claude Code's built-in plan mode (explore, design, get approval).
 
-**Agent teams replace workflow orchestration.** Subagent-driven-development's review loops and executing-plans' batched execution are replaced by agent teams with shared task lists. The team-workflows skill teaches patterns for composing commands into team workflows.
+**Agent teams for coordination.** Complex multi-step work uses agent teams with shared task lists. The team-workflows skill teaches patterns for composing commands into team workflows.
 
-**Commands are composable building blocks.** Each command does one thing well and can be invoked standalone by users or by teammates via the Skill tool.
+**One code-reviewer.** The three source plugins each had their own code-reviewer. Praxis merges them: it auto-detects whether a plan exists, applies confidence scoring (>= 80 threshold), and ends with a "Ready to merge?" verdict.
 
-**Skills are behavioral discipline only.** No workflow orchestration in skills, just methodology enforcement.
+## Example Workflows
 
-**One unified code-reviewer.** Merges three near-identical versions: reviews against plans (auto-detected) AND guidelines, with confidence scoring (threshold >= 80) and a clear "Ready to merge?" verdict.
-
-## Workflow Examples
-
-### Significant feature (team)
+### Large feature (team)
 
 1. Team lead enters plan mode, spawns explorers with `/explore`
 2. Architect teammate runs `/architect` with findings
 3. Team lead writes plan, gets approval, exits plan mode
-4. Implementation teammates handle tasks using TDD skill
+4. Implementation teammates work from the task list, TDD skill activates
 5. Reviewer teammate runs `/review code errors`
 6. Fix issues, then `/ship`
 
-### Quick fix (solo)
+### Bug fix (solo)
 
 1. Debugging skill activates automatically
-2. TDD skill activates (write failing test first)
-3. Fix the bug, verification skill confirms
+2. TDD skill activates (write a failing test first)
+3. Fix the bug, verification skill confirms tests pass
 4. `/commit`
 
-### PR preparation
+### Before opening a PR
 
 1. `/review all`
-2. Fix critical/important issues
+2. Fix critical issues
 3. `/simplify`
-4. `/commit` then `/ship`
+4. `/ship`
 
 ## Upstream Tracking
 
 Praxis tracks changes to its source plugins and can automatically incorporate improvements via PR.
 
 ```bash
-# Check for upstream updates (snapshots plugin cache into upstream branch)
+# Snapshot current plugin cache into the upstream branch
 scripts/sync-upstream.sh
 
 # Analyze changes, apply improvements, and open a PR
 scripts/analyze-upstream.sh
 
-# Or non-interactive for cron
+# Non-interactive (for cron)
 scripts/analyze-upstream.sh --auto
 ```
 
-The `upstream` branch stores verbatim copies of the 4 source plugins. `upstream.json` maps each praxis file to its source(s) with adaptation level. When changes are found, Claude evaluates them conservatively (only genuine improvements, no cosmetic changes), applies them to a sync branch, and opens a PR for review.
+The `upstream` branch stores verbatim copies of the 4 source plugins. `upstream.json` maps each praxis file to its source(s) with adaptation level. When changes are found, Claude evaluates them conservatively (only genuine improvements, not cosmetic changes), applies them to a sync branch, and opens a PR for review.
 
 Weekly cron example:
 ```
 0 9 * * 1  cd ~/Documents/Code/praxis && scripts/sync-upstream.sh && scripts/analyze-upstream.sh --auto
-```
-
-## File Structure
-
-```
-praxis/
-  .claude-plugin/
-    plugin.json
-    marketplace.json
-  skills/
-    systematic-debugging/
-      SKILL.md
-      root-cause-tracing.md
-      defense-in-depth.md
-      condition-based-waiting.md
-    test-driven-development/
-      SKILL.md
-      testing-anti-patterns.md
-    verification-before-completion/
-      SKILL.md
-    receiving-code-review/
-      SKILL.md
-    team-workflows/
-      SKILL.md
-  commands/
-    commit.md
-    ship.md
-    clean-gone.md
-    finish.md
-    review.md
-    explore.md
-    architect.md
-    simplify.md
-  agents/
-    code-explorer.md
-    code-architect.md
-    code-reviewer.md
-    spec-reviewer.md
-    code-simplifier.md
-    comment-analyzer.md
-    test-analyzer.md
-    silent-failure-hunter.md
-    type-analyzer.md
-  scripts/
-    sync-upstream.sh
-    analyze-upstream.sh
-  upstream.json
 ```
 
 ## License
