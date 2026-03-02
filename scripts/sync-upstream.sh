@@ -11,12 +11,13 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 PLUGIN_CACHE="$HOME/.claude/plugins/cache"
 
-# The four source plugins and their cache subdirectories
+# The five source plugins and their cache subdirectories
 declare -A SOURCES=(
   [superpowers]="claude-plugins-official/superpowers"
   [feature-dev]="claude-plugins-official/feature-dev"
   [pr-review-toolkit]="claude-plugins-official/pr-review-toolkit"
   [commit-commands]="claude-plugins-official/commit-commands"
+  [frontend-design]="claude-plugins-official/frontend-design"
 )
 
 # --- Ensure upstream branch exists ---

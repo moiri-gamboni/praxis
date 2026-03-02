@@ -3,7 +3,8 @@
     "superpowers": "claude-plugins-official/superpowers",
     "feature-dev": "claude-plugins-official/feature-dev",
     "pr-review-toolkit": "claude-plugins-official/pr-review-toolkit",
-    "commit-commands": "claude-plugins-official/commit-commands"
+    "commit-commands": "claude-plugins-official/commit-commands",
+    "frontend-design": "claude-plugins-official/frontend-design"
   },
   "mappings": [
     {
@@ -44,6 +45,11 @@
     {
       "praxis": "skills/receiving-code-review/SKILL.md",
       "upstream": [{"plugin": "superpowers", "path": "skills/receiving-code-review/SKILL.md"}],
+      "adaptation": "near-copy"
+    },
+    {
+      "praxis": "skills/frontend-design/SKILL.md",
+      "upstream": [{"plugin": "frontend-design", "path": "skills/frontend-design/SKILL.md"}],
       "adaptation": "near-copy"
     },
     {
