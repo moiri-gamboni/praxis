@@ -1,10 +1,10 @@
 {
   "sources": {
-    "superpowers": "claude-plugins-official/superpowers",
-    "feature-dev": "claude-plugins-official/feature-dev",
-    "pr-review-toolkit": "claude-plugins-official/pr-review-toolkit",
-    "commit-commands": "claude-plugins-official/commit-commands",
-    "frontend-design": "claude-plugins-official/frontend-design"
+    "superpowers": {"repo": "obra/superpowers", "path": "."},
+    "feature-dev": {"repo": "anthropics/claude-plugins-official", "path": "plugins/feature-dev"},
+    "pr-review-toolkit": {"repo": "anthropics/claude-plugins-official", "path": "plugins/pr-review-toolkit"},
+    "commit-commands": {"repo": "anthropics/claude-plugins-official", "path": "plugins/commit-commands"},
+    "frontend-design": {"repo": "anthropics/claude-plugins-official", "path": "plugins/frontend-design"}
   },
   "mappings": [
     {

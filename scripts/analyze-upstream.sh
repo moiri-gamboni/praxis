@@ -95,7 +95,7 @@ If you find changes worth incorporating, edit the praxis files directly and comm
 
 ## Context
 
-Praxis was created by combining the best of 4 plugins: superpowers, feature-dev, pr-review-toolkit, and commit-commands. The provenance mapping below shows which praxis files came from which upstream sources and how much they were adapted.
+Praxis was created by combining the best of several upstream plugins. The provenance mapping below shows which praxis files came from which upstream sources and how much they were adapted.
 
 Adaptation levels:
 - \"near-copy\": praxis file is ~85-95% identical to upstream (minor namespace/model changes). Upstream improvements almost certainly apply.
@@ -175,7 +175,7 @@ else
     --body "$(cat <<EOF
 ## Upstream Plugin Changes
 
-Automated analysis of upstream changes from superpowers, feature-dev, pr-review-toolkit, and commit-commands.
+Automated analysis of upstream changes from source plugins.
 
 ### Changes since last analysis
 \`\`\`
