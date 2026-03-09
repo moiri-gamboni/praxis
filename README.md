@@ -2,7 +2,7 @@
 
 A Claude Code plugin for software development. Skills teach Claude structured approaches to debugging, testing, and code review. Commands give you `/commit`, `/ship`, `/review`, `/explore`, and more. Agents handle specialized analysis tasks like hunting silent failures or evaluating type design.
 
-Praxis is built from five existing plugins ([superpowers](https://github.com/jesse-c/superpowers), [feature-dev](https://github.com/anthropics/claude-plugins-official), [pr-review-toolkit](https://github.com/anthropics/claude-plugins-official), [commit-commands](https://github.com/anthropics/claude-plugins-official), [frontend-design](https://github.com/anthropics/claude-plugins-official)), picking the best version of each component and filling gaps between them.
+Praxis is built from five existing plugins ([superpowers](https://github.com/obra/superpowers), [feature-dev](https://github.com/anthropics/claude-plugins-official), [pr-review-toolkit](https://github.com/anthropics/claude-plugins-official), [commit-commands](https://github.com/anthropics/claude-plugins-official), [frontend-design](https://github.com/anthropics/claude-plugins-official)), picking the best version of each component and filling gaps between them.
 
 ## Installation
 
@@ -119,4 +119,4 @@ Weekly cron example:
 
 AGPL-3.0. See [LICENSE](LICENSE) and [NOTICE](NOTICE) for details.
 
-Incorporates MIT-licensed material from [superpowers](https://github.com/jesse-c/superpowers) by Jesse Vincent. Components from Anthropic's [claude-plugins-official](https://github.com/anthropics/claude-plugins-official): frontend-design is Apache-2.0 licensed; other components had no license specified as of 2026-02-16.
+Incorporates MIT-licensed material from [superpowers](https://github.com/obra/superpowers) by Jesse Vincent. Components from Anthropic's [claude-plugins-official](https://github.com/anthropics/claude-plugins-official): frontend-design is Apache-2.0 licensed; other components had no license specified as of 2026-02-16.

@@ -28,7 +28,7 @@ Files with `near-copy` adaptation in `upstream.json` should stay close to their 
 Files with `new` adaptation have no upstream counterpart and can be freely modified.
 
 ```bash
-# Snapshot current plugin cache into the orphan 'upstream' branch
+# Fetch upstream repos and sync into the orphan 'upstream' branch
 scripts/sync-upstream.sh
 
 # Analyze changes since last sync, apply improvements, open a PR
@@ -44,8 +44,8 @@ The `upstream` branch stores verbatim copies. The `upstream-analyzed` git tag ma
 
 When incorporating a new source plugin into praxis:
 
-1. Add the plugin to the `SOURCES` array in `scripts/sync-upstream.sh`
-2. Add an entry under `sources` in `upstream.json`
+1. Add the plugin to the `SOURCES` array in `scripts/sync-upstream.sh` (format: `[name]="owner/repo:subpath"`)
+2. Add an entry under `sources` in `upstream.json` (format: `{"repo": "owner/repo", "path": "subpath"}`)
 3. Add mapping entries in `upstream.json` for each file taken from the plugin
 4. Add attribution to `NOTICE` (include license text and list of derived files)
 5. Update `README.md` (plugin count, skills/commands/agents tables, license section)
