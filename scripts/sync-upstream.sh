@@ -1,21 +1,25 @@
 #!/usr/bin/env bash
 # Syncs upstream plugin sources into the 'upstream' branch.
 # Fetches directly from GitHub repositories (no local plugin install needed).
+# Reads source plugin locations from upstream.json.
 # Uses a git worktree so the main working tree is never disturbed.
 #
 # Usage: scripts/sync-upstream.sh
+# Requires: jq
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+UPSTREAM_JSON="$REPO_ROOT/upstream.json"
 
-# Source plugins: name -> "github_owner/repo:subpath" ("." = repo root)
-declare -A SOURCES=(
-  [superpowers]="obra/superpowers:."
-  [feature-dev]="anthropics/claude-plugins-official:plugins/feature-dev"
-  [pr-review-toolkit]="anthropics/claude-plugins-official:plugins/pr-review-toolkit"
-  [commit-commands]="anthropics/claude-plugins-official:plugins/commit-commands"
-  [frontend-design]="anthropics/claude-plugins-official:plugins/frontend-design"
-)
+if ! command -v jq &>/dev/null; then
+  echo "Error: jq is required. Install it with your package manager."
+  exit 1
+fi
+
+# --- Read sources from upstream.json ---
+# Produces lines like: superpowers obra/superpowers .
+# and: feature-dev anthropics/claude-plugins-official plugins/feature-dev
+readarray -t PLUGINS < <(jq -r '.sources | to_entries[] | "\(.key) \(.value.repo) \(.value.path)"' "$UPSTREAM_JSON")
 
 # --- Ensure upstream branch exists ---
 cd "$REPO_ROOT"
@@ -42,10 +46,8 @@ git worktree add "$WORK_DIR" upstream --quiet
 # --- Fetch repos and copy plugins into worktree ---
 declare -A CLONED=()
 
-for plugin in "${!SOURCES[@]}"; do
-  spec="${SOURCES[$plugin]}"
-  repo="${spec%%:*}"
-  subpath="${spec##*:}"
+for entry in "${PLUGINS[@]}"; do
+  read -r plugin repo subpath <<< "$entry"
   repo_dir="$CLONE_DIR/$(echo "$repo" | tr '/' '_')"
 
   # Shallow-clone each unique repo once
