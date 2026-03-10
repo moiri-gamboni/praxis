@@ -28,14 +28,14 @@ Files with `near-copy` adaptation in `upstream.json` should stay close to their 
 Files with `new` adaptation have no upstream counterpart and can be freely modified.
 
 ```bash
-# Fetch upstream repos and sync into the orphan 'upstream' branch
-scripts/sync-upstream.sh
-
-# Analyze changes since last sync, apply improvements, open a PR
+# Sync upstream, analyze changes, apply improvements, open a PR
 scripts/analyze-upstream.sh
 
 # Non-interactive (for cron)
 scripts/analyze-upstream.sh --auto
+
+# Sync only (no analysis)
+scripts/sync-upstream.sh
 ```
 
 The `upstream` branch stores verbatim copies. The `upstream-analyzed` git tag marks what has been processed.

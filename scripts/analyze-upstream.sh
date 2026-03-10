@@ -9,7 +9,6 @@
 #   --auto: non-interactive (for cron). Skips if no changes found.
 #
 # Prerequisites:
-#   - upstream branch must exist (run sync-upstream.sh first)
 #   - claude CLI must be available
 #   - gh CLI must be authenticated (for PR creation)
 set -euo pipefail
@@ -28,11 +27,8 @@ done
 
 cd "$REPO_ROOT"
 
-# --- Check upstream branch exists ---
-if ! git rev-parse --verify upstream &>/dev/null; then
-  echo "Error: upstream branch not found. Run scripts/sync-upstream.sh first."
-  exit 1
-fi
+# --- Sync upstream first ---
+"$REPO_ROOT/scripts/sync-upstream.sh"
 
 UPSTREAM_HEAD=$(git rev-parse upstream)
 
