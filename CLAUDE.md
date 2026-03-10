@@ -44,12 +44,11 @@ The `upstream` branch stores verbatim copies. The `upstream-analyzed` git tag ma
 
 When incorporating a new source plugin into praxis:
 
-1. Add the plugin to the `SOURCES` array in `scripts/sync-upstream.sh` (format: `[name]="owner/repo:subpath"`)
-2. Add an entry under `sources` in `upstream.json` (format: `{"repo": "owner/repo", "path": "subpath"}`)
-3. Add mapping entries in `upstream.json` for each file taken from the plugin
-4. Add attribution to `NOTICE` (include license text and list of derived files)
-5. Update `README.md` (plugin count, skills/commands/agents tables, license section)
-6. Copy the actual content files into the appropriate directories
+1. Add an entry under `sources` in `upstream.json` (format: `{"repo": "owner/repo", "path": "subpath"}`)
+2. Add mapping entries in `upstream.json` for each file taken from the plugin
+3. Add attribution to `NOTICE` (include license text and list of derived files)
+4. Update `README.md` (plugin count, skills/commands/agents tables, license section)
+5. Copy the actual content files into the appropriate directories
 
 ## License
 
