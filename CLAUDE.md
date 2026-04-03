@@ -50,6 +50,16 @@ When incorporating a new source plugin into praxis:
 4. Update `README.md` (plugin count, skills/commands/agents tables, license section)
 5. Copy the actual content files into the appropriate directories
 
+## Versioning
+
+The patch version in `plugin.json` and `marketplace.json` is auto-bumped by a pre-commit git hook. Claude Code uses the version string to detect plugin updates; without a bump, new content won't reach users.
+
+Bump MAJOR or MINOR manually when appropriate:
+- **MINOR**: new skills, commands, or agents; significant behavior changes to existing ones
+- **MAJOR**: breaking changes (renamed/removed skills or commands, changed trigger conditions)
+
+When bumping manually, update both `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json`. The hook will still increment patch on top of whatever you set.
+
 ## License
 
 AGPL-3.0. Incorporates MIT-licensed material from superpowers and Apache-2.0-licensed material from frontend-design. See NOTICE for attribution.
