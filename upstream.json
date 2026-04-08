@@ -1,10 +1,11 @@
 {
+  "last_analyzed_upstream_commit": null,
   "sources": {
-    "superpowers": {"repo": "obra/superpowers", "path": "."},
-    "feature-dev": {"repo": "anthropics/claude-plugins-official", "path": "plugins/feature-dev"},
-    "pr-review-toolkit": {"repo": "anthropics/claude-plugins-official", "path": "plugins/pr-review-toolkit"},
-    "commit-commands": {"repo": "anthropics/claude-plugins-official", "path": "plugins/commit-commands"},
-    "frontend-design": {"repo": "anthropics/claude-plugins-official", "path": "plugins/frontend-design"}
+    "superpowers": {"repo": "obra/superpowers", "path": ".", "last_analyzed": null},
+    "feature-dev": {"repo": "anthropics/claude-plugins-official", "path": "plugins/feature-dev", "last_analyzed": null},
+    "pr-review-toolkit": {"repo": "anthropics/claude-plugins-official", "path": "plugins/pr-review-toolkit", "last_analyzed": null},
+    "commit-commands": {"repo": "anthropics/claude-plugins-official", "path": "plugins/commit-commands", "last_analyzed": null},
+    "frontend-design": {"repo": "anthropics/claude-plugins-official", "path": "plugins/frontend-design", "last_analyzed": null}
   },
   "mappings": [
     {
