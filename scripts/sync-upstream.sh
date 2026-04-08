@@ -4,6 +4,9 @@
 # Reads source plugin locations from upstream.json.
 # Uses a git worktree so the main working tree is never disturbed.
 #
+# Records per-source commit hashes in _source_commits.json on the upstream
+# branch so analyze-upstream.sh can track what changed per source.
+#
 # Usage: scripts/sync-upstream.sh
 # Requires: jq
 set -euo pipefail
@@ -17,18 +20,21 @@ if ! command -v jq &>/dev/null; then
 fi
 
 # --- Read sources from upstream.json ---
-# Produces lines like: superpowers obra/superpowers .
-# and: feature-dev anthropics/claude-plugins-official plugins/feature-dev
 readarray -t PLUGINS < <(jq -r '.sources | to_entries[] | "\(.key) \(.value.repo) \(.value.path)"' "$UPSTREAM_JSON")
 
-# --- Ensure upstream branch exists ---
+# --- Ensure upstream branch exists (prefer remote, fallback to create) ---
 cd "$REPO_ROOT"
 if ! git rev-parse --verify upstream &>/dev/null; then
-  echo "Creating upstream branch..."
-  git checkout --orphan upstream
-  git rm -rf . 2>/dev/null || true
-  git commit --allow-empty -m "Initialize upstream tracking branch"
-  git checkout - 2>/dev/null || git checkout master 2>/dev/null || git checkout main
+  if git ls-remote --exit-code origin upstream &>/dev/null; then
+    echo "Fetching upstream branch from remote..."
+    git fetch origin upstream:upstream --quiet
+  else
+    echo "Creating upstream branch..."
+    # Create orphan branch without touching the working tree
+    empty_tree=$(git hash-object -t tree /dev/null)
+    empty_commit=$(git commit-tree "$empty_tree" -m "Initialize upstream tracking branch")
+    git branch upstream "$empty_commit"
+  fi
 fi
 
 # --- Create temporary worktree and clone dir ---
@@ -45,6 +51,7 @@ git worktree add "$WORK_DIR" upstream --quiet
 
 # --- Fetch repos and copy plugins into worktree ---
 declare -A CLONED=()
+declare -A SOURCE_COMMITS=()
 
 for entry in "${PLUGINS[@]}"; do
   read -r plugin repo subpath <<< "$entry"
@@ -56,6 +63,9 @@ for entry in "${PLUGINS[@]}"; do
     git clone --depth 1 --quiet "https://github.com/$repo.git" "$repo_dir"
     CLONED[$repo]=1
   fi
+
+  # Record this source's HEAD commit
+  SOURCE_COMMITS[$plugin]=$(git -C "$repo_dir" rev-parse HEAD)
 
   # Determine source directory
   if [ "$subpath" = "." ]; then
@@ -78,6 +88,22 @@ for entry in "${PLUGINS[@]}"; do
   find "$WORK_DIR/$plugin" -name ".git" -type d -exec rm -rf {} + 2>/dev/null || true
 done
 
+# --- Write per-source commit hashes ---
+{
+  echo "{"
+  first=true
+  for plugin in $(echo "${!SOURCE_COMMITS[@]}" | tr ' ' '\n' | sort); do
+    if [ "$first" = true ]; then
+      first=false
+    else
+      echo ","
+    fi
+    printf '  "%s": "%s"' "$plugin" "${SOURCE_COMMITS[$plugin]}"
+  done
+  echo ""
+  echo "}"
+} > "$WORK_DIR/_source_commits.json"
+
 # --- Check for changes ---
 cd "$WORK_DIR"
 git add -A
@@ -94,4 +120,11 @@ echo ""
 
 git commit -m "Sync upstream plugins $(date +%Y-%m-%d)" --quiet
 echo "Changes committed to 'upstream' branch."
+
+# --- Push upstream branch ---
+cd "$REPO_ROOT"
+if git remote get-url origin &>/dev/null; then
+  git push origin upstream --quiet 2>/dev/null && echo "Pushed upstream branch to remote." || echo "Warning: could not push upstream branch (no write access?)."
+fi
+
 echo "Run scripts/analyze-upstream.sh to evaluate changes for praxis."

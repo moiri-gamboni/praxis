@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Analyzes upstream changes, applies worthwhile ones, and opens a PR.
 #
-# Uses a git tag (upstream-analyzed) to track what's already been analyzed.
-# First run establishes the baseline. Subsequent runs diff from the last
-# analysis point.
+# Tracks analysis state via committed hashes in upstream.json (survives
+# fresh clones). Per-source commit hashes identify which upstream repos
+# changed; the upstream branch commit hash enables diffing.
 #
 # Usage: scripts/analyze-upstream.sh [--auto]
 #   --auto: non-interactive (for cron). Skips if no changes found.
@@ -11,13 +11,14 @@
 # Prerequisites:
 #   - claude CLI must be available
 #   - gh CLI must be authenticated (for PR creation)
+#   - jq must be installed
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 AUTO_MODE=false
-TAG="upstream-analyzed"
 DATE=$(date +%Y-%m-%d)
 BRANCH="upstream-sync/$DATE"
+UPSTREAM_JSON="$REPO_ROOT/upstream.json"
 
 for arg in "$@"; do
   case "$arg" in
@@ -32,29 +33,71 @@ cd "$REPO_ROOT"
 
 UPSTREAM_HEAD=$(git rev-parse upstream)
 
-# --- Handle first run: establish baseline ---
-if ! git rev-parse --verify "$TAG" &>/dev/null; then
-  echo "First run: establishing baseline at current upstream state."
-  echo "No changes to analyze yet."
-  git tag "$TAG" "$UPSTREAM_HEAD"
-  echo "Tagged $UPSTREAM_HEAD as $TAG."
-  echo "Run sync-upstream.sh again after upstream plugins update, then re-run this script."
-  exit 0
-fi
+# --- Read stored state from upstream.json ---
+LAST_COMMIT=$(jq -r '.last_analyzed_upstream_commit // empty' "$UPSTREAM_JSON")
 
-# --- Check if there are new changes since last analysis ---
-LAST_ANALYZED=$(git rev-parse "$TAG")
+# --- Read per-source hashes from upstream branch and compare ---
+NEW_SOURCE_COMMITS=$(git show upstream:_source_commits.json 2>/dev/null || echo "{}")
 
-if [ "$UPSTREAM_HEAD" = "$LAST_ANALYZED" ]; then
-  echo "No new upstream changes since last analysis."
+echo ""
+echo "=== Source commit comparison ==="
+changed_sources=()
+for plugin in $(jq -r '.sources | keys[]' "$UPSTREAM_JSON"); do
+  old_hash=$(jq -r --arg p "$plugin" '.sources[$p].last_analyzed // empty' "$UPSTREAM_JSON")
+  new_hash=$(jq -r --arg p "$plugin" '.[$p] // empty' <<< "$NEW_SOURCE_COMMITS")
+
+  if [ -z "$old_hash" ]; then
+    echo "  $plugin: first analysis (${new_hash:0:8})"
+    changed_sources+=("$plugin")
+  elif [ "$old_hash" != "$new_hash" ]; then
+    echo "  $plugin: changed (${old_hash:0:8} -> ${new_hash:0:8})"
+    changed_sources+=("$plugin")
+  else
+    echo "  $plugin: unchanged (${old_hash:0:8})"
+  fi
+done
+echo ""
+
+# --- Determine if there's anything to analyze ---
+if [ ${#changed_sources[@]} -eq 0 ]; then
+  echo "No upstream sources have changed since last analysis."
   exit 0
 fi
 
 # --- Get the diff ---
-DIFF_STAT=$(git diff --stat "$TAG".."$UPSTREAM_HEAD")
-CHANGED_FILES=$(git diff --name-only "$TAG".."$UPSTREAM_HEAD")
+if [ -z "$LAST_COMMIT" ]; then
+  echo "First analysis: comparing all upstream content against praxis."
+  EMPTY_TREE=$(git hash-object -t tree /dev/null)
+  DIFF_STAT=$(git diff --stat "$EMPTY_TREE" "$UPSTREAM_HEAD")
+  CHANGED_FILES=$(git diff --name-only "$EMPTY_TREE" "$UPSTREAM_HEAD")
+  DIFF_RANGE="(initial)"
+elif ! git cat-file -e "$LAST_COMMIT" 2>/dev/null; then
+  echo "Warning: stored commit $LAST_COMMIT not found in history."
+  echo "Treating as first analysis."
+  EMPTY_TREE=$(git hash-object -t tree /dev/null)
+  DIFF_STAT=$(git diff --stat "$EMPTY_TREE" "$UPSTREAM_HEAD")
+  CHANGED_FILES=$(git diff --name-only "$EMPTY_TREE" "$UPSTREAM_HEAD")
+  DIFF_RANGE="(initial, previous commit lost)"
+elif [ "$UPSTREAM_HEAD" = "$LAST_COMMIT" ]; then
+  echo "Upstream branch unchanged since last analysis."
+  echo "Updating source hashes in upstream.json..."
+  for plugin in $(jq -r '.sources | keys[]' "$UPSTREAM_JSON"); do
+    new_hash=$(jq -r --arg p "$plugin" '.[$p] // empty' <<< "$NEW_SOURCE_COMMITS")
+    if [ -n "$new_hash" ]; then
+      tmp=$(jq --arg p "$plugin" --arg h "$new_hash" '.sources[$p].last_analyzed = $h' "$UPSTREAM_JSON")
+      echo "$tmp" > "$UPSTREAM_JSON"
+    fi
+  done
+  echo "Done. No content changes to analyze."
+  exit 0
+else
+  DIFF_STAT=$(git diff --stat "$LAST_COMMIT".."$UPSTREAM_HEAD")
+  CHANGED_FILES=$(git diff --name-only "$LAST_COMMIT".."$UPSTREAM_HEAD")
+  DIFF_RANGE="$LAST_COMMIT..$UPSTREAM_HEAD"
+fi
 
-echo "=== Upstream changes since last analysis ==="
+echo "=== Upstream changes to analyze ==="
+echo "Range: $DIFF_RANGE"
 echo "$DIFF_STAT"
 echo ""
 
@@ -79,7 +122,8 @@ cleanup() {
 trap cleanup EXIT
 
 # --- Build the analysis prompt ---
-PROVENANCE=$(cat "$REPO_ROOT/upstream.json")
+PROVENANCE=$(cat "$UPSTREAM_JSON")
+SOURCES_CHANGED=$(printf '%s, ' "${changed_sources[@]}" | sed 's/, $//')
 
 PROMPT="You are analyzing upstream changes to Claude Code plugins that the \"praxis\" plugin was forked from. You will evaluate each change, apply the worthwhile ones to praxis, and commit the result.
 
@@ -101,13 +145,15 @@ Adaptation levels:
 
 Also look for entirely NEW files upstream that don't map to any existing praxis file. These could be new skills, agents, or commands worth adding.
 
+Sources that changed: $SOURCES_CHANGED
+
 ## Provenance Mapping
 
 $PROVENANCE
 
 ## Upstream Changes
 
-The diff is between commits $LAST_ANALYZED and $UPSTREAM_HEAD on the upstream branch.
+Diff range: $DIFF_RANGE
 
 Read the changed files on the upstream branch and the corresponding praxis files to understand the full context.
 
@@ -173,6 +219,9 @@ else
 
 Automated analysis of upstream changes from source plugins.
 
+### Sources changed
+$SOURCES_CHANGED
+
 ### Changes since last analysis
 \`\`\`
 $DIFF_STAT
@@ -192,8 +241,26 @@ EOF
   trap - EXIT
 fi
 
-# --- Move the tag forward ---
-git tag -f "$TAG" "$UPSTREAM_HEAD"
+# --- Update upstream.json with new hashes ---
 echo ""
-echo "Updated $TAG tag to $UPSTREAM_HEAD."
+echo "Updating upstream.json with analyzed hashes..."
+cd "$REPO_ROOT"
+CURRENT=$(git branch --show-current)
+if [ "$CURRENT" != "$MAIN_BRANCH" ]; then
+  git checkout "$MAIN_BRANCH" --quiet
+fi
+
+for plugin in $(jq -r '.sources | keys[]' "$UPSTREAM_JSON"); do
+  new_hash=$(jq -r --arg p "$plugin" '.[$p] // empty' <<< "$NEW_SOURCE_COMMITS")
+  if [ -n "$new_hash" ]; then
+    tmp=$(jq --arg p "$plugin" --arg h "$new_hash" '.sources[$p].last_analyzed = $h' "$UPSTREAM_JSON")
+    echo "$tmp" > "$UPSTREAM_JSON"
+  fi
+done
+tmp=$(jq --arg c "$UPSTREAM_HEAD" '.last_analyzed_upstream_commit = $c' "$UPSTREAM_JSON")
+echo "$tmp" > "$UPSTREAM_JSON"
+
+git add "$UPSTREAM_JSON"
+git commit -m "Update upstream.json with analyzed commit hashes" --quiet
+echo "Committed updated hashes to upstream.json."
 echo "Next run will only analyze changes after this point."
