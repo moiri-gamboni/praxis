@@ -48,6 +48,32 @@ After agents complete, present to the user:
 3. **Your recommendation** with reasoning (consider: is this a small fix or large feature? What's the urgency? How complex is it?)
 4. **Concrete implementation differences** between approaches
 
+### 3.5. Red-Team Review
+
+Spawn a `red-team` agent with the recommended approach. Pass it the full architecture blueprint including component design, data flow, and build sequence.
+
+Present the red-team findings to the user alongside your recommendation. If the red-team surfaced Critical Concerns, flag them prominently and note whether they apply to all approaches or only the recommended one.
+
 ### 4. Get User Decision
 
-Ask which approach the user prefers. Don't proceed to implementation without explicit approval.
+Present the recommendation and red-team findings together. Ask which approach the user prefers and whether to address any red-team concerns before proceeding. Don't proceed to implementation without explicit approval.
+
+If the user wants to iterate on the design, revise and run the red-team agent again on the updated architecture. Repeat until the user is satisfied.
+
+Once the user makes a final decision, run the red-team agent one more time on the chosen architecture to validate. Present any new findings; confirm when the design passes review.
+
+### 5. Capture Decision Artifacts
+
+Save the architecture decision as a plan file in the project directory (e.g., `./plans/architect-[feature-slug].md`). Include:
+
+- **Chosen approach**: Which design was selected and a brief description
+- **Rationale**: Why this approach was chosen over alternatives
+- **Rejected alternatives**: Each alternative with the reason it was rejected
+- **Key tradeoffs**: What was traded away and what was gained
+- **Red-team findings**: Summary of concerns raised and how each was addressed or accepted
+- **Component design**: File paths, responsibilities, interfaces (from the chosen approach)
+- **Build sequence**: Implementation steps as an ordered checklist
+
+### 6. Next Steps
+
+Tell the user: "Architecture settled. Next: enter plan mode to write an implementation plan, or /orchestrate to implement in parallel."

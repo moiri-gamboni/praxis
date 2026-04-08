@@ -101,3 +101,10 @@ After agents complete, summarize findings:
 - **Focus on changes**: Agents analyze git diff by default
 - **Address critical first**: Fix high-priority issues before lower priority
 - **Re-run after fixes**: Verify issues are resolved
+
+## Next Step
+
+After presenting the review summary:
+- If critical issues found: "Fix the critical issues above, then re-run /review to verify."
+- If only suggestions: "Looking good. Run /simplify for a cleanup pass, then /ship when ready."
+- If clean: "No issues found. Ready to /ship."
