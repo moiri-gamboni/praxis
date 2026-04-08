@@ -46,3 +46,7 @@ Present what was simplified:
 - Rationale for each simplification
 
 If no simplifications needed, report that the code is already clean.
+
+### 4. Suggest Next Step
+
+After reporting results: "Simplification complete. Run /commit to commit these changes, or /ship to commit and open a PR."

@@ -2,7 +2,7 @@
 
 Praxis is a Claude Code plugin: a collection of Markdown files (agents, commands, skills) that extend Claude Code's behavior. There is no compiled code, no build system, no tests, and no dependencies. The content *is* the product.
 
-It was created by merging five upstream plugins (superpowers, feature-dev, pr-review-toolkit, commit-commands, frontend-design). `upstream.json` tracks the provenance and adaptation level of each file.
+It was created by merging five upstream plugins (superpowers, feature-dev, pr-review-toolkit, commit-commands, frontend-design) plus content from Claude Code's bundled skills. `upstream.json` tracks the provenance and adaptation level of each file.
 
 ## Repository Layout
 
@@ -16,9 +16,11 @@ It was created by merging five upstream plugins (superpowers, feature-dev, pr-re
 
 ## Conventions
 
-- All agents must specify `model: opus` in frontmatter.
-- Commands restrict their tools via `allowed-tools` in frontmatter; keep tool lists minimal.
-- Skills activate automatically based on their `description` field; that description is effectively the trigger condition.
+- All agents must specify `model: opus` in frontmatter. There are currently 10 agents (including red-team).
+- Commands restrict their tools via `allowed-tools` in frontmatter; keep tool lists minimal. `/ship` includes finishing workflow (formerly `/finish`). `/orchestrate` is the parallel orchestration command.
+- Skills activate automatically based on their `description` field; that description is effectively the trigger condition. Skills include design-exploration and planning alongside the original set.
+- **CSO (Claude Search Optimization):** Skill descriptions should state WHEN to use the skill (trigger conditions), not WHAT the skill does or how the workflow works. When descriptions summarize the workflow, Claude follows the description shortcut instead of reading the full skill content.
+- **Token efficiency:** Keep skill content concise. Frequently activated skills: < 200 words getting-started section. Other skills: < 500 words for core content. Supporting files can be longer.
 - The code-reviewer agent merges three upstream variants. It auto-detects plan context, applies confidence scoring (threshold >= 80), and ends with a "Ready to merge?" verdict.
 
 ## Upstream Tracking
@@ -38,7 +40,7 @@ scripts/analyze-upstream.sh --auto
 scripts/sync-upstream.sh
 ```
 
-The `upstream` branch stores verbatim copies. The `upstream-analyzed` git tag marks what has been processed.
+The `upstream` branch stores verbatim copies. Analyzed commit hashes are tracked in `upstream.json` per-source.
 
 ### Adding a New Upstream Plugin
 
