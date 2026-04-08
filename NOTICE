@@ -46,9 +46,11 @@ Files derived from superpowers:
   skills/test-driven-development/ (SKILL.md and supporting files)
   skills/verification-before-completion/SKILL.md
   skills/receiving-code-review/SKILL.md
-  commands/finish.md
   agents/code-reviewer.md (partial, merged with other sources)
   agents/spec-reviewer.md
+  skills/design-exploration/SKILL.md (significant adaptation from brainstorming)
+  skills/planning/SKILL.md (significant adaptation from writing-plans + brainstorming)
+  commands/ship.md (partial, merged with commit-commands and finishing-a-development-branch)
 
 -------------------------------------------------------------------------------
 
@@ -86,3 +88,4 @@ Files derived from these plugins:
   agents/code-simplifier.md, agents/comment-analyzer.md,
   agents/test-analyzer.md, agents/silent-failure-hunter.md,
   agents/type-analyzer.md (pr-review-toolkit)
+

@@ -1,8 +1,8 @@
 # Praxis
 
-A Claude Code plugin for software development. Skills teach Claude structured approaches to debugging, testing, and code review. Commands give you `/commit`, `/ship`, `/review`, `/explore`, and more. Agents handle specialized analysis tasks like hunting silent failures or evaluating type design.
+A Claude Code plugin for software development. Skills teach Claude structured approaches to debugging, testing, design, and code review. Commands give you `/commit`, `/ship`, `/review`, `/orchestrate`, and more. Agents handle specialized analysis tasks like hunting silent failures or evaluating type design.
 
-Praxis is built from five existing plugins ([superpowers](https://github.com/obra/superpowers), [feature-dev](https://github.com/anthropics/claude-plugins-official), [pr-review-toolkit](https://github.com/anthropics/claude-plugins-official), [commit-commands](https://github.com/anthropics/claude-plugins-official), [frontend-design](https://github.com/anthropics/claude-plugins-official)), picking the best version of each component and filling gaps between them.
+Praxis incorporates material from [superpowers](https://github.com/obra/superpowers), Anthropic's [claude-plugins-official](https://github.com/anthropics/claude-plugins-official) (feature-dev, pr-review-toolkit, commit-commands, frontend-design), and Claude Code's [built-in skills](https://github.com/anthropics/claude-code), picking the best version of each component and filling gaps between them.
 
 ## Installation
 
@@ -22,27 +22,28 @@ Skills activate automatically based on context. They guide how Claude approaches
 
 | Skill | Activates when... |
 |-------|-----------------|
+| **design-exploration** | Brainstorming features, exploring design options, or starting a new feature conversationally |
+| **planning** | Writing implementation plans or in plan mode for a multi-step feature |
 | **systematic-debugging** | Encountering a bug, test failure, or unexpected behavior |
 | **test-driven-development** | Implementing a feature or bugfix |
 | **verification-before-completion** | About to claim work is complete or passing |
 | **receiving-code-review** | Receiving code review feedback |
 | **frontend-design** | Building web components, pages, or applications |
-| **team-workflows** | Working with agent teams on multi-step tasks |
 
 ## Commands
 
 | Command | What it does |
 |---------|---------|
-| `/commit` | Create a git commit from current changes |
-| `/ship` | Commit, push, and open a PR |
-| `/finish` | Run tests, then merge/PR/keep/discard with worktree cleanup |
-| `/clean-gone` | Delete local branches whose remote counterpart is gone |
-| `/review [aspects]` | Code review across multiple dimensions (code, tests, comments, errors, types, simplify) |
 | `/explore [area]` | Deep codebase exploration via code-explorer agents |
-| `/architect <feature>` | Design a feature with competing architectural approaches |
+| `/architect <feature>` | Design a feature with competing approaches + red-team adversarial review |
+| `/orchestrate <instruction>` | Parallel work orchestration: decompose, spawn workers with TDD/review gates, team lead integration |
+| `/review [aspects]` | Code review across multiple dimensions (code, tests, comments, errors, types, simplify) |
 | `/simplify [scope]` | Simplification pass on recently modified code |
+| `/commit` | Create a git commit from current changes |
+| `/ship [test cmd]` | On main: commit, push, PR. On feature branch: test, then merge/PR/keep/discard with cleanup |
+| `/clean-gone` | Delete local branches whose remote counterpart is gone |
 
-Commands work standalone or as building blocks in agent team workflows.
+Commands chain naturally: each suggests a next step based on context.
 
 ## Agents
 
@@ -50,9 +51,10 @@ Commands work standalone or as building blocks in agent team workflows.
 |-------|---------|-------------|
 | **code-explorer** | Traces execution paths, maps architecture, documents dependencies | `/explore` |
 | **code-architect** | Designs implementation blueprints from codebase patterns | `/architect` |
+| **red-team** | Adversarially challenges architecture decisions | `/architect` |
 | **code-reviewer** | Reviews code against project guidelines and plans, with confidence scoring | `/review code` |
-| **spec-reviewer** | Verifies implementation matches a specification | Team workflows |
-| **code-simplifier** | Simplifies code while preserving functionality | `/review simplify` |
+| **spec-reviewer** | Verifies implementation matches a specification | `/orchestrate` team lead, manual |
+| **code-simplifier** | Simplifies code while preserving functionality | `/simplify` |
 | **comment-analyzer** | Checks comment accuracy and long-term maintainability | `/review comments` |
 | **test-analyzer** | Reviews test coverage quality, prioritizing behavioral coverage | `/review tests` |
 | **silent-failure-hunter** | Finds swallowed errors and inadequate error handling | `/review errors` |
@@ -62,22 +64,24 @@ All agents run on Opus.
 
 ## Design
 
-**Plan mode for planning.** Instead of dedicated brainstorming or plan-writing skills, praxis relies on Claude Code's built-in plan mode (explore, design, get approval).
+**Design-first workflow.** The `design-exploration` skill primes Claude for structured brainstorming (surface assumptions, explore alternatives, consider failure modes). The `planning` skill guides writing implementation plans with no-placeholder quality standards.
 
-**Agent teams for coordination.** Complex multi-step work uses agent teams with shared task lists. The team-workflows skill teaches patterns for composing commands into team workflows.
+**Adversarial architecture review.** `/architect` spawns competing design approaches, then a `red-team` agent challenges the chosen architecture before implementation begins.
 
-**One code-reviewer.** The three source plugins each had their own code-reviewer. Praxis merges them: it auto-detects whether a plan exists, applies confidence scoring (>= 80 threshold), and ends with a "Ready to merge?" verdict.
+**Parallel implementation.** `/orchestrate` decomposes work into independent units, spawns workers in isolated worktrees (each using TDD, review, and simplify), then a team lead merges and does cross-cutting review.
+
+**One code-reviewer.** Three source plugins each had their own code-reviewer. Praxis merges them: it auto-detects whether a plan exists, applies confidence scoring (>= 80 threshold), and ends with a "Ready to merge?" verdict.
 
 ## Example Workflows
 
-### Large feature (team)
+### Large feature (parallel team)
 
-1. Team lead enters plan mode, spawns explorers with `/explore`
-2. Architect teammate runs `/architect` with findings
-3. Team lead writes plan, gets approval, exits plan mode
-4. Implementation teammates work from the task list, TDD skill activates
-5. Reviewer teammate runs `/review code errors`
-6. Fix issues, then `/ship`
+1. Brainstorm conversationally (design-exploration skill activates)
+2. `/architect` designs approaches, red-team challenges them
+3. Enter plan mode, write implementation plan (planning skill activates)
+4. `/orchestrate` spawns workers: each does TDD, review, simplify, tests, docs
+5. Team lead merges, cross-cutting review and simplify
+6. Final PR for manual review
 
 ### Bug fix (solo)
 
@@ -98,25 +102,20 @@ All agents run on Opus.
 Praxis tracks changes to its source plugins and can automatically incorporate improvements via PR.
 
 ```bash
-# Snapshot current plugin cache into the upstream branch
-scripts/sync-upstream.sh
-
-# Analyze changes, apply improvements, and open a PR
+# Sync upstream and analyze changes
 scripts/analyze-upstream.sh
 
 # Non-interactive (for cron)
 scripts/analyze-upstream.sh --auto
+
+# Sync only (no analysis)
+scripts/sync-upstream.sh
 ```
 
-The `upstream` branch stores verbatim copies of the 4 source plugins. `upstream.json` maps each praxis file to its source(s) with adaptation level. When changes are found, Claude evaluates them conservatively (only genuine improvements, not cosmetic changes), applies them to a sync branch, and opens a PR for review.
-
-Weekly cron example:
-```
-0 9 * * 1  cd ~/Documents/Code/praxis && scripts/sync-upstream.sh && scripts/analyze-upstream.sh --auto
-```
+The `upstream` branch stores verbatim copies of the source plugins. `upstream.json` maps each praxis file to its source(s) with adaptation level and tracks per-source commit hashes for incremental analysis.
 
 ## License
 
 AGPL-3.0. See [LICENSE](LICENSE) and [NOTICE](NOTICE) for details.
 
-Incorporates MIT-licensed material from [superpowers](https://github.com/obra/superpowers) by Jesse Vincent. Components from Anthropic's [claude-plugins-official](https://github.com/anthropics/claude-plugins-official): frontend-design is Apache-2.0 licensed; other components had no license specified as of 2026-02-16.
+Incorporates MIT-licensed material from [superpowers](https://github.com/obra/superpowers) by Jesse Vincent. Components from Anthropic's [claude-plugins-official](https://github.com/anthropics/claude-plugins-official): frontend-design is Apache-2.0 licensed; other components had no license specified as of 2026-02-16. 

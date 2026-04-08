@@ -44,3 +44,7 @@ After executing these commands:
 - Provide feedback on which worktrees and branches were removed
 
 If no branches are marked as [gone], report that no cleanup was needed.
+
+## Next Step
+
+After cleanup: "Cleanup complete. <N> branches removed." (No further action needed.)
