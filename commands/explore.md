@@ -51,4 +51,4 @@ Ask if the user wants to explore any specific area deeper or proceed to architec
 
 ### 5. Suggest Next Step
 
-After presenting findings: "Next: /architect to design your approach based on these findings, or explore deeper with another /explore."
+After presenting findings: "Next: /design to design your approach based on these findings, or explore deeper with another /explore."

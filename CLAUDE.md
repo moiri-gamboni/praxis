@@ -17,8 +17,8 @@ It was created by merging five upstream plugins (superpowers, feature-dev, pr-re
 ## Conventions
 
 - All agents must specify `model: opus` in frontmatter. There are currently 10 agents (including red-team).
-- Commands restrict their tools via `allowed-tools` in frontmatter; keep tool lists minimal. `/ship` includes finishing workflow (formerly `/finish`). `/orchestrate` is the parallel orchestration command.
-- Skills activate automatically based on their `description` field; that description is effectively the trigger condition. Skills include design-exploration and planning alongside the original set.
+- Commands restrict their tools via `allowed-tools` in frontmatter; keep tool lists minimal. `/ship` includes finishing workflow (formerly `/finish`). `/implement` is the parallel orchestration command.
+- Skills activate automatically based on their `description` field; that description is effectively the trigger condition. Skills include ideate alongside the original set.
 - **CSO (Claude Search Optimization):** Skill descriptions should state WHEN to use the skill (trigger conditions), not WHAT the skill does or how the workflow works. When descriptions summarize the workflow, Claude follows the description shortcut instead of reading the full skill content.
 - **Token efficiency:** Keep skill content concise. Frequently activated skills: < 200 words getting-started section. Other skills: < 500 words for core content. Supporting files can be longer.
 - The code-reviewer agent merges three upstream variants. It auto-detects plan context, applies confidence scoring (threshold >= 80), and ends with a "Ready to merge?" verdict.

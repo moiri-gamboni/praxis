@@ -113,22 +113,8 @@
       "adaptation": "near-copy"
     },
     {
-      "praxis": "skills/design-exploration/SKILL.md",
+      "praxis": "skills/ideate/SKILL.md",
       "upstream": [
-        {
-          "plugin": "superpowers",
-          "path": "skills/brainstorming/SKILL.md"
-        }
-      ],
-      "adaptation": "significant"
-    },
-    {
-      "praxis": "skills/planning/SKILL.md",
-      "upstream": [
-        {
-          "plugin": "superpowers",
-          "path": "skills/writing-plans/SKILL.md"
-        },
         {
           "plugin": "superpowers",
           "path": "skills/brainstorming/SKILL.md"
@@ -191,14 +177,18 @@
       "adaptation": "new"
     },
     {
-      "praxis": "commands/architect.md",
+      "praxis": "commands/design.md",
       "upstream": [
         {
           "plugin": "feature-dev",
           "path": "commands/feature-dev.md"
+        },
+        {
+          "plugin": "superpowers",
+          "path": "skills/writing-plans/SKILL.md"
         }
       ],
-      "adaptation": "new"
+      "adaptation": "significant"
     },
     {
       "praxis": "commands/simplify.md",
@@ -206,7 +196,7 @@
       "adaptation": "new"
     },
     {
-      "praxis": "commands/orchestrate.md",
+      "praxis": "commands/implement.md",
       "upstream": [],
       "adaptation": "new"
     },

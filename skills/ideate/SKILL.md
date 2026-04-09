@@ -1,5 +1,5 @@
 ---
-name: design-exploration
+name: ideate
 description: Use when brainstorming features, exploring design options, or starting a new feature conversationally, before implementation begins
 ---
 
@@ -35,6 +35,6 @@ Break systems into units that each have one clear purpose, communicate through w
 
 ## After Approval
 
-Once the user approves the design, transition to planning. For multi-step features, write an implementation plan (the planning skill covers format and structure). For small changes, implement directly.
+Once the user approves the design, transition to `/design` for architecture, test design, and implementation planning.
 
-Suggest `/architect` if the design needs deeper technical exploration with multiple architectural perspectives.
+Suggest `/design` if the design needs deeper technical exploration with multiple architectural perspectives.
