@@ -1,6 +1,6 @@
 # Praxis
 
-A Claude Code plugin for software development. Skills teach Claude structured approaches to debugging, testing, design, and code review. Commands give you `/commit`, `/ship`, `/review`, `/orchestrate`, and more. Agents handle specialized analysis tasks like hunting silent failures or evaluating type design.
+A Claude Code plugin for software development. Skills teach Claude structured approaches to debugging, testing, design, and code review. Commands give you `/commit`, `/ship`, `/review`, `/implement`, and more. Agents handle specialized analysis tasks like hunting silent failures or evaluating type design.
 
 Praxis incorporates material from [superpowers](https://github.com/obra/superpowers), Anthropic's [claude-plugins-official](https://github.com/anthropics/claude-plugins-official) (feature-dev, pr-review-toolkit, commit-commands, frontend-design), and Claude Code's [built-in skills](https://github.com/anthropics/claude-code), picking the best version of each component and filling gaps between them.
 
@@ -22,8 +22,7 @@ Skills activate automatically based on context. They guide how Claude approaches
 
 | Skill | Activates when... |
 |-------|-----------------|
-| **design-exploration** | Brainstorming features, exploring design options, or starting a new feature conversationally |
-| **planning** | Writing implementation plans or in plan mode for a multi-step feature |
+| **ideate** | Brainstorming features, exploring design options, or starting a new feature conversationally |
 | **systematic-debugging** | Encountering a bug, test failure, or unexpected behavior |
 | **test-driven-development** | Implementing a feature or bugfix |
 | **verification-before-completion** | About to claim work is complete or passing |
@@ -35,8 +34,8 @@ Skills activate automatically based on context. They guide how Claude approaches
 | Command | What it does |
 |---------|---------|
 | `/explore [area]` | Deep codebase exploration via code-explorer agents |
-| `/architect <feature>` | Design a feature with competing approaches + red-team adversarial review |
-| `/orchestrate <instruction>` | Parallel work orchestration: decompose, spawn workers with TDD/review gates, team lead integration |
+| `/design <feature>` | Design a feature with competing approaches + red-team adversarial review |
+| `/implement <instruction>` | Parallel work orchestration: decompose, spawn workers with TDD/review gates, team lead integration |
 | `/review [aspects]` | Code review across multiple dimensions (code, tests, comments, errors, types, simplify) |
 | `/simplify [scope]` | Simplification pass on recently modified code |
 | `/commit` | Create a git commit from current changes |
@@ -50,10 +49,10 @@ Commands chain naturally: each suggests a next step based on context.
 | Agent | What it does | Invoked by |
 |-------|---------|-------------|
 | **code-explorer** | Traces execution paths, maps architecture, documents dependencies | `/explore` |
-| **code-architect** | Designs implementation blueprints from codebase patterns | `/architect` |
-| **red-team** | Adversarially challenges architecture decisions | `/architect` |
+| **code-architect** | Designs implementation blueprints from codebase patterns | `/design` |
+| **red-team** | Adversarially challenges architecture decisions | `/design` |
 | **code-reviewer** | Reviews code against project guidelines and plans, with confidence scoring | `/review code` |
-| **spec-reviewer** | Verifies implementation matches a specification | `/orchestrate` team lead, manual |
+| **spec-reviewer** | Verifies implementation matches a specification | `/implement` team lead, manual |
 | **code-simplifier** | Simplifies code while preserving functionality | `/simplify` |
 | **comment-analyzer** | Checks comment accuracy and long-term maintainability | `/review comments` |
 | **test-analyzer** | Reviews test coverage quality, prioritizing behavioral coverage | `/review tests` |
@@ -64,11 +63,11 @@ All agents run on Opus.
 
 ## Design
 
-**Design-first workflow.** The `design-exploration` skill primes Claude for structured brainstorming (surface assumptions, explore alternatives, consider failure modes). The `planning` skill guides writing implementation plans with no-placeholder quality standards.
+**Design-first workflow.** The `ideate` skill primes Claude for structured brainstorming (surface assumptions, explore alternatives, consider failure modes). `/design` handles architecture, test design, and implementation planning with no-placeholder quality standards.
 
-**Adversarial architecture review.** `/architect` spawns competing design approaches, then a `red-team` agent challenges the chosen architecture before implementation begins.
+**Adversarial architecture review.** `/design` spawns competing design approaches, then a `red-team` agent challenges the chosen architecture before implementation begins.
 
-**Parallel implementation.** `/orchestrate` decomposes work into independent units, spawns workers in isolated worktrees (each using TDD, review, and simplify), then a team lead merges and does cross-cutting review.
+**Parallel implementation.** `/implement` decomposes work into independent units, spawns workers in isolated worktrees (each using TDD, review, and simplify), then a team lead merges and does cross-cutting review.
 
 **One code-reviewer.** Three source plugins each had their own code-reviewer. Praxis merges them: it auto-detects whether a plan exists, applies confidence scoring (>= 80 threshold), and ends with a "Ready to merge?" verdict.
 
@@ -76,10 +75,10 @@ All agents run on Opus.
 
 ### Large feature (parallel team)
 
-1. Brainstorm conversationally (design-exploration skill activates)
-2. `/architect` designs approaches, red-team challenges them
-3. Enter plan mode, write implementation plan (planning skill activates)
-4. `/orchestrate` spawns workers: each does TDD, review, simplify, tests, docs
+1. Brainstorm conversationally (ideate skill activates)
+2. `/design` designs approaches, red-team challenges them
+3. Enter plan mode, write implementation plan (`/design` guides plan format)
+4. `/implement` spawns workers: each does TDD, review, simplify, tests, docs
 5. Team lead merges, cross-cutting review and simplify
 6. Final PR for manual review
 

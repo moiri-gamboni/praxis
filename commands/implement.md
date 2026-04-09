@@ -4,7 +4,7 @@ argument-hint: "<task description or path to plan file>"
 allowed-tools: Agent, Bash, Read, Glob, Grep, Skill, EnterPlanMode, ExitPlanMode, AskUserQuestion, Task, TeamCreate, SendMessage
 ---
 
-# Parallel Batch Orchestration
+# Parallel Implementation
 
 You are the team lead. Decompose work into independent units, dispatch workers in isolated worktrees, merge their results incrementally, then do a cross-cutting quality pass before producing one clean PR.
 
@@ -15,7 +15,7 @@ You are the team lead. Decompose work into independent units, dispatch workers i
 - Units have deep sequential dependencies (one must finish before the next can start)
 - Total work is under ~30 minutes of serial effort
 - Codebase lacks tests (workers cannot verify their own output)
-- Scope is unclear (use `/explore` or `/architect` first)
+- Scope is unclear (use `/explore` or `/design` first)
 
 ## Phase 1: Decomposition (Plan Mode)
 
@@ -54,15 +54,17 @@ Worker instructions (include verbatim):
 ```
 Your workflow:
 1. Create your branch from the current HEAD
-2. Write failing tests first for the behavior you are adding
-3. Implement until tests pass
-4. Invoke the Skill tool with skill: "review" to review your changes. Fix anything flagged
-5. Invoke the Skill tool with skill: "simplify" to clean up your changes
-6. Run the full test suite (not just your tests): <TEST_COMMAND>
-7. If your changes affect documented behavior, update README.md and CLAUDE.md
-8. Invoke the Skill tool with skill: "commit" to commit your work
-9. Push your branch: git push -u origin <BRANCH_NAME>
-10. Message the team lead when done, or if you need help, have questions, or get stuck on something
+2. Invoke the Skill tool with skill: "test-driven-development" to load TDD guidance
+3. Implement your changes following TDD: write failing test, make it pass, refactor
+4. If you get stuck, invoke Skill tool with skill: "systematic-debugging" for debugging guidance
+5. Invoke Skill tool with skill: "verification-before-completion" before claiming your work is done
+6. Invoke Skill tool with skill: "review" to review your changes. Fix anything flagged
+7. Invoke Skill tool with skill: "simplify" to clean up your changes
+8. Run the full test suite (not just your tests): <TEST_COMMAND>
+9. If your changes affect documented behavior, update README.md and CLAUDE.md
+10. Invoke Skill tool with skill: "commit" to commit your work
+11. Push your branch: git push -u origin <BRANCH_NAME>
+12. Message the team lead when done, or if you need help, have questions, or get stuck on something
 ```
 
 ## Phase 3: Monitor, Merge, Respond
