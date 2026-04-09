@@ -121,6 +121,10 @@ BAD: Trust agent report
 - Implications of success
 - ANY communication suggesting completion/correctness
 
+## Web UI Verification
+
+For changes involving web UI, use `rodney` to verify the result: take screenshots to check visual output, interact with elements, assert behavior, check accessibility. Run `rodney --help` for full capabilities.
+
 ## The Bottom Line
 
 **No shortcuts for verification.**
