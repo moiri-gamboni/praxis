@@ -119,15 +119,38 @@ Produce one merged plan, NOT a recommendation followed by user picks. Approach:
 
 Output of Phase 1.4: a merged plan in prose with the matrix, Sensitivity/Tradeoff classifications, Net statements, and structured Alternatives Considered. This becomes input to Phases 1.5 and 3.
 
-### 1.5 Red-Team Review
+### 1.5 Red-Team Fleet
 
-Spawn a `red-team` agent with the merged plan. Present red-team findings alongside the merged plan. Flag Critical Concerns prominently.
+Spawn `red-team` agents in parallel, each focused on one **attack angle**. Same agent type, different invocation prompts. Standard angles (always run):
 
-(This phase will expand to a multi-angle red-team fleet — see notes on the fleet structure in the agent's prompt.)
+1. **Architectural soundness** — abstraction violations, hidden coupling, design pattern fit
+2. **Failure modes** — error paths, what's silently swallowed, partial failure states
+3. **Operational concerns** — deployment, rollback, observability, behavior at scale
+4. **Hidden complexity** — what looks simple but isn't, deferred decisions, magic assumptions
+5. **Scope & assumptions** — does this actually solve the stated problem, what's the design assuming, what's been left out
+
+Conditional angles:
+
+6. **Security & abuse** — only when the feature involves user input handling, auth, data exposure, privilege boundaries, or external integrations
+7. **Documentation currency** — only when the design names third-party libraries, frameworks, or APIs. The agent uses WebSearch / WebFetch / Exa to verify each named dependency exists, the proposed usage matches current docs, no deprecated APIs are suggested. Flags version mismatches and proposes current alternatives
+
+Each red-team agent returns findings with **per-finding confidence scores** (0-100 + one-line justification). Format: see the red-team agent's output spec.
+
+**Aggregate findings** across angles: deduplicate when the same issue surfaces from multiple angles (treat as evidence-strengthening, not noise — combine evidence into one finding). Severity-rank: Critical / Important / Suggestions.
+
+**Optional verification pass**: for each Critical finding, dispatch a second red-team agent to independently reproduce. If the second agent can reproduce the issue, mark the finding **confirmed**. If not, mark **disputed** (don't drop — present both sides; user decides).
 
 ### 1.6 Get User Decision + Final Validation
 
-Present the merged plan, matrix, and red-team findings together. Iterate based on user input — revise plan, re-run red-team. Once decided, run red-team one final time on the final shape to validate.
+Present the merged plan, synthesis matrix, and aggregated red-team findings together. For each finding, expect a resolution:
+
+- **Fixed**: addressed in the plan; describe the change and its cost in LoC / complexity
+- **Rejected**: not a real problem; state why with evidence
+- **Deferred**: real concern but out of scope; track separately
+
+Iterate based on user input — revise plan, re-run affected red-team angles. The Resolution Log (see Decision Record section in the plan template) captures every finding's resolution.
+
+Once decided, run the red-team fleet one final time on the final plan to validate. New findings restart the iteration; clean run = ready for Phase 2.
 
 ## Phase 2: Test Design
 
@@ -163,10 +186,35 @@ Write the plan assuming the implementer has zero codebase context. Include:
 ### Decision Record
 
 Include at the top of the plan:
-- Chosen approach and rationale
-- Rejected alternatives with reasons
-- Key tradeoffs
-- Red-team findings and how each was addressed
+
+**Chosen approach** with rationale.
+
+**Alternatives Considered** (structured, from Phase 1.4 synthesis):
+```
+- **<Approach name>** — <2-3 sentence description>
+  - Why rejected: <specific reason; "didn't fit" is not a reason>
+  - Bits salvaged into chosen plan: <if any, reference the Net statement>
+```
+
+**Tradeoff Points** (from Phase 1.4 synthesis matrix). For each cross-approach borrowing or non-trivial design choice:
+```
+### <element> (Sensitivity Point | Tradeoff Point)
+- **Costs**: <concrete: LoC, indirection, mixed patterns, perf>
+- **Benefits**: <concrete: testability, extensibility, fit>
+- **Net**: <why benefit > cost; specific reason>
+```
+
+**Red-Team Resolution Log** (one entry per finding from Phase 1.5):
+```
+- **Finding** (angle: <attack angle>): <description>
+  - Severity: Critical | Important | Suggestion
+  - Confidence: <0-100>
+  - Resolution: Fixed | Rejected | Deferred
+  - Detail: <what was done / why rejected / where deferred to>
+  - Cost (if Fixed): <LoC / complexity / perf delta>
+```
+
+Silent acceptance is not an option — every finding has a logged resolution with reasoning.
 
 ### Task Structure
 
