@@ -24,6 +24,8 @@ Enter plan mode. Research thoroughly before planning.
 
 1. **Understand the task.** Read the argument. If it references an architecture doc or plan, read that too. Use Glob, Grep, and subagents to survey the relevant codebase areas. Identify patterns, conventions, test infrastructure.
 
+   **Establish workspace root**: if invoked with a plan file at `plans/<slug>.md`, the workspace is `plans/<slug>/.workspace/`. Otherwise, derive a kebab-case slug from the task description and use `plans/<slug>/.workspace/`. Worker logs will live at `<workspace>/workers/<unit>.md`.
+
 2. **Identify work units.** Break the task into units that can be implemented and tested independently. Each unit must have:
    - A clear deliverable (files created/modified, behavior added)
    - Its own test surface (tests it can run in isolation)
@@ -50,7 +52,7 @@ Each worker prompt must be **fully self-contained** (workers cannot see your con
 - The integration contract (interfaces, naming, types other units expect)
 - If this unit depends on another unit's interface, include the interface definition directly
 
-Worker instructions (include verbatim):
+Worker instructions (include verbatim, with `<WORKSPACE>` resolved to the actual workspace path):
 
 ```
 Your workflow:
@@ -65,7 +67,13 @@ Your workflow:
 9. If your changes affect documented behavior, update README.md and CLAUDE.md
 10. Stage and commit your work in a single message with a clear, semantic message describing what changed and why
 11. Push your branch: git push -u origin <BRANCH_NAME>
-12. Message the team lead when done, or if you need help, have questions, or get stuck on something
+12. Write a work log to <WORKSPACE>/workers/<UNIT_NAME>.md with:
+    - Summary of what was implemented (1-2 paragraphs)
+    - Deviations from the spec (if any) and why
+    - Test results (which tests, pass/fail counts)
+    - Files changed (paths)
+    - Anything the team lead should know during integration (gotchas, dependencies on other units, follow-up needed)
+13. Message the team lead with a SHORT status: "Done. Log: <WORKSPACE>/workers/<UNIT_NAME>.md. Branch: <BRANCH_NAME>. Tests: passed." OR a request for help if stuck. The team lead will read the log if they need details.
 ```
 
 ## Phase 3: Monitor, Merge, Respond
