@@ -59,11 +59,11 @@ Your workflow:
 3. Implement your changes following TDD: write failing test, make it pass, refactor
 4. If you get stuck, invoke Skill tool with skill: "systematic-debugging" for debugging guidance
 5. Invoke Skill tool with skill: "verification-before-completion" before claiming your work is done
-6. Invoke Skill tool with skill: "review" to review your changes. Fix anything flagged
+6. Invoke Skill tool with skill: "review" to review your changes. Fix anything flagged. If feedback seems unclear or technically questionable, invoke Skill tool with skill: "receiving-code-review" to handle it correctly
 7. Invoke Skill tool with skill: "simplify" to clean up your changes
 8. Run the full test suite (not just your tests): <TEST_COMMAND>
 9. If your changes affect documented behavior, update README.md and CLAUDE.md
-10. Invoke Skill tool with skill: "commit" to commit your work
+10. Stage and commit your work in a single message with a clear, semantic message describing what changed and why
 11. Push your branch: git push -u origin <BRANCH_NAME>
 12. Message the team lead when done, or if you need help, have questions, or get stuck on something
 ```
@@ -92,8 +92,10 @@ After all branches are merged into the integration branch:
 1. `/review all` — catch inconsistencies between units: naming, patterns, interface mismatches, duplicated code
 2. `/simplify` — remove duplication introduced across units
 3. Run integration tests from the plan
-4. Resolve conflicting documentation edits from different workers
-5. Fix any issues found, run tests again
+4. **Verify plan completion** (only if a plan file was provided): spawn `spec-reviewer` via Task with the plan file as the spec. The spec-reviewer reads the plan and the integration branch independently, returns gaps/extras/misunderstandings. Address any gaps found
+5. **Invoke `Skill` tool with `skill: "verification-before-completion"`** to confirm all completion claims are evidence-backed before proceeding to PR
+6. Resolve conflicting documentation edits from different workers
+7. Fix any issues found, run tests again
 
 ## Phase 5: Final PR
 
