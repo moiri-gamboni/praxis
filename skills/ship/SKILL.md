@@ -40,8 +40,9 @@ You MUST do all of the above in a single message. Do not use any other tools or 
 Detect via `gh pr list --head <branch> --state open --json number --jq '.[0].number'`. If empty, no PR.
 
 1. Verify tests pass (use detected test command or argument override). If tests fail, stop and surface failures — do not proceed.
-2. Push the branch to origin
-3. Create a pull request using `gh pr create`
+2. **Invoke `Skill: "simplify"`** for a final polish pass before the world sees the diff. Skip this if the changes were just produced by `/implement` Phase 4 (which already simplifies)
+3. Push the branch to origin
+4. Create a pull request using `gh pr create`
 
 **Next step hint:** "PR opened."
 
