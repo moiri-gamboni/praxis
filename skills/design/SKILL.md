@@ -2,7 +2,7 @@
 name: design
 description: "Architecture design with competing approaches, adversarial review, test design, and implementation planning"
 argument-hint: "<feature description>"
-allowed-tools: Read, Glob, Grep, Task, Skill, EnterPlanMode, ExitPlanMode
+allowed-tools: Read, Write, Edit, Glob, Grep, Task, Skill, AskUserQuestion
 ---
 
 # Design
@@ -63,7 +63,9 @@ Present the test strategy to the user. These tests become the acceptance criteri
 
 ## Phase 3: Implementation Plan
 
-Enter plan mode with `EnterPlanMode`.
+Write the plan to `plans/<slug>.md`. The slug is the feature's short kebab-case name; propose one if not obvious from the feature description, or ask the user.
+
+**File discipline**: the only file `/design` writes during this skill is `plans/<slug>.md`. Any other file changes belong to `/implement`. Use Write to create the plan or Edit to revise it; never touch other source files.
 
 Write the plan assuming the implementer has zero codebase context. Include:
 
@@ -87,10 +89,14 @@ Include at the top of the plan:
 
 ### Task Structure
 
-Each task targets one component. List files, then break into TDD steps:
+Each task targets one component. List files, then break into TDD steps. Each task header references the relevant skills explicitly so a downstream implementer activates them:
 
 ````markdown
 ### Task N: [Component Name]
+
+**Skills to activate for this task:**
+- `test-driven-development` (write failing test first; verify red; implement; verify green)
+- `verification-before-completion` (before marking commit step complete, confirm tests pass with evidence, not assertion)
 
 **Files:**
 - Create: `exact/path/to/file.py`
@@ -101,11 +107,13 @@ Each task targets one component. List files, then break into TDD steps:
 - [behavior]: [expected outcome]
 
 - [ ] Write failing test for [behavior]
-- [ ] Run test, verify it fails
+- [ ] Run test, verify it fails (red)
 - [ ] Implement minimal code to pass
-- [ ] Run test, verify it passes
-- [ ] Commit
+- [ ] Run test, verify it passes (green)
+- [ ] Commit with semantic message
 ````
+
+If the feature is a frontend component or page, the `frontend-design` skill activates automatically during implementation — no need to invoke it explicitly, but mention in the plan header so the implementer knows the aesthetic direction will be loaded.
 
 ### Quality Rules
 
@@ -126,6 +134,6 @@ Fix issues inline.
 
 ### Present for Approval
 
-Exit plan mode with `ExitPlanMode`. Present the plan and suggest:
+Present the plan to the user with the path (`plans/<slug>.md`) and a brief summary. Suggest:
 - `/implement` for parallel implementation (independent tasks)
 - Direct implementation for small plans (under ~5 tasks)
