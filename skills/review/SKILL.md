@@ -13,9 +13,10 @@ Multi-wave review by logical code-path units (not files): per-unit deep review �
 
 ## Step 1: Determine Scope
 
-- Git range provided → `git diff <range> --name-only`
-- PR exists → use `base..head` from `gh pr view`
-- Else → `git diff --name-only HEAD` (unstaged + staged)
+Precedence (first match wins):
+1. Git range argument provided → `git diff <range> --name-only`
+2. Working tree has changes → `git diff --name-only HEAD` (unstaged + staged)
+3. PR exists (`gh pr view`) → use `base..head` as range
 
 Read the full diff for context.
 
@@ -122,6 +123,10 @@ Verification only on Critical (cost not justified at lower severity).
 ```
 
 After presenting, invoke `Skill: "verification-before-completion"` before the user acts on findings.
+
+## Tips
+
+- **Cross-unit deduplication**: if multiple Wave 1 reviewers (in different units) flag the same boundary issue, combine the evidence into one Wave 2 cross-unit finding rather than reporting 3x.
 
 ## Next Step
 

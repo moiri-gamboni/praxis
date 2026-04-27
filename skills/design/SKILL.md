@@ -63,7 +63,15 @@ Spawn 2-3 `code-architect` agents in parallel, each with a different philosophy:
 
 Each receives the shared context + ideation file (if any) + their philosophy. Architects do narrower exploration scoped to their approach (their job: "what my approach needs to touch," not "the lay of the land").
 
-Each writes design to `plans/<slug>/.workspace/architects/<approach>.md` and returns: 1-paragraph overview + path + top 3 trade-offs vs others + Critical Files (count + 3-5 highest-priority).
+Each writes design to `plans/<slug>/.workspace/architects/<approach>.md` containing:
+- Patterns & conventions found (with `file:line`)
+- Architecture decision with rationale
+- Component design (file paths, responsibilities, interfaces)
+- Data flow from entry to output
+- Build sequence as an ordered checklist
+- Critical Files for Implementation (priority order, **no count cap** — list every file that drives the design)
+
+Returns to coordinator: 1-paragraph overview + path + top 3 trade-offs vs others + Critical Files headline (count + 3-5 highest-priority; full list lives in the file).
 
 ### 1.4 Synthesis (Merged Plan)
 
@@ -147,6 +155,8 @@ Present the strategy. These tests become the plan's acceptance criteria.
 Write to `plans/<slug>.md`. Propose a kebab-case slug if not obvious or ask the user.
 
 **File discipline**: this skill writes only `plans/<slug>.md`. No other source files.
+
+Write the plan assuming the implementer has zero codebase context.
 
 Plan structure:
 
