@@ -13,40 +13,121 @@ Explore architectural approaches, challenge them adversarially, design tests, th
 
 ## Phase 1: Architecture
 
-### 1.1 Validate Input
+### 1.1 Validate Input + Read Ideation
 
 A feature description is required. If not provided, ask the user what they want to build.
 
-### 1.2 Launch Architect Agents
+Check for an ideation file at `plans/<slug>-ideation.md` (where `<slug>` is the feature's kebab-case name). If present, read it — this is the output of `ideate` and contains the problem statement, prior art investigated, alternatives considered at concept level, the chosen concept, and key constraints. Use this as foundational context throughout Phase 1.
 
-Spawn 2-3 code-architect agents in parallel, each with a different design philosophy:
+If no ideation file exists, the user has skipped ideate and gone straight to design. State this and ask: "Looks like there's no ideation file. Run `ideate` first, or proceed assuming we're building this from scratch (no prior art search, no build-vs-buy evaluation)?" Don't silently skip the build-vs-buy question.
+
+### 1.2 Shared Exploration Wave
+
+Dispatch 4 `code-explorer` agents in parallel, each focused on one **dimension** of codebase context. These dimensions are evaluation lenses — they appear here as exploration topics, then again in Phase 1.4 synthesis as scoring axes.
+
+The four dimensions:
+
+- **Architectural fit**: existing patterns, abstractions, conventions; what would a feature in this space need to fit with; what abstraction layers exist
+- **Touchpoints**: files, modules, integration points the feature would cross; data flow boundaries; consumer/producer relationships
+- **Risks & dependencies**: what could break; what's coupled; sequencing constraints; existing fragility in the area
+- **Constraints**: performance, security, backward compat, observability requirements that apply
+
+Each agent returns:
+- Findings (the substantive analysis for its dimension)
+- 5-10 essential files that downstream architects should read
+
+Prior art is NOT one of these dimensions — that lives in `ideate`. If no ideation file exists and the user opted to proceed without prior art search, accept the limitation.
+
+### 1.2.5 Synthesize Shared Context
+
+Coordinate the four agents' outputs into a tight shared context document (1-2 pages):
+- Per-dimension highlights
+- Deduplicated essential file list (~15-20 unique paths after dedupe)
+- Anything that surfaced across multiple dimensions (likely architectural pivots)
+
+This context is what architects receive in Phase 1.3.
+
+### 1.2.7 Optional Second Exploration Wave
+
+After dialogue with the user (which happens organically as they react to findings), if the dialogue surfaces materially new context — a constraint not in scope of original exploration, a new alternative needing its own context, an integration with a system not yet examined — propose a second wave with concrete focus areas:
+
+```
+The dialogue surfaced changes that may benefit from re-exploration:
+
+- <specific deviation 1> — original exploration didn't cover <area>
+- <specific deviation 2> — original assumption invalidated
+
+Proposed second-wave focus:
+1. <Area 1>: <why>
+2. <Area 2>: <why>
+
+Run this? (y/n, or specify different focus)
+```
+
+Trigger only on materially new context, not refinements within existing scope. Cap at one re-exploration per `/design` run. Requires user approval — do not auto-fire.
+
+### 1.3 Per-Architect Exploration + Design
+
+Spawn 2-3 `code-architect` agents in parallel. Each receives the shared context document from 1.2.5 plus the ideation file (if any) plus their design philosophy:
 
 - **Minimal changes**: smallest possible change set, maximum reuse, low risk
 - **Clean architecture**: best possible design, maintainability, long-term extensibility
 - **Pragmatic balance**: balance speed with quality, sweet spot between minimal and clean
 
-Each agent should produce:
-- Patterns and conventions found (with file:line references)
+Architects do their own narrower exploration on top of shared context — looking specifically at files relevant to their proposed approach, not broadly re-exploring. Be explicit: their job is "here's what my approach needs to touch," not "here's the lay of the land" (the shared context already answered that).
+
+Each agent produces:
+- Patterns and conventions specific to their approach (with file:line references)
 - Architecture decision with rationale
 - Component design (file paths, responsibilities, interfaces)
 - Data flow from entry to output
 - Build sequence as an ordered checklist
+- Critical Files for Implementation (priority-ordered, no count cap — list every file that drives the design)
 
-### 1.3 Compare and Recommend
+### 1.4 Synthesis (Merged Plan)
 
-Present:
-1. Brief summary of each approach (2-3 sentences each)
-2. Trade-offs comparison table (files changed, complexity, maintainability, risk)
-3. Your recommendation with reasoning
-4. Concrete implementation differences between approaches
+Coordinator-level synthesis. Does NOT fire any agents — operates on the architect outputs and the shared context.
 
-### 1.4 Red-Team Review
+Produce one merged plan, NOT a recommendation followed by user picks. Approach:
 
-Spawn a `red-team` agent with the recommended approach. Present red-team findings alongside the recommendation. Flag Critical Concerns prominently.
+1. **Build the synthesis matrix**: rows are the 4 dimensions from 1.2, columns are the architect approaches. Each cell scores how well that approach handles that dimension, with specific evidence.
 
-### 1.5 Get User Decision
+2. **Identify Sensitivity Points and Tradeoff Points** (ATAM vocabulary):
+   - **Sensitivity Point**: a design decision that affects ONE dimension. Default OK to pick the best-scoring approach for it.
+   - **Tradeoff Point**: a design decision that affects MULTIPLE dimensions in opposing directions. These are where the real architectural argument lives — don't gloss over them.
 
-Present recommendation and red-team findings together. If the user wants to iterate, revise and re-run red-team. Once decided, run red-team one final time to validate.
+3. **Pick a winner OR hybridize** based on the matrix. Hybridizing is encouraged when a tradeoff point favors mixing approaches.
+
+4. **For every cross-approach borrowing, fill in a Net statement**:
+   ```
+   ### Borrowed: <element> (from approach <X> into approach <Y>)
+   
+   **Type**: Sensitivity Point | Tradeoff Point
+   **Costs**: <concrete: LoC, indirection layers, mixed patterns, perf impact>
+   **Benefits**: <concrete: testability, extensibility, fit, etc.>
+   **Net**: <why benefit > cost; specific reason this is the right call here>
+   ```
+   
+   If you can't fill the Net line for a borrowing, that borrowing isn't actually justified — drop it.
+
+5. **Write structured Alternatives Considered** to be carried into the plan's Decision Record:
+   ```
+   - **<Approach name>** — <2-3 sentence description>
+     - Why rejected: <specific reason — "didn't fit" is not a reason>
+     - Bits salvaged into chosen plan: <if any, with reference to the Net statement>
+   ```
+
+Output of Phase 1.4: a merged plan in prose with the matrix, Sensitivity/Tradeoff classifications, Net statements, and structured Alternatives Considered. This becomes input to Phases 1.5 and 3.
+
+### 1.5 Red-Team Review
+
+Spawn a `red-team` agent with the merged plan. Present red-team findings alongside the merged plan. Flag Critical Concerns prominently.
+
+(This phase will expand to a multi-angle red-team fleet — see notes on the fleet structure in the agent's prompt.)
+
+### 1.6 Get User Decision + Final Validation
+
+Present the merged plan, matrix, and red-team findings together. Iterate based on user input — revise plan, re-run red-team. Once decided, run red-team one final time on the final shape to validate.
 
 ## Phase 2: Test Design
 
