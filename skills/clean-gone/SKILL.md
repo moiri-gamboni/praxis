@@ -4,25 +4,24 @@ description: Clean up local branches deleted on remote, including associated wor
 allowed-tools: Bash(git branch:*), Bash(git worktree:*)
 ---
 
-## Your Task
+## Task
 
-Clean up stale local branches that have been deleted from the remote repository.
+Clean up local branches whose remote counterparts have been deleted.
 
-## Commands to Execute
+## Commands
 
-1. **List branches to identify any with [gone] status**
+1. **List branches** to identify any with `[gone]` status:
    ```bash
    git branch -v
    ```
+   Branches prefixed with `+` have associated worktrees that must be removed before deletion.
 
-   Note: Branches with a '+' prefix have associated worktrees and must have their worktrees removed before deletion.
-
-2. **Identify worktrees that need to be removed for [gone] branches**
+2. **List worktrees**:
    ```bash
    git worktree list
    ```
 
-3. **Remove worktrees and delete [gone] branches**
+3. **Remove worktrees + delete `[gone]` branches**:
    ```bash
    git branch -v | grep '\[gone\]' | sed 's/^[+* ]//' | awk '{print $1}' | while read branch; do
      echo "Processing branch: $branch"
@@ -36,16 +35,8 @@ Clean up stale local branches that have been deleted from the remote repository.
    done
    ```
 
-## Expected Behavior
+If no branches are `[gone]`, report no cleanup needed.
 
-After executing these commands:
-- See a list of all local branches with their status
-- Identify and remove any worktrees associated with [gone] branches
-- Delete all branches marked as [gone]
-- Provide feedback on which worktrees and branches were removed
+## Next
 
-If no branches are marked as [gone], report that no cleanup was needed.
-
-## Next Step
-
-After cleanup: "Cleanup complete. <N> branches removed." (No further action needed.)
+"Cleanup complete. <N> branches removed."

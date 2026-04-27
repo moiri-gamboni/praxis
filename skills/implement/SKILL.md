@@ -7,86 +7,86 @@ allowed-tools: Agent, Bash, Read, Glob, Grep, Skill, EnterPlanMode, ExitPlanMode
 
 # Parallel Implementation
 
-You are the team lead. Decompose work into independent units, dispatch workers in isolated worktrees, merge their results incrementally, then do a cross-cutting quality pass before producing one clean PR.
+Team lead role: decompose work, dispatch workers in worktrees, merge incrementally, cross-cutting quality pass, one clean PR.
 
 **Instruction:** "$ARGUMENTS"
 
 ## When NOT to Use
 
-- Units have deep sequential dependencies (one must finish before the next can start)
-- Total work is under ~30 minutes of serial effort
-- Codebase lacks tests (workers cannot verify their own output)
-- Scope is unclear (use `/explore` or `/design` first)
+- Deep sequential dependencies between units
+- Total work under ~30 minutes serial
+- No tests in codebase (workers can't verify)
+- Scope unclear (use `/design` first)
 
 ## Phase 1: Decomposition (Plan Mode)
 
-Enter plan mode. Research thoroughly before planning.
+Enter plan mode. Research before planning.
 
-1. **Understand the task.** Read the argument. If it references an architecture doc or plan, read that too. Use Glob, Grep, and subagents to survey the relevant codebase areas. Identify patterns, conventions, test infrastructure.
+1. **Understand the task.** Read the argument and any referenced plan/architecture doc. Use Glob/Grep/subagents to survey codebase, patterns, conventions, test infrastructure.
 
-   **Establish workspace root**: if invoked with a plan file at `plans/<slug>.md`, the workspace is `plans/<slug>/.workspace/`. Otherwise, derive a kebab-case slug from the task description and use `plans/<slug>/.workspace/`. Worker logs will live at `<workspace>/workers/<unit>.md`.
+   **Workspace root**: plan file at `plans/<slug>.md` → workspace at `plans/<slug>/.workspace/`. Otherwise derive a kebab-case slug from the task. Worker logs: `<workspace>/workers/<unit>.md`.
 
-2. **Identify work units.** Break the task into units that can be implemented and tested independently. Each unit must have:
-   - A clear deliverable (files created/modified, behavior added)
-   - Its own test surface (tests it can run in isolation)
-   - Minimal coupling to other units (shared interfaces are fine; shared mutable state is not)
+2. **Identify work units.** Each unit needs:
+   - Clear deliverable (files, behavior)
+   - Own test surface (runs in isolation)
+   - Minimal coupling (shared interfaces fine; shared mutable state not)
 
-   If two units must modify the same file, either merge them or define a strict contract (one defines the interface, the other consumes it). Document the dependency direction.
+   Two units modifying same file → merge them or define a strict contract (one owns the interface, the other consumes; document direction).
 
-3. **Write the batch plan.** For each unit: name, description, files touched, branch name (`batch/<batch-name>/<unit-name>`), test command, dependencies (if any). Also include:
-   - **Integration contract**: what must be true when all units are merged (shared interfaces, naming conventions, config shape)
-   - **Integration test commands** to run after merge
-   - **Risks**: what could go wrong, what to check if a unit fails
+3. **Write the batch plan.** Per unit: name, description, files, branch (`batch/<batch-name>/<unit-name>`), test command, dependencies. Plus:
+   - **Integration contract**: what must hold post-merge (interfaces, naming, config shape)
+   - **Integration tests** to run after merge
+   - **Risks**: what could go wrong, what to check on failure
 
-4. **Get approval.** Present the plan. Ask if units should be split, merged, or dropped. Do not proceed without explicit approval.
+4. **Get approval.** Present the plan; ask about splits/merges/drops. No proceeding without explicit approval.
 
-Exit plan mode after approval.
+Exit plan mode.
 
 ## Phase 2: Dispatch Workers
 
-Create a team with `TeamCreate`. Then launch all workers simultaneously using the `Agent` tool with `team_name`, `isolation: "worktree"`, and a unique `name` per worker.
+Create a team via `TeamCreate`. Launch all workers simultaneously with `Agent` (`team_name`, `isolation: "worktree"`, unique `name` per worker).
 
-Each worker prompt must be **fully self-contained** (workers cannot see your conversation or other workers). Include:
-- The project's language, framework, test runner, key conventions
-- This unit's goal, deliverable, files, branch name, and acceptance criteria
-- The integration contract (interfaces, naming, types other units expect)
-- If this unit depends on another unit's interface, include the interface definition directly
+Worker prompts must be **fully self-contained** (workers can't see your conversation or each other). Include:
+- Project language, framework, test runner, conventions
+- Unit's goal, deliverable, files, branch, acceptance criteria
+- Integration contract (interfaces, naming, types other units expect)
+- Inline interface definitions for any cross-unit dependencies
 
-Worker instructions (include verbatim, with `<WORKSPACE>` resolved to the actual workspace path):
+Worker instructions (include verbatim, with `<WORKSPACE>` resolved):
 
 ```
 Your workflow:
-1. Create your branch from the current HEAD
-2. Invoke the Skill tool with skill: "test-driven-development" to load TDD guidance
-3. Implement your changes following TDD: write failing test, make it pass, refactor
-4. If you get stuck, invoke Skill tool with skill: "systematic-debugging" for debugging guidance
-5. Invoke Skill tool with skill: "verification-before-completion" before claiming your work is done
-6. Invoke Skill tool with skill: "review" to review your changes. Fix anything flagged. If feedback seems unclear or technically questionable, invoke Skill tool with skill: "receiving-code-review" to handle it correctly
-7. Invoke Skill tool with skill: "simplify" to clean up your changes
-8. Run the full test suite (not just your tests): <TEST_COMMAND>
-9. If your changes affect documented behavior, update README.md and CLAUDE.md
-10. Stage and commit your work in a single message with a clear, semantic message describing what changed and why
-11. Push your branch: git push -u origin <BRANCH_NAME>
-12. Write a work log to <WORKSPACE>/workers/<UNIT_NAME>.md with:
+1. Create your branch from current HEAD
+2. Invoke Skill: "test-driven-development" for TDD guidance
+3. Implement following TDD: failing test, make it pass, refactor
+4. If stuck, invoke Skill: "systematic-debugging"
+5. Invoke Skill: "verification-before-completion" before claiming done
+6. Invoke Skill: "review" to review your changes. Fix what's flagged. If feedback seems unclear or technically questionable, invoke Skill: "receiving-code-review"
+7. Invoke Skill: "simplify" to clean up
+8. Run the full test suite: <TEST_COMMAND>
+9. If documented behavior changed, update README.md and CLAUDE.md
+10. Stage and commit in a single message with a clear, semantic message
+11. Push: git push -u origin <BRANCH_NAME>
+12. Write a work log to <WORKSPACE>/workers/<UNIT_NAME>.md:
     - Summary of what was implemented (1-2 paragraphs)
-    - Deviations from the spec (if any) and why
+    - Deviations from spec and why
     - Test results (which tests, pass/fail counts)
-    - Files changed (paths)
-    - Anything the team lead should know during integration (gotchas, dependencies on other units, follow-up needed)
-13. Message the team lead with a SHORT status: "Done. Log: <WORKSPACE>/workers/<UNIT_NAME>.md. Branch: <BRANCH_NAME>. Tests: passed." OR a request for help if stuck. The team lead will read the log if they need details.
+    - Files changed
+    - Anything the team lead needs during integration (gotchas, cross-unit deps, follow-ups)
+13. Message the team lead with SHORT status: "Done. Log: <WORKSPACE>/workers/<UNIT_NAME>.md. Branch: <BRANCH_NAME>. Tests: passed." OR a request for help. Team lead reads the log only if needed.
 ```
 
 ## Phase 3: Monitor, Merge, Respond
 
-As workers message you, respond naturally. If a worker needs help or context, provide it. If a worker is stuck, diagnose the issue and either guide them or ask the user.
+Respond naturally as workers message. Provide help/context. Diagnose if stuck; guide or escalate to user.
 
-When a worker reports they are done:
+On worker done:
 
 1. Merge their branch into the integration branch
-2. Run tests after the merge. If merge conflicts arise, resolve them per the integration contract
-3. **Clean up the worker's worktree and local branch**: `git worktree remove <worktree-path>` then `git branch -d <branch-name>`. The remote branch can stay for audit; `/clean-gone` will sweep it later when the PR merges
+2. Run tests post-merge. Resolve conflicts per the integration contract
+3. **Clean up worktree + local branch**: `git worktree remove <path>` then `git branch -d <branch>`. Remote stays for audit; `/clean-gone` sweeps after PR merge.
 
-Track progress with a status table:
+Status table:
 
 ```
 Unit            | Merged | Notes
@@ -95,31 +95,31 @@ Unit            | Merged | Notes
 <unit-name>     | no     | waiting on worker
 ```
 
-If any unit fails irrecoverably, ask the user whether to continue with partial results or abort.
+If any unit fails irrecoverably, ask user: continue with partial results or abort.
 
 ## Phase 4: Cross-Cutting Quality
 
-After all branches are merged into the integration branch:
+After all units merged:
 
-1. `/review all` — catch inconsistencies between units: naming, patterns, interface mismatches, duplicated code
-2. `/simplify` — remove duplication introduced across units
+1. `/review all` — catch cross-unit inconsistencies (naming, patterns, interface mismatches, duplication)
+2. `/simplify` — remove cross-unit duplication
 3. Run integration tests from the plan
-4. **Verify plan completion** (only if a plan file was provided): spawn `spec-reviewer` via Task with the plan file as the spec. The spec-reviewer reads the plan and the integration branch independently, returns gaps/extras/misunderstandings. Address any gaps found
-5. **Invoke `Skill` tool with `skill: "verification-before-completion"`** to confirm all completion claims are evidence-backed before proceeding to PR
-6. Resolve conflicting documentation edits from different workers
-7. Fix any issues found, run tests again
+4. **Plan-completion check** (if plan file present): spawn `spec-reviewer` via Task with plan as spec. Address gaps.
+5. **Invoke `Skill: "verification-before-completion"`** before PR.
+6. Resolve conflicting doc edits from workers
+7. Fix issues, re-run tests
 
 ## Phase 5: Final PR
 
-Create a PR from the integration branch. Include:
+Create PR from integration branch:
 - Summary of what was built
-- List of units and what each did
+- List of units, what each did
 - Test results
-- Any concerns or TODOs from workers
-- Link to the plan/design artifacts if they exist
+- Concerns/TODOs from workers
+- Links to plan/design artifacts
 
-Present the PR URL to the user.
+Present PR URL.
 
-**Invoke `Skill: "clean-gone"`** to sweep any pre-existing `[gone]` branches and their worktrees opportunistically. This won't catch the just-created worker branches yet (their remotes still exist) — those will be swept by `/clean-gone` after the PR merges on GitHub.
+**Invoke `Skill: "clean-gone"`** for opportunistic sweep of pre-existing `[gone]` branches. Worker remotes still exist; they'll be swept later when the PR merges.
 
-Shut down the team when complete.
+Shut down the team.
