@@ -1,4 +1,5 @@
 ---
+name: ship
 description: Commit, push, and open a PR. On feature branches, offers merge/PR/keep/discard options with test verification
 argument-hint: "[test command]"
 allowed-tools: Bash(git*), Bash(gh*), Bash(npm test:*), Bash(cargo test:*), Bash(pytest:*), Bash(go test:*), Bash(pnpm test:*), Bash(yarn test:*), Bash(bun test:*)

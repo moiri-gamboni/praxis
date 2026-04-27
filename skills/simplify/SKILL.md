@@ -1,4 +1,5 @@
 ---
+name: simplify
 description: Run a simplification pass on recently modified code
 argument-hint: "[file or scope]"
 allowed-tools: Bash(git diff:*), Bash(git status:*), Read, Glob, Grep, Task
