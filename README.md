@@ -52,7 +52,7 @@ Commands chain naturally: each suggests a next step based on context.
 | **code-architect** | Designs implementation blueprints from codebase patterns | `/design` |
 | **red-team** | Adversarially challenges architecture decisions | `/design` |
 | **code-reviewer** | Reviews code against project guidelines and plans, with confidence scoring | `/review code` |
-| **spec-reviewer** | Verifies implementation matches a specification | `/implement` team lead, manual |
+| **spec-reviewer** | Verifies implementation matches a specification | `/implement` Phase 4 (when plan file present), manual |
 | **code-simplifier** | Simplifies code while preserving functionality | `/simplify` |
 | **comment-analyzer** | Checks comment accuracy and long-term maintainability | `/review comments` |
 | **test-analyzer** | Reviews test coverage quality, prioritizing behavioral coverage | `/review tests` |
