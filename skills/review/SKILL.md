@@ -34,18 +34,18 @@ Per unit: name, files, brief description, complexity (small / medium / large).
 
 ## Step 3: Confirm Units
 
-For obvious small diffs (1-2 files, single unit), state grouping and proceed.
+For obvious small diffs (1-2 files, single unit): state and proceed.
 
 Otherwise present and ask:
 ```
-Identified <N> logical units:
+<N> logical units:
 1. **<unit-name>** (<complexity>) — <files>: <description>
 2. ...
 
-Proceed with this grouping, or adjust?
+Proceed, or adjust?
 ```
 
-Wrong grouping poisons downstream — prefer asking when ambiguous.
+Wrong grouping poisons downstream — ask when ambiguous.
 
 ## Step 4: Wave 1 — Per-Unit Deep Review
 

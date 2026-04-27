@@ -52,28 +52,27 @@ Worker prompts must be **fully self-contained** (workers can't see your conversa
 - Integration contract (interfaces, naming, types other units expect)
 - Inline interface definitions for any cross-unit dependencies
 
-Worker instructions (include verbatim, with `<WORKSPACE>` resolved):
+Worker instructions (verbatim, with `<WORKSPACE>` resolved):
 
 ```
-Your workflow:
-1. Create your branch from current HEAD
-2. Invoke Skill: "test-driven-development" for TDD guidance
-3. Implement following TDD: failing test, make it pass, refactor
-4. If stuck, invoke Skill: "systematic-debugging"
-5. Invoke Skill: "verification-before-completion" before claiming done
-6. Invoke Skill: "review" to review your changes. Fix what's flagged. If feedback seems unclear or technically questionable, invoke Skill: "receiving-code-review"
-7. Invoke Skill: "simplify" to clean up
-8. Run the full test suite: <TEST_COMMAND>
-9. If documented behavior changed, update README.md and CLAUDE.md
-10. Stage and commit in a single message with a clear, semantic message
-11. Push: git push -u origin <BRANCH_NAME>
-12. Write a work log to <WORKSPACE>/workers/<UNIT_NAME>.md:
-    - Summary of what was implemented (1-2 paragraphs)
-    - Deviations from spec and why
-    - Test results (which tests, pass/fail counts)
+1. Create branch from HEAD
+2. Skill: "test-driven-development"
+3. TDD: failing test → pass → refactor
+4. Stuck → Skill: "systematic-debugging"
+5. Skill: "verification-before-completion" before claiming done
+6. Skill: "review". Fix flagged. Unclear/questionable → Skill: "receiving-code-review"
+7. Skill: "simplify"
+8. Full test suite: <TEST_COMMAND>
+9. Documented behavior changed → update README.md, CLAUDE.md
+10. Stage + commit in one message, clear semantic subject
+11. git push -u origin <BRANCH_NAME>
+12. Log to <WORKSPACE>/workers/<UNIT_NAME>.md:
+    - Summary (1-2 paragraphs)
+    - Deviations from spec, why
+    - Test results (which, pass/fail)
     - Files changed
-    - Anything the team lead needs during integration (gotchas, cross-unit deps, follow-ups)
-13. Message the team lead with SHORT status: "Done. Log: <WORKSPACE>/workers/<UNIT_NAME>.md. Branch: <BRANCH_NAME>. Tests: passed." OR a request for help. Team lead reads the log only if needed.
+    - Integration notes for team lead (gotchas, cross-unit deps, follow-ups)
+13. Message team lead: "Done. Log: <WORKSPACE>/workers/<UNIT_NAME>.md. Branch: <BRANCH_NAME>. Tests: passed." Or request help if stuck.
 ```
 
 ## Phase 3: Monitor, Merge, Respond

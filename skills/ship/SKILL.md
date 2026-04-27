@@ -54,10 +54,8 @@ PR number from `gh pr list ...`.
 2. Brief summary first:
 
 ```
-About to push <N> commits to PR #<number>:
-<short list of commit subjects>
-
-Proceed?
+Push <N> commits to PR #<number>?
+<commit subjects>
 ```
 
 3. On confirmation: `git push origin <branch>`
@@ -70,15 +68,14 @@ Triggered by `/ship merge`. Local merge into base branch — use when not going 
 
 1. Base branch from `git symbolic-ref refs/remotes/origin/HEAD`
 2. Verify tests pass. On failure, stop.
-3. Explicit acceptance prompt:
+3. Acceptance prompt:
 
 ```
-About to merge <feature-branch> into <base-branch>:
+Merge <feature-branch> into <base-branch>?
 - Checkout <base>, pull, merge <feature>
-- Run tests on merged result
+- Test merged result
 - Delete <feature> on success
-- Clean up worktree
-- Run /clean-gone to sweep stale branches
+- Clean worktree, /clean-gone sweep
 
 Proceed?
 ```

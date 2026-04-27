@@ -36,22 +36,22 @@ Coordinate the 4 outputs into a 1-2 page document: per-dimension highlights, ded
 
 ### 1.2.7 Optional Second Wave
 
-If user dialogue surfaces materially new context (constraint outside original scope, alternative needing its own context, integration with unexamined system), propose a focused second wave:
+On materially new context (constraint outside original scope, alternative needing context, integration with unexamined system), propose a focused second wave:
 
 ```
-The dialogue surfaced changes that may benefit from re-exploration:
+Dialogue surfaced changes that may need re-exploration:
 
-- <deviation 1> — original exploration didn't cover <area>
+- <deviation 1> — original didn't cover <area>
 - <deviation 2> — original assumption invalidated
 
-Proposed second-wave focus:
+Proposed focus:
 1. <Area 1>: <why>
 2. <Area 2>: <why>
 
-Run this? (y/n, or specify different focus)
+Run? (y/n, or specify different focus)
 ```
 
-Material changes only, not refinements. Cap at one re-exploration. User approval required.
+Material changes only. Cap at one re-exploration. User approval required.
 
 ### 1.3 Per-Architect Exploration + Design
 
