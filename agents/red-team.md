@@ -1,6 +1,7 @@
 ---
 name: red-team
 description: Adversarially challenges architecture and design decisions to surface weak assumptions, missing failure modes, over/under-engineering, and hidden dependencies
+tools: Glob, Grep, LS, Read, WebSearch, WebFetch
 model: opus
 color: red
 ---
