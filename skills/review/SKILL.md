@@ -7,39 +7,36 @@ allowed-tools: Bash(git diff:*), Bash(git status:*), Bash(git log:*), Bash(gh pr
 
 # Code Review
 
-Comprehensive review across all quality dimensions, organized by logical code-path units (not by file). Multi-wave: per-unit deep review, cross-unit boundary review, then verification of findings.
+Multi-wave review by logical code-path units (not files): per-unit deep review → cross-unit boundary review → verification of Critical findings.
 
 **Optional git range:** "$ARGUMENTS"
 
-## Step 1: Determine Review Scope
+## Step 1: Determine Scope
 
-- If a git range is provided (e.g., `main..HEAD`, a SHA, branch name), use `git diff <range> --name-only` to scope
-- Otherwise, check `git diff --name-only HEAD` for unstaged + staged changes
-- If a PR exists (`gh pr view`), use the PR's `base..head` as the range
-- Read the full diff for the scope to understand what changed
+- Git range provided → `git diff <range> --name-only`
+- PR exists → use `base..head` from `gh pr view`
+- Else → `git diff --name-only HEAD` (unstaged + staged)
+
+Read the full diff for context.
 
 ## Step 2: Identify Logical Units
 
-Group the changed files by **code path**, not by directory or file type. A logical unit is a set of files that participate in one user-facing flow, one background job, one shared abstraction, or one feature surface. Examples:
+Group by **code path**, not directory or file type. A unit is a set of files participating in one user-facing flow, background job, shared abstraction, or feature surface.
 
-- "Auth flow: login + session refresh" — touches auth router, session store, middleware
-- "Background ingestion job" — touches scheduler, processor, error reporter
-- "Shared validation helper" — touches one util file used by both auth and ingestion
-- "Schema migration" — touches migration file + ORM models
-- "Documentation update" — touches README, docs
+Examples:
+- Auth flow: login + session refresh — auth router, session store, middleware
+- Background ingestion job — scheduler, processor, error reporter
+- Shared validation helper — one util used by both auth and ingestion
+- Schema migration — migration file + ORM models
+- Documentation update — README, docs
 
-Inspired by how human reviewers actually think: not "what's in this file" but "what code path is being modified."
+Per unit: name, files, brief description, complexity (small / medium / large).
 
-For each unit, note:
-- Unit name (descriptive)
-- Files in the unit
-- Brief description of what changes in this unit
-- Approximate complexity (small / medium / large)
+## Step 3: Confirm Units
 
-## Step 3: Confirm Units with User
+For obvious small diffs (1-2 files, single unit), state grouping and proceed.
 
-Present the proposed unit grouping briefly:
-
+Otherwise present and ask:
 ```
 Identified <N> logical units:
 1. **<unit-name>** (<complexity>) — <files>: <description>
@@ -48,53 +45,49 @@ Identified <N> logical units:
 Proceed with this grouping, or adjust?
 ```
 
-If the grouping is obvious for small diffs (1-2 files, single unit), state your grouping and proceed without asking. If complex or ambiguous, wait for confirmation. Wrong grouping poisons everything downstream.
+Wrong grouping poisons downstream — prefer asking when ambiguous.
 
 ## Step 4: Wave 1 — Per-Unit Deep Review
 
-For each unit, dispatch the **full reviewer fleet** in parallel via Task. The full fleet is:
+Per unit, dispatch the reviewer fleet in parallel via Task:
 
-- `code-reviewer` — general code quality, project guidelines, plan compliance (when present)
-- `spec-reviewer` — implementation matches specification (when a plan/spec is present)
-- `code-simplifier` — clarity, consistency, simplification opportunities
-- `comment-analyzer` — comment accuracy and long-term maintainability
-- `test-analyzer` — test coverage quality, behavioral focus
-- `silent-failure-hunter` — swallowed errors, inappropriate fallbacks
-- `type-analyzer` — type design quality (when types added/changed)
+- `code-reviewer` — general quality, guidelines, plan compliance
+- `spec-reviewer` — implementation matches spec (when plan/spec present)
+- `code-simplifier` — clarity, consistency
+- `comment-analyzer` — comment accuracy
+- `test-analyzer` — test coverage, behavioral focus
+- `silent-failure-hunter` — swallowed errors, fallback misuse
+- `type-analyzer` — type design (when types added/changed)
 
-**Scale to unit complexity**: small unit (1-2 files, simple change) gets a reduced fleet — code-reviewer + the 1-2 most-relevant-by-file-content agents. Large or risky unit gets the full 7. Decide per unit; don't fire 7 reviewers on a 5-line documentation update.
+**Scale to unit complexity**: small unit (1-2 files) → reduced fleet (code-reviewer + 1-2 most relevant). Large/risky → full 7. Don't fire 7 reviewers on a 5-line docs change.
 
-Each reviewer returns findings tagged with the unit. Reviewers also empowered to return "no findings, this dimension isn't relevant" rather than fabricating issues to look thorough.
+Reviewers may return "no findings, this dimension isn't relevant" — preferred over fabrication.
 
-**Workspace file output**: each reviewer writes detailed findings to `reviews/<timestamp>/<unit>/<reviewer>.md`. Returns summary + path. (Workspace lives at `reviews/` not `plans/` since reviews aren't plans.)
+Each reviewer writes detailed findings to `reviews/<timestamp>/<unit>/<reviewer>.md` and returns summary + path.
 
 ## Step 5: Wave 2 — Cross-Unit Review
 
-After Wave 1 completes, dispatch a smaller cross-unit fleet that looks at **boundaries between units**. Their job:
+After Wave 1, dispatch a smaller cross-unit fleet (`code-reviewer`, `type-analyzer`) that takes Wave 1 findings as input and looks at **boundaries between units**:
 
-- Contracts between units: do shared interfaces match? Do producers and consumers agree on types and shapes?
+- Contract matching between units (interfaces, types, shapes)
 - Naming consistency across units
-- Duplication: is similar code in two units that should be unified?
-- Shared invariants: do units that touch shared state respect each other's invariants?
+- Duplication that should be unified
+- Shared invariants respected by all units that touch shared state
 
-Wave 2 reviewers see Wave 1's findings as input; they're looking for issues that any single-unit reviewer couldn't see.
+Skip the other reviewers — their domains are within-unit.
 
-Use `code-reviewer` and `type-analyzer` for cross-unit work; skip the others (their domains are within-unit).
+## Step 6: Wave 3 — Verification
 
-## Step 6: Wave 3 — Verification Pass
+For each **Critical** finding from Waves 1-2, dispatch a fresh second-pass agent (same reviewer type) to independently reproduce. It gets only the diff and the claim, not the original reasoning.
 
-For each **Critical** finding from Waves 1 and 2, dispatch a fresh second-pass agent (same reviewer type as the original finding) to independently reproduce the issue. They get only the diff and the finding's claim, not the original reviewer's reasoning.
+- **Confirmed**: reproduced → confirmed
+- **Disputed**: not reproduced → disputed; present both sides, user decides
 
-- **Confirmed**: second agent reproduces the issue → mark confirmed
-- **Disputed**: second agent doesn't reproduce → mark disputed, present both sides; user decides whether to drop or fix
+Don't auto-drop disputed findings — false negatives hurt more than false positives.
 
-Don't auto-drop disputed findings. False negatives (dropping real issues) hurt more than false positives (a few disputed findings the user resolves).
-
-Verification only fires on Critical-severity findings. Important and Suggestion-severity findings skip verification (cost not justified at lower severity).
+Verification only on Critical (cost not justified at lower severity).
 
 ## Step 7: Aggregate and Present
-
-Consolidate findings into a structured summary. Group by severity, then by unit:
 
 ```markdown
 # Review Summary
@@ -102,49 +95,37 @@ Consolidate findings into a structured summary. Group by severity, then by unit:
 **Range**: <git-range>
 **Units reviewed**: <N>
 
-## Critical Issues (<count>, <confirmed-count> confirmed, <disputed-count> disputed)
+## Critical Issues (<count>, <confirmed> confirmed, <disputed> disputed)
 
 ### Unit: <unit-name>
-- **[reviewer]** [<status: confirmed|disputed>] [confidence: <0-100>]: <description> [file:line]
+- **[reviewer]** [<confirmed|disputed>] [confidence: <0-100>]: <description> [file:line]
   - Why it matters: <consequence>
-  - Proposed fix: <if reviewer proposed one, with cost>
+  - Proposed fix: <if any, with cost>
 
 ## Important Issues (<count>)
-
 [same structure]
 
 ## Suggestions (<count>)
-
-[same structure, advisory only]
+[same structure, advisory]
 
 ## Cross-Unit Findings
-
-[Wave 2 findings — boundary issues, contract mismatches, etc.]
+[Wave 2: boundary issues, contract mismatches]
 
 ## Strengths
-
 [What the diff gets right; preserve during fixes]
 
 ## Recommended Action
-
-1. Fix Critical (confirmed) — block merge until resolved
-2. Discuss Critical (disputed) — decide drop or fix
-3. Address Important — should fix but not blocking
-4. Consider Suggestions — advisory only
+1. Fix Critical (confirmed) — block merge
+2. Discuss Critical (disputed) — drop or fix
+3. Address Important — should fix
+4. Consider Suggestions — advisory
 ```
 
-After presenting, **invoke `Skill: "verification-before-completion"`** if the user is about to act on findings (commit a fix, push, ship). Confirm fixes are evidence-backed before claiming resolution.
-
-## Tips
-
-- **Run early**: before creating PR, not after
-- **Re-run after fixes**: verify issues are resolved (Wave 3 verification helps re-check whether fixes hold)
-- **Trust the unit grouping**: if reviewers all flag the same boundary issue from within different units, that's a Wave 2 cross-unit finding — combine evidence rather than reporting three times
+After presenting, invoke `Skill: "verification-before-completion"` before the user acts on findings.
 
 ## Next Step
 
-After presenting the summary:
-- If Critical (confirmed) found: "Fix the critical confirmed issues, then re-run /review to verify."
-- If only disputed Critical: "Decide on disputed findings (drop or fix), then re-run /review."
-- If only Important / Suggestions: "Looking good. /ship when ready."
-- If clean: "No issues. Ready to /ship."
+- Critical (confirmed) found → "Fix critical confirmed issues, re-run /review to verify."
+- Only disputed Critical → "Decide on disputed findings, then re-run /review."
+- Only Important / Suggestions → "/ship when ready."
+- Clean → "Ready to /ship."

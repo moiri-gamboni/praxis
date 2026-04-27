@@ -7,64 +7,42 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Task, Skill, AskUserQuestion
 
 # Design
 
-Explore architectural approaches, challenge them adversarially, design tests, then write an implementation plan.
-
 **Feature:** "$ARGUMENTS"
 
 ## Phase 1: Architecture
 
 ### 1.1 Validate Input + Read Ideation
 
-A feature description is required. If not provided, ask the user what they want to build.
+Require a feature description; ask if missing.
 
-Check for an ideation file at `plans/<slug>-ideation.md` (where `<slug>` is the feature's kebab-case name). If present, read it — this is the output of `ideate` and contains the problem statement, prior art investigated, alternatives considered at concept level, the chosen concept, and key constraints. Use this as foundational context throughout Phase 1.
-
-If no ideation file exists, the user has skipped ideate and gone straight to design. State this and ask: "Looks like there's no ideation file. Run `ideate` first, or proceed assuming we're building this from scratch (no prior art search, no build-vs-buy evaluation)?" Don't silently skip the build-vs-buy question.
+Check for `plans/<slug>-ideation.md`. If present, read it (output of `ideate`: problem, prior art, alternatives, concept, constraints) and use as foundational context. If absent, ask: "No ideation file. Run `ideate` first, or proceed without prior-art search?"
 
 ### 1.2 Shared Exploration Wave
 
-Dispatch 4 `code-explorer` agents in parallel, each focused on one **dimension** of codebase context. These dimensions are evaluation lenses — they appear here as exploration topics, then again in Phase 1.4 synthesis as scoring axes.
+Dispatch 4 `code-explorer` agents in parallel, one per **dimension**:
 
-The four dimensions:
+- **Architectural fit**: existing patterns, abstractions, conventions
+- **Touchpoints**: files, modules, integration points crossed; data flow boundaries
+- **Risks & dependencies**: what could break, coupling, sequencing constraints, fragility
+- **Constraints**: performance, security, backward compat, observability
 
-- **Architectural fit**: existing patterns, abstractions, conventions; what would a feature in this space need to fit with; what abstraction layers exist
-- **Touchpoints**: files, modules, integration points the feature would cross; data flow boundaries; consumer/producer relationships
-- **Risks & dependencies**: what could break; what's coupled; sequencing constraints; existing fragility in the area
-- **Constraints**: performance, security, backward compat, observability requirements that apply
+Each explorer writes findings to `plans/<slug>/.workspace/exploration/<dimension>.md` and returns: 1-paragraph overview + path + top 3 headlines + 5-10 essential files.
 
-**File-writing pattern**: each explorer writes detailed findings to `plans/<slug>/.workspace/exploration/<dimension>.md` (e.g., `plans/auth-oauth/.workspace/exploration/architectural-fit.md`). Create the workspace directory if it doesn't exist. The agent returns a short summary (~200-400 tokens) plus the file path.
-
-The coordinator's context only grows by summaries. Read the workspace files only when synthesis (1.2.5 or 1.4) requires the detail.
-
-Each agent's file output:
-- Findings (the substantive analysis for its dimension)
-- 5-10 essential files that downstream architects should read
-
-Each agent's returned summary:
-- 1-paragraph overview of findings
-- File path to the detailed output
-- Key headlines (top 3 things the architect needs to know about this dimension)
-
-Prior art is NOT one of these dimensions — that lives in `ideate`. If no ideation file exists and the user opted to proceed without prior art search, accept the limitation.
+Prior art belongs to `ideate`, not here.
 
 ### 1.2.5 Synthesize Shared Context
 
-Coordinate the four agents' outputs into a tight shared context document (1-2 pages):
-- Per-dimension highlights
-- Deduplicated essential file list (~15-20 unique paths after dedupe)
-- Anything that surfaced across multiple dimensions (likely architectural pivots)
+Coordinate the 4 outputs into a 1-2 page document: per-dimension highlights, deduped essential files (~15-20), cross-dimension findings. Architects in 1.3 consume this.
 
-This context is what architects receive in Phase 1.3.
+### 1.2.7 Optional Second Wave
 
-### 1.2.7 Optional Second Exploration Wave
-
-After dialogue with the user (which happens organically as they react to findings), if the dialogue surfaces materially new context — a constraint not in scope of original exploration, a new alternative needing its own context, an integration with a system not yet examined — propose a second wave with concrete focus areas:
+If user dialogue surfaces materially new context (constraint outside original scope, alternative needing its own context, integration with unexamined system), propose a focused second wave:
 
 ```
 The dialogue surfaced changes that may benefit from re-exploration:
 
-- <specific deviation 1> — original exploration didn't cover <area>
-- <specific deviation 2> — original assumption invalidated
+- <deviation 1> — original exploration didn't cover <area>
+- <deviation 2> — original assumption invalidated
 
 Proposed second-wave focus:
 1. <Area 1>: <why>
@@ -73,126 +51,109 @@ Proposed second-wave focus:
 Run this? (y/n, or specify different focus)
 ```
 
-Trigger only on materially new context, not refinements within existing scope. Cap at one re-exploration per `/design` run. Requires user approval — do not auto-fire.
+Material changes only, not refinements. Cap at one re-exploration. User approval required.
 
 ### 1.3 Per-Architect Exploration + Design
 
-Spawn 2-3 `code-architect` agents in parallel. Each receives the shared context document from 1.2.5 plus the ideation file (if any) plus their design philosophy:
+Spawn 2-3 `code-architect` agents in parallel, each with a different philosophy:
 
-- **Minimal changes**: smallest possible change set, maximum reuse, low risk
-- **Clean architecture**: best possible design, maintainability, long-term extensibility
-- **Pragmatic balance**: balance speed with quality, sweet spot between minimal and clean
+- **Minimal changes**: smallest change set, maximum reuse, low risk
+- **Clean architecture**: best design, maintainability, long-term extensibility
+- **Pragmatic balance**: sweet spot between minimal and clean
 
-Architects do their own narrower exploration on top of shared context — looking specifically at files relevant to their proposed approach, not broadly re-exploring. Be explicit: their job is "here's what my approach needs to touch," not "here's the lay of the land" (the shared context already answered that).
+Each receives the shared context + ideation file (if any) + their philosophy. Architects do narrower exploration scoped to their approach (their job: "what my approach needs to touch," not "the lay of the land").
 
-**File-writing pattern**: each architect writes their full design to `plans/<slug>/.workspace/architects/<approach>.md` (e.g., `plans/auth-oauth/.workspace/architects/minimal-changes.md`). The agent returns a short summary plus the file path.
-
-Each agent's file output:
-- Patterns and conventions specific to their approach (with file:line references)
-- Architecture decision with rationale
-- Component design (file paths, responsibilities, interfaces)
-- Data flow from entry to output
-- Build sequence as an ordered checklist
-- Critical Files for Implementation (priority-ordered, no count cap — list every file that drives the design)
-
-Each agent's returned summary:
-- 1-paragraph overview of the chosen approach
-- File path to the detailed design
-- Top 3 trade-offs vs the other approaches
+Each writes design to `plans/<slug>/.workspace/architects/<approach>.md` and returns: 1-paragraph overview + path + top 3 trade-offs vs others + Critical Files (count + 3-5 highest-priority).
 
 ### 1.4 Synthesis (Merged Plan)
 
-Coordinator-level synthesis. Does NOT fire any agents — operates on the architect outputs and the shared context.
+Coordinator-level. No agent dispatch — operate on architect outputs and shared context.
 
-Produce one merged plan, NOT a recommendation followed by user picks. Approach:
+1. **Synthesis matrix**: 4 dimensions × architect approaches. Score each cell with specific evidence.
 
-1. **Build the synthesis matrix**: rows are the 4 dimensions from 1.2, columns are the architect approaches. Each cell scores how well that approach handles that dimension, with specific evidence.
+2. **Classify decisions** (ATAM):
+   - **Sensitivity Point**: affects ONE dimension. Default to best-scoring approach.
+   - **Tradeoff Point**: affects MULTIPLE dimensions in opposing directions. Where the architectural argument lives.
 
-2. **Identify Sensitivity Points and Tradeoff Points** (ATAM vocabulary):
-   - **Sensitivity Point**: a design decision that affects ONE dimension. Default OK to pick the best-scoring approach for it.
-   - **Tradeoff Point**: a design decision that affects MULTIPLE dimensions in opposing directions. These are where the real architectural argument lives — don't gloss over them.
+3. **Pick winner OR hybridize** based on the matrix.
 
-3. **Pick a winner OR hybridize** based on the matrix. Hybridizing is encouraged when a tradeoff point favors mixing approaches.
-
-4. **For every cross-approach borrowing, fill in a Net statement**:
+4. **For every cross-approach borrowing, write a Net statement**:
    ```
-   ### Borrowed: <element> (from approach <X> into approach <Y>)
-   
-   **Type**: Sensitivity Point | Tradeoff Point
-   **Costs**: <concrete: LoC, indirection layers, mixed patterns, perf impact>
-   **Benefits**: <concrete: testability, extensibility, fit, etc.>
-   **Net**: <why benefit > cost; specific reason this is the right call here>
+   ### Borrowed: <element> (from <X> into <Y>)
+   **Type**: Sensitivity | Tradeoff
+   **Costs**: <LoC, indirection, mixed patterns, perf>
+   **Benefits**: <testability, extensibility, fit>
+   **Net**: <why benefit > cost; specific reason>
    ```
-   
-   If you can't fill the Net line for a borrowing, that borrowing isn't actually justified — drop it.
+   If you can't fill Net, drop the borrowing.
 
-5. **Write structured Alternatives Considered** to be carried into the plan's Decision Record:
+5. **Structured Alternatives Considered** (carries into Decision Record):
    ```
-   - **<Approach name>** — <2-3 sentence description>
-     - Why rejected: <specific reason — "didn't fit" is not a reason>
-     - Bits salvaged into chosen plan: <if any, with reference to the Net statement>
+   - **<Approach>** — <2-3 sentences>
+     - Why rejected: <specific reason; "didn't fit" doesn't qualify>
+     - Bits salvaged: <if any, reference the Net statement>
    ```
 
-Output of Phase 1.4: a merged plan in prose with the matrix, Sensitivity/Tradeoff classifications, Net statements, and structured Alternatives Considered. This becomes input to Phases 1.5 and 3.
+Output: merged plan in prose with matrix, classifications, Net statements, Alternatives Considered.
 
 ### 1.5 Red-Team Fleet
 
-Spawn `red-team` agents in parallel, each focused on one **attack angle**. Same agent type, different invocation prompts. Standard angles (always run):
+Spawn `red-team` agents in parallel, one per attack angle. Standard angles:
 
-1. **Architectural soundness** — abstraction violations, hidden coupling, design pattern fit
-2. **Failure modes** — error paths, what's silently swallowed, partial failure states
-3. **Operational concerns** — deployment, rollback, observability, behavior at scale
-4. **Hidden complexity** — what looks simple but isn't, deferred decisions, magic assumptions
-5. **Scope & assumptions** — does this actually solve the stated problem, what's the design assuming, what's been left out
+1. **Architectural soundness** — abstraction violations, hidden coupling, pattern fit
+2. **Failure modes** — error paths, silent swallowing, partial failures
+3. **Operational concerns** — deploy, rollback, observability, scale behavior
+4. **Hidden complexity** — looks simple but isn't, deferred decisions, magic
+5. **Scope & assumptions** — solves stated problem? what's assumed? what's left out?
 
-Conditional angles:
+Conditional:
 
-6. **Security & abuse** — only when the feature involves user input handling, auth, data exposure, privilege boundaries, or external integrations
-7. **Documentation currency** — only when the design names third-party libraries, frameworks, or APIs. The agent uses WebSearch / WebFetch / Exa to verify each named dependency exists, the proposed usage matches current docs, no deprecated APIs are suggested. Flags version mismatches and proposes current alternatives
+6. **Security & abuse** — when feature involves user input, auth, data exposure, privilege boundaries, external integrations
+7. **Documentation currency** — when design names third-party libs/APIs. Agent uses WebSearch/WebFetch to verify each named dependency exists, usage matches current docs, no deprecations
 
-Each red-team agent returns findings with **per-finding confidence scores** (0-100 + one-line justification). Format: see the red-team agent's output spec.
+Each returns findings with confidence (0-100 + justification).
 
-**Aggregate findings** across angles: deduplicate when the same issue surfaces from multiple angles (treat as evidence-strengthening, not noise — combine evidence into one finding). Severity-rank: Critical / Important / Suggestions.
+**Aggregate**: dedupe across angles (cross-angle overlap = evidence-strengthening). Severity-rank: Critical / Important / Suggestion.
 
-**Optional verification pass**: for each Critical finding, dispatch a second red-team agent to independently reproduce. If the second agent can reproduce the issue, mark the finding **confirmed**. If not, mark **disputed** (don't drop — present both sides; user decides).
+**Optional verification pass**: for Critical findings, dispatch a second red-team agent to independently reproduce. Mark **confirmed** or **disputed** (don't drop disputed; user decides).
 
-### 1.6 Get User Decision + Final Validation
+### 1.6 Decision + Final Validation
 
-Present the merged plan, synthesis matrix, and aggregated red-team findings together. For each finding, expect a resolution:
+Present merged plan + matrix + aggregated findings. Each finding gets a resolution:
 
-- **Fixed**: addressed in the plan; describe the change and its cost in LoC / complexity
-- **Rejected**: not a real problem; state why with evidence
-- **Deferred**: real concern but out of scope; track separately
+- **Fixed**: addressed; describe change + cost
+- **Rejected**: not real; cite evidence
+- **Deferred**: real but out of scope; track separately
 
-Iterate based on user input — revise plan, re-run affected red-team angles. The Resolution Log (see Decision Record section in the plan template) captures every finding's resolution.
+Iterate (revise plan, re-run affected angles). Resolution Log captures every finding (see Decision Record).
 
-Once decided, run the red-team fleet one final time on the final plan to validate. New findings restart the iteration; clean run = ready for Phase 2.
+Once decided, run the fleet one final time on the final plan. Clean run = ready for Phase 2.
 
 ## Phase 2: Test Design
 
-Invoke the `Skill` tool with `skill: "test-driven-development"` to load TDD guidance.
+Invoke `Skill: "test-driven-development"`.
 
-Before writing the implementation plan, design the test strategy for the chosen architecture:
+Design the test strategy for the chosen architecture:
 
-1. **Identify key behaviors** that each component must exhibit
-2. **Write test specifications** for each behavior (what to test, inputs, expected outputs, edge cases)
-3. **Map tests to components** so each plan task starts with a clear failing test
-4. **Identify integration tests** that verify components work together
+1. Identify key behaviors per component
+2. Write test specs (inputs, expected outputs, edge cases)
+3. Map tests to components — each plan task starts with a clear failing test
+4. Identify integration tests across components
 
-Present the test strategy to the user. These tests become the acceptance criteria in the implementation plan.
+Present the strategy. These tests become the plan's acceptance criteria.
 
 ## Phase 3: Implementation Plan
 
-Write the plan to `plans/<slug>.md`. The slug is the feature's short kebab-case name; propose one if not obvious from the feature description, or ask the user.
+Write to `plans/<slug>.md`. Propose a kebab-case slug if not obvious or ask the user.
 
-**File discipline**: the only file `/design` writes during this skill is `plans/<slug>.md`. Any other file changes belong to `/implement`. Use Write to create the plan or Edit to revise it; never touch other source files.
+**File discipline**: this skill writes only `plans/<slug>.md`. No other source files.
 
-Write the plan assuming the implementer has zero codebase context. Include:
+Plan structure:
 
 ### Plan Header
 
 ```markdown
-# [Feature Name] Implementation Plan
+# [Feature] Implementation Plan
 
 **Goal:** [One sentence]
 **Architecture:** [2-3 sentences]
@@ -201,47 +162,45 @@ Write the plan assuming the implementer has zero codebase context. Include:
 
 ### Decision Record
 
-Include at the top of the plan:
-
 **Chosen approach** with rationale.
 
-**Alternatives Considered** (structured, from Phase 1.4 synthesis):
+**Alternatives Considered** (from 1.4):
 ```
-- **<Approach name>** — <2-3 sentence description>
-  - Why rejected: <specific reason; "didn't fit" is not a reason>
-  - Bits salvaged into chosen plan: <if any, reference the Net statement>
-```
-
-**Tradeoff Points** (from Phase 1.4 synthesis matrix). For each cross-approach borrowing or non-trivial design choice:
-```
-### <element> (Sensitivity Point | Tradeoff Point)
-- **Costs**: <concrete: LoC, indirection, mixed patterns, perf>
-- **Benefits**: <concrete: testability, extensibility, fit>
-- **Net**: <why benefit > cost; specific reason>
+- **<Approach>** — <2-3 sentences>
+  - Why rejected: <specific>
+  - Bits salvaged: <if any>
 ```
 
-**Red-Team Resolution Log** (one entry per finding from Phase 1.5):
+**Tradeoff Points** (from 1.4 matrix):
+```
+### <element> (Sensitivity | Tradeoff)
+- **Costs**: <concrete>
+- **Benefits**: <concrete>
+- **Net**: <specific reason benefit > cost>
+```
+
+**Red-Team Resolution Log** (one entry per finding from 1.5):
 ```
 - **Finding** (angle: <attack angle>): <description>
   - Severity: Critical | Important | Suggestion
   - Confidence: <0-100>
   - Resolution: Fixed | Rejected | Deferred
-  - Detail: <what was done / why rejected / where deferred to>
-  - Cost (if Fixed): <LoC / complexity / perf delta>
+  - Detail: <what was done / why / where deferred>
+  - Cost (if Fixed): <LoC / complexity / perf>
 ```
 
-Silent acceptance is not an option — every finding has a logged resolution with reasoning.
+Silent acceptance not allowed; every finding gets a logged resolution.
 
 ### Task Structure
 
-Each task targets one component. List files, then break into TDD steps. Each task header references the relevant skills explicitly so a downstream implementer activates them:
+Each task targets one component. Task header references skills the implementer activates:
 
 ````markdown
-### Task N: [Component Name]
+### Task N: [Component]
 
-**Skills to activate for this task:**
-- `test-driven-development` (write failing test first; verify red; implement; verify green)
-- `verification-before-completion` (before marking commit step complete, confirm tests pass with evidence, not assertion)
+**Skills to activate:**
+- `test-driven-development` (failing test first; verify red; implement; verify green)
+- `verification-before-completion` (confirm tests pass with evidence before commit)
 
 **Files:**
 - Create: `exact/path/to/file.py`
@@ -258,39 +217,31 @@ Each task targets one component. List files, then break into TDD steps. Each tas
 - [ ] Commit with semantic message
 ````
 
-If the feature is a frontend component or page, the `frontend-design` skill activates automatically during implementation — no need to invoke it explicitly, but mention in the plan header so the implementer knows the aesthetic direction will be loaded.
+For frontend features, note in plan header that `frontend-design` skill auto-activates during implementation.
 
 ### Quality Rules
 
-- **No placeholders**: every step has actual content. Never write "TBD", "add appropriate error handling", "similar to Task N"
-- **Bite-sized steps**: each step is one action (2-5 minutes)
+- **No placeholders**: never "TBD", "add appropriate X", "similar to Task N"
+- **Bite-sized steps**: one action per step (2-5 minutes)
 - **Exact paths and code**: file paths, code blocks, commands with expected output
 
 ### Self-Review
 
-After writing the plan, check:
-1. **Spec coverage**: every requirement maps to a task
-2. **Placeholder scan**: no patterns from the no-placeholders list
-3. **Type consistency**: names match across tasks
-4. **Scope**: each task touches 2-3 files max
-5. **Ambiguity**: no requirement can be read two ways
+After writing, check:
+1. Spec coverage: every requirement maps to a task
+2. Placeholder scan: nothing from the no-placeholders list
+3. Type consistency: names match across tasks
+4. Scope: each task touches ≤2-3 files
+5. Ambiguity: no requirement reads two ways
 
-Fix issues inline.
+Fix inline.
 
-### Plan-Document Review (Independent)
+### Plan-Document Review
 
-After self-review, dispatch the `plan-doc-reviewer` agent via Task. Pass:
-- Path to the plan file (`plans/<slug>.md`)
-- Path to the ideation file if it exists (`plans/<slug>-ideation.md`)
-
-The plan-doc-reviewer reads independently and returns Approved | Issues. Process the result:
-- **Approved**: proceed to user presentation
-- **Issues Found**: fix the flagged items in the plan, then re-run plan-doc-reviewer. Iterate until Approved.
-
-Recommendations from the reviewer are advisory; don't block on them, but consider integrating ones that obviously help.
+Dispatch `plan-doc-reviewer` via Task with paths to the plan and ideation file. It returns Approved | Issues. On Issues: fix flagged items, re-run. Iterate to Approved. Recommendations are advisory.
 
 ### Present for Approval
 
-Present the plan to the user with the path (`plans/<slug>.md`) and a brief summary. Suggest:
-- `/implement` for parallel implementation (independent tasks)
-- Direct implementation for small plans (under ~5 tasks)
+Present the plan path + brief summary. Suggest:
+- `/implement` for parallel implementation
+- Direct implementation for small plans (<5 tasks)
