@@ -25,6 +25,8 @@ Then implement working code (HTML/CSS/JS, React, Vue, etc.) that is:
 
 ## Frontend Aesthetics Guidelines
 
+If the `refactoring-ui` skill is available, consult it for systematic guidance on typography, color systems, spacing, and visual hierarchy. Its searchable reference (Schoger & Wathan) complements the creative direction below with principle-driven techniques.
+
 Focus on:
 - **Typography**: Choose fonts that are beautiful, unique, and interesting. Avoid generic fonts like Arial and Inter; opt instead for distinctive choices that elevate the frontend's aesthetics; unexpected, characterful font choices. Pair a distinctive display font with a refined body font.
 - **Color & Theme**: Commit to a cohesive aesthetic. Use CSS variables for consistency. Dominant colors with sharp accents outperform timid, evenly-distributed palettes.
