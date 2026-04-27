@@ -72,7 +72,11 @@ Your workflow:
 
 As workers message you, respond naturally. If a worker needs help or context, provide it. If a worker is stuck, diagnose the issue and either guide them or ask the user.
 
-When a worker reports they are done, merge their branch into the integration branch. Run tests after each merge. If merge conflicts arise, resolve them per the integration contract.
+When a worker reports they are done:
+
+1. Merge their branch into the integration branch
+2. Run tests after the merge. If merge conflicts arise, resolve them per the integration contract
+3. **Clean up the worker's worktree and local branch**: `git worktree remove <worktree-path>` then `git branch -d <branch-name>`. The remote branch can stay for audit; `/clean-gone` will sweep it later when the PR merges
 
 Track progress with a status table:
 
@@ -106,6 +110,8 @@ Create a PR from the integration branch. Include:
 - Any concerns or TODOs from workers
 - Link to the plan/design artifacts if they exist
 
-Present the PR URL to the user. Suggest `/clean-gone` to clean up worker branches after the PR is merged.
+Present the PR URL to the user.
+
+**Invoke `Skill: "clean-gone"`** to sweep any pre-existing `[gone]` branches and their worktrees opportunistically. This won't catch the just-created worker branches yet (their remotes still exist) — those will be swept by `/clean-gone` after the PR merges on GitHub.
 
 Shut down the team when complete.
