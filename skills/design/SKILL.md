@@ -32,9 +32,18 @@ The four dimensions:
 - **Risks & dependencies**: what could break; what's coupled; sequencing constraints; existing fragility in the area
 - **Constraints**: performance, security, backward compat, observability requirements that apply
 
-Each agent returns:
+**File-writing pattern**: each explorer writes detailed findings to `plans/<slug>/.workspace/exploration/<dimension>.md` (e.g., `plans/auth-oauth/.workspace/exploration/architectural-fit.md`). Create the workspace directory if it doesn't exist. The agent returns a short summary (~200-400 tokens) plus the file path.
+
+The coordinator's context only grows by summaries. Read the workspace files only when synthesis (1.2.5 or 1.4) requires the detail.
+
+Each agent's file output:
 - Findings (the substantive analysis for its dimension)
 - 5-10 essential files that downstream architects should read
+
+Each agent's returned summary:
+- 1-paragraph overview of findings
+- File path to the detailed output
+- Key headlines (top 3 things the architect needs to know about this dimension)
 
 Prior art is NOT one of these dimensions — that lives in `ideate`. If no ideation file exists and the user opted to proceed without prior art search, accept the limitation.
 
@@ -76,13 +85,20 @@ Spawn 2-3 `code-architect` agents in parallel. Each receives the shared context 
 
 Architects do their own narrower exploration on top of shared context — looking specifically at files relevant to their proposed approach, not broadly re-exploring. Be explicit: their job is "here's what my approach needs to touch," not "here's the lay of the land" (the shared context already answered that).
 
-Each agent produces:
+**File-writing pattern**: each architect writes their full design to `plans/<slug>/.workspace/architects/<approach>.md` (e.g., `plans/auth-oauth/.workspace/architects/minimal-changes.md`). The agent returns a short summary plus the file path.
+
+Each agent's file output:
 - Patterns and conventions specific to their approach (with file:line references)
 - Architecture decision with rationale
 - Component design (file paths, responsibilities, interfaces)
 - Data flow from entry to output
 - Build sequence as an ordered checklist
 - Critical Files for Implementation (priority-ordered, no count cap — list every file that drives the design)
+
+Each agent's returned summary:
+- 1-paragraph overview of the chosen approach
+- File path to the detailed design
+- Top 3 trade-offs vs the other approaches
 
 ### 1.4 Synthesis (Merged Plan)
 
@@ -260,6 +276,18 @@ After writing the plan, check:
 5. **Ambiguity**: no requirement can be read two ways
 
 Fix issues inline.
+
+### Plan-Document Review (Independent)
+
+After self-review, dispatch the `plan-doc-reviewer` agent via Task. Pass:
+- Path to the plan file (`plans/<slug>.md`)
+- Path to the ideation file if it exists (`plans/<slug>-ideation.md`)
+
+The plan-doc-reviewer reads independently and returns Approved | Issues. Process the result:
+- **Approved**: proceed to user presentation
+- **Issues Found**: fix the flagged items in the plan, then re-run plan-doc-reviewer. Iterate until Approved.
+
+Recommendations from the reviewer are advisory; don't block on them, but consider integrating ones that obviously help.
 
 ### Present for Approval
 
