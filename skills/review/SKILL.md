@@ -1,4 +1,5 @@
 ---
+name: review
 description: Multi-dimensional code review using specialized agents
 argument-hint: "[code|tests|comments|errors|types|simplify|all]"
 allowed-tools: Bash(git diff:*), Bash(git status:*), Bash(gh pr view:*), Glob, Grep, Read, Task

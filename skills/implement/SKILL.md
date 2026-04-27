@@ -1,4 +1,5 @@
 ---
+name: implement
 description: "Decompose a large task into independent units and implement them in parallel with a coordinated team"
 argument-hint: "<task description or path to plan file>"
 allowed-tools: Agent, Bash, Read, Glob, Grep, Skill, EnterPlanMode, ExitPlanMode, AskUserQuestion, Task, TeamCreate, SendMessage

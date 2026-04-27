@@ -1,4 +1,5 @@
 ---
+name: design
 description: "Architecture design with competing approaches, adversarial review, test design, and implementation planning"
 argument-hint: "<feature description>"
 allowed-tools: Read, Glob, Grep, Task, Skill, EnterPlanMode, ExitPlanMode
