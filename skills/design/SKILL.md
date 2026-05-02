@@ -252,6 +252,10 @@ Dispatch `plan-doc-reviewer` via Task with paths to the plan and ideation file. 
 
 ### Present for Approval
 
-Present the plan path + brief summary. Suggest:
-- `/implement` for parallel implementation
-- Direct implementation for small plans (<5 tasks)
+User shouldn't have to read the plan file to know what you decided. Inline covers the design end-to-end at a high level — skip code snippets and exhaustive file lists, those live in the plan. Agent reports (red-team, plan-doc-reviewer) came back as tool results, not in the plan — surface those too.
+
+1. **Final plan**: chosen approach + why it won, key components and changes at a glance.
+2. **Autonomous tradeoffs**: cost/benefit calls made without asking. Skip obvious choices; include genuine ones ("picked X over Y, cost C, benefit B").
+3. **Departures from the prompt** (most important): scope, requirements, or approach diverging from what was asked, with rationale. Departures aren't bad; surprises are.
+4. **Red-team findings**: confirmed Critical + resolutions (Fixed/Rejected/Deferred). Disputed Criticals too.
+5. **Plan path**, then `/implement`.

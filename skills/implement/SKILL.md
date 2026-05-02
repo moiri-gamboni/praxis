@@ -1,22 +1,26 @@
 ---
 name: implement
-description: "Decompose a large task into independent units and implement them in parallel with a coordinated team"
+description: "Decompose a large task into independent units and implement them in parallel with sub-agents in worktrees"
 argument-hint: "<task description or path to plan file>"
-allowed-tools: Agent, Bash, Read, Glob, Grep, Skill, EnterPlanMode, ExitPlanMode, AskUserQuestion, Task, TeamCreate, SendMessage
+allowed-tools: Agent, Bash, Read, Glob, Grep, Skill, EnterPlanMode, ExitPlanMode, AskUserQuestion, Task
 ---
 
 # Parallel Implementation
 
-Team lead role: decompose work, dispatch workers in worktrees, merge incrementally, cross-cutting quality pass, one clean PR.
+Decompose work, dispatch sub-agents in worktrees, merge incrementally, cross-cutting quality pass, one clean PR.
 
 **Instruction:** "$ARGUMENTS"
 
-## When NOT to Use
+## Path
 
-- Deep sequential dependencies between units
-- Total work under ~30 minutes serial
-- No tests in codebase (workers can't verify)
-- Scope unclear (use `/design` first)
+`/design` and Phase 1's batch plan pin integration contracts before workers spawn — sequential build-ups (data model → service → API → UI) parallelize cleanly because workers build to the pinned contract.
+
+- **Parallel**: 2+ units, each with its own test surface, all buildable from a pinned contract. Phase 1-5; sub-agents in parallel worktrees.
+- **Single agent**: no separable contract-able parts. Cases: wide-but-shallow refactors (rename, type change), structural reorganization, single dense file, whole-system invariant changes, or too small to orchestrate. Skip Phase 1's batch plan; spawn one sub-agent (`Agent`, `isolation: "worktree"`) with the Phase 2 prompt.
+
+Surface key findings inline either way; "merged ✓" hides what the worker found.
+
+Scope unclear → `/design` first. No tests in the codebase → judgment call: route through `/design` (Phase 2 covers tests) if they fit; ask when not clear-cut; otherwise proceed with what doesn't gate on tests.
 
 ## Phase 1: Decomposition (Plan Mode)
 
@@ -44,7 +48,7 @@ Exit plan mode.
 
 ## Phase 2: Dispatch Workers
 
-Create a team via `TeamCreate`. Launch all workers simultaneously with `Agent` (`team_name`, `isolation: "worktree"`, unique `name` per worker).
+Launch all workers in parallel: a single message with multiple `Agent` tool calls (`isolation: "worktree"`, unique `name` per worker). They run independently and return when done — no inter-worker or back-channel communication.
 
 Worker prompts must be **fully self-contained** (workers can't see your conversation or each other). Include:
 - Project language, framework, test runner, conventions
@@ -71,19 +75,20 @@ Worker instructions (verbatim, with `<WORKSPACE>` resolved):
     - Deviations from spec, why
     - Test results (which, pass/fail)
     - Files changed
-    - Integration notes for team lead (gotchas, cross-unit deps, follow-ups)
-13. Message team lead: "Done. Log: <WORKSPACE>/workers/<UNIT_NAME>.md. Branch: <BRANCH_NAME>. Tests: passed." Or request help if stuck.
+    - Integration notes (gotchas, cross-unit deps, follow-ups)
+13. Return: "Done. Log: <WORKSPACE>/workers/<UNIT_NAME>.md. Branch: <BRANCH_NAME>. Tests: passed." If stuck, return early with the blocker described.
 ```
 
-## Phase 3: Monitor, Merge, Respond
+## Phase 3: Process Returns, Merge
 
-Respond naturally as workers message. Provide help/context. Diagnose if stuck; guide or escalate to user.
+Workers run independently and return when done. Process each return as it arrives. If a worker returned blocked or failed, diagnose: re-dispatch with more context, or escalate to the user.
 
 On worker done:
 
 1. Merge their branch into the integration branch
 2. Run tests post-merge. Resolve conflicts per the integration contract
 3. **Clean up worktree + local branch**: `git worktree remove <path>` then `git branch -d <branch>`. Remote stays for audit; `/clean-gone` sweeps after PR merge.
+4. **Surface inline**: pull deviations, integration concerns, and follow-ups from the worker log into your update.
 
 Status table:
 
@@ -120,5 +125,3 @@ Create PR from integration branch:
 Present PR URL.
 
 **Invoke `Skill: "clean-gone"`** for opportunistic sweep of pre-existing `[gone]` branches. Worker remotes still exist; they'll be swept later when the PR merges.
-
-Shut down the team.
