@@ -29,7 +29,7 @@ Per Claude Code's unified skills/commands architecture, every skill is also a sl
 | **receiving-code-review** | Auto-activates when receiving code review or red-team feedback |
 | **frontend-design** | Auto-activates when building web components, pages, or applications |
 | **`/design <feature>`** | Architecture design: 4-dim shared exploration → competing architects → synthesis matrix → red-team fleet. Reads `plans/<slug>-ideation.md` if present. Writes `plans/<slug>.md`. |
-| **`/implement <task or plan>`** | Parallel work orchestration: decompose, spawn workers in worktrees (each with TDD + review + simplify gates), team lead integrates with spec-reviewer + verification-before-completion. |
+| **`/implement <task or plan>`** | Parallel work orchestration: decompose, spawn sub-agents in worktrees (each with TDD + review + simplify gates), then integrate with spec-reviewer + verification-before-completion. |
 | **`/review [git-range]`** | Multi-wave code review by logical units: per-unit deep review with full reviewer fleet → cross-unit boundary review → verification pass on Critical findings. |
 | **`/simplify [scope]`** | Simplification pass on recently modified code. |
 | **`/ship [merge] [test cmd]`** | PR-first shipping. State-driven default: opens or updates a PR. With `merge` arg: explicit local merge after acceptance prompt. |
@@ -75,12 +75,12 @@ All agents run on Opus. Reviewer agents use a per-finding confidence threshold (
 
 ## Example Workflows
 
-### Large feature (parallel team)
+### Large feature (parallel)
 
 1. Conversational ideation (ideate skill activates) — produces `plans/<slug>-ideation.md`
 2. `/design` reads ideation, runs shared exploration + architect approaches + red-team fleet, writes `plans/<slug>.md`
-3. `/implement plans/<slug>.md` spawns workers in worktrees: each does TDD + review + simplify + verification + commit + push + log
-4. Team lead merges incrementally, then cross-cutting `/review` + `/simplify` + `spec-reviewer` against plan + `verification-before-completion`, opens PR
+3. `/implement plans/<slug>.md` spawns sub-agents in worktrees: each does TDD + review + simplify + verification + commit + push + log
+4. Coordinator merges incrementally, then cross-cutting `/review` + `/simplify` + `spec-reviewer` against plan + `verification-before-completion`, opens PR
 5. PR feedback iteration via manual edits + `/ship` to push updates
 
 ### Bug fix (solo)

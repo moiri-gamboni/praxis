@@ -60,7 +60,7 @@ Per unit, dispatch the reviewer fleet in parallel via Task:
 - `silent-failure-hunter` — swallowed errors, fallback misuse
 - `type-analyzer` — type design (when types added/changed)
 
-**Scale to unit complexity**: small unit (1-2 files) → reduced fleet (code-reviewer + 1-2 most relevant). Large/risky → full 7. Don't fire 7 reviewers on a 5-line docs change.
+**Scale to unit complexity**: trivial diff → inline. Sequential chain (one logical thread across files) → single code-reviewer. Small unit (1-2 files) → code-reviewer + 1-2 relevant others. Large/risky → full 7. Anything beyond trivial dispatches at least one agent.
 
 Reviewers may return "no findings, this dimension isn't relevant" — preferred over fabrication.
 
@@ -90,6 +90,8 @@ Verification only on Critical (cost not justified at lower severity).
 
 ## Step 7: Aggregate and Present
 
+Every reviewer finding lands in your message (user only sees what's here). False positives go under **Dropped** with reasoning. Counts in section headers must match the bullets.
+
 ```markdown
 # Review Summary
 
@@ -115,11 +117,13 @@ Verification only on Critical (cost not justified at lower severity).
 ## Strengths
 [What the diff gets right; preserve during fixes]
 
+## Dropped (false positives) (<count>)
+[Findings you judged wrong, with reason. User can override.]
+
 ## Recommended Action
-1. Fix Critical (confirmed) — block merge
-2. Discuss Critical (disputed) — drop or fix
-3. Address Important — should fix
-4. Consider Suggestions — advisory
+- **Fix**: Critical (confirmed) + Important. Block merge on Critical.
+- **Decide together**: real tradeoffs. Ask the user; skip trivial choices.
+- **Defer (with reason)**: out of scope, depends on unmerged work, needs unavailable input. Default to not deferring.
 ```
 
 After presenting, invoke `Skill: "verification-before-completion"` before the user acts on findings.
