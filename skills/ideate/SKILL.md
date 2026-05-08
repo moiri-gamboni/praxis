@@ -39,7 +39,7 @@ Default leans build-vs-buy in favor of buy unless there's clear reason to build.
 
 ## Conversation Shape
 
-**Understand first.** Check CLAUDE.md, recent commits, area files. Clarifying questions one at a time, only for what code/context can't answer. Prefer multiple choice when options are known.
+**Understand first.** Check CLAUDE.md, recent commits, area files. Ask only for what code/context can't answer. One question at a time when answers compound; batch only when questions are genuinely independent. Ask in plain text — don't use `AskUserQuestion`; ideation needs open-ended dialogue, not constrained choices.
 
 **Detect scope early.** If the request spans multiple independent subsystems, flag and decompose: identify dependencies, build order, ideate the first sub-project. Each sub-project gets its own cycle.
 
