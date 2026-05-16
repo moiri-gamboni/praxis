@@ -27,7 +27,7 @@ Research before routing — the single-vs-parallel call needs codebase context, 
 
 2. **Route based on what you found.**
    - **Parallel**: 2+ units, each with its own test surface, all buildable from a pinned contract. Continue with steps 3-5.
-   - **Single agent**: no separable contract-able parts. Cases: wide-but-shallow refactors (rename, type change), structural reorganization, single dense file, whole-system invariant changes, or too small to orchestrate. Skip to Phase 2; spawn one sub-agent (`Agent`, `isolation: "worktree"`) with the Phase 2 prompt.
+   - **Single agent**: no separable contract-able parts. Cases: wide-but-shallow refactors (rename, type change), structural reorganization, single dense file, whole-system invariant changes, or too small to orchestrate. Skip to Phase 2; spawn one `implementer` (`subagent_type: "implementer"`, `isolation: "worktree"`) with the Phase 2 prompt.
 
 3. **Identify work units.** Each unit needs:
    - Clear deliverable (files, behavior)
@@ -45,38 +45,16 @@ Research before routing — the single-vs-parallel call needs codebase context, 
 
 ## Phase 2: Dispatch Workers
 
-Launch all workers in parallel: a single message with multiple `Agent` tool calls (`isolation: "worktree"`, unique `name` per worker). They run independently and return when done — no inter-worker or back-channel communication.
+Launch all workers in parallel: a single message with multiple `Agent` tool calls. Each call: `subagent_type: "implementer"`, `isolation: "worktree"`, unique `name`. Workers run independently and return when done — no inter-worker or back-channel communication.
 
-Worker prompts must be **fully self-contained** (workers can't see your conversation or each other). Include:
+The `implementer` agent owns the worker procedure (skill loop, push, log, audit). Your dispatch prompt provides only the unit specifics — it must be **fully self-contained** (workers can't see your conversation or peer workers):
+
 - Project language, framework, test runner, conventions
-- Unit's goal, deliverable, files, branch, acceptance criteria
+- Unit's goal, deliverable, files, branch (`batch/<batch-name>/<unit-name>`), acceptance criteria
+- Test command (the implementer's procedure runs this for the full-suite step)
+- Worker log path: `<WORKSPACE>/workers/<UNIT_NAME>.md`
 - Integration contract (interfaces, naming, types other units expect)
-- Inline interface definitions for any cross-unit dependencies
-
-Worker instructions (verbatim, with `<WORKSPACE>` resolved):
-
-```
-Each `Skill: "X"` line below is a tool call — invoke the Skill tool to load skill X. Don't substitute remembered practice; load the skill content.
-
-1. Create branch from HEAD
-2. Skill: "test-driven-development" (failing test → pass → refactor)
-3. Stuck → Skill: "systematic-debugging"
-4. Skill: "verification-before-completion" before claiming done
-5. Skill: "review". Fix flagged. Unclear/questionable → Skill: "receiving-code-review"
-6. Skill: "simplify"
-7. Full test suite: <TEST_COMMAND>
-8. Documented behavior changed → update README.md, CLAUDE.md
-9. Stage + commit in one message, clear semantic subject
-10. git push -u origin <BRANCH_NAME>
-11. Log to <WORKSPACE>/workers/<UNIT_NAME>.md:
-    - Summary (1-2 paragraphs)
-    - Deviations from spec, why
-    - Skills invoked (which, when) — for self-audit
-    - Test results (which, pass/fail)
-    - Files changed
-    - Integration notes (gotchas, cross-unit deps, follow-ups)
-12. Return: "Done. Log: <WORKSPACE>/workers/<UNIT_NAME>.md. Branch: <BRANCH_NAME>. Tests: passed." If stuck, return early with the blocker described.
-```
+- Inline interface definitions for any cross-unit dependency the worker can't see in its own files
 
 ## Phase 3: Process Returns, Merge
 
