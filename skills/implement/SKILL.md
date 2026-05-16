@@ -2,7 +2,7 @@
 name: implement
 description: "Decompose a large task into independent units and implement them in parallel with sub-agents in worktrees"
 argument-hint: "<task description or path to plan file>"
-allowed-tools: Agent, Bash, Read, Glob, Grep, Skill, EnterPlanMode, ExitPlanMode, AskUserQuestion, Task
+allowed-tools: Agent, Bash, Read, Write, Glob, Grep, Skill, AskUserQuestion, Task
 ---
 
 # Parallel Implementation
@@ -11,40 +11,37 @@ Decompose work, dispatch sub-agents in worktrees, merge incrementally, cross-cut
 
 **Instruction:** "$ARGUMENTS"
 
-## Path
+## When to use
 
-`/design` and Phase 1's batch plan pin integration contracts before workers spawn — sequential build-ups (data model → service → API → UI) parallelize cleanly because workers build to the pinned contract.
-
-- **Parallel**: 2+ units, each with its own test surface, all buildable from a pinned contract. Phase 1-5; sub-agents in parallel worktrees.
-- **Single agent**: no separable contract-able parts. Cases: wide-but-shallow refactors (rename, type change), structural reorganization, single dense file, whole-system invariant changes, or too small to orchestrate. Skip Phase 1's batch plan; spawn one sub-agent (`Agent`, `isolation: "worktree"`) with the Phase 2 prompt.
-
-Surface key findings inline either way; "merged ✓" hides what the worker found.
+`/design` and Phase 1's batch plan pin integration contracts before workers spawn — sequential build-ups (data model → service → API → UI) parallelize cleanly because workers build to the pinned contract. Surface key findings inline either way; "merged ✓" hides what the worker found.
 
 Scope unclear → `/design` first. No tests in the codebase → judgment call: route through `/design` (Phase 2 covers tests) if they fit; ask when not clear-cut; otherwise proceed with what doesn't gate on tests.
 
-## Phase 1: Decomposition (Plan Mode)
+## Phase 1: Research & Decomposition
 
-Enter plan mode. Research before planning.
+Research before routing — the single-vs-parallel call needs codebase context, not just the task description.
 
 1. **Understand the task.** Read the argument and any referenced plan/architecture doc. Use Glob/Grep/subagents to survey codebase, patterns, conventions, test infrastructure.
 
    **Workspace root**: plan file at `plans/<slug>.md` → workspace at `plans/<slug>/.workspace/`. Otherwise derive a kebab-case slug from the task. Worker logs: `<workspace>/workers/<unit>.md`.
 
-2. **Identify work units.** Each unit needs:
+2. **Route based on what you found.**
+   - **Parallel**: 2+ units, each with its own test surface, all buildable from a pinned contract. Continue with steps 3-5.
+   - **Single agent**: no separable contract-able parts. Cases: wide-but-shallow refactors (rename, type change), structural reorganization, single dense file, whole-system invariant changes, or too small to orchestrate. Skip to Phase 2; spawn one sub-agent (`Agent`, `isolation: "worktree"`) with the Phase 2 prompt.
+
+3. **Identify work units.** Each unit needs:
    - Clear deliverable (files, behavior)
    - Own test surface (runs in isolation)
    - Minimal coupling (shared interfaces fine; shared mutable state not)
 
    Two units modifying same file → merge them or define a strict contract (one owns the interface, the other consumes; document direction).
 
-3. **Write the batch plan.** Per unit: name, description, files, branch (`batch/<batch-name>/<unit-name>`), test command, dependencies. Plus:
+4. **Write the batch plan to `<workspace>/batch-plan.md`.** Per unit: name, description, files, branch (`batch/<batch-name>/<unit-name>`), test command, dependencies. Plus:
    - **Integration contract**: what must hold post-merge (interfaces, naming, config shape)
    - **Integration tests** to run after merge
    - **Risks**: what could go wrong, what to check on failure
 
-4. **Get approval.** Present the plan; ask about splits/merges/drops. No proceeding without explicit approval.
-
-Exit plan mode.
+5. **Get approval.** Present the plan; ask about splits/merges/drops. No proceeding without explicit approval.
 
 ## Phase 2: Dispatch Workers
 
