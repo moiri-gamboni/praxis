@@ -56,24 +56,26 @@ Worker prompts must be **fully self-contained** (workers can't see your conversa
 Worker instructions (verbatim, with `<WORKSPACE>` resolved):
 
 ```
+Each `Skill: "X"` line below is a tool call — invoke the Skill tool to load skill X. Don't substitute remembered practice; load the skill content.
+
 1. Create branch from HEAD
-2. Skill: "test-driven-development"
-3. TDD: failing test → pass → refactor
-4. Stuck → Skill: "systematic-debugging"
-5. Skill: "verification-before-completion" before claiming done
-6. Skill: "review". Fix flagged. Unclear/questionable → Skill: "receiving-code-review"
-7. Skill: "simplify"
-8. Full test suite: <TEST_COMMAND>
-9. Documented behavior changed → update README.md, CLAUDE.md
-10. Stage + commit in one message, clear semantic subject
-11. git push -u origin <BRANCH_NAME>
-12. Log to <WORKSPACE>/workers/<UNIT_NAME>.md:
+2. Skill: "test-driven-development" (failing test → pass → refactor)
+3. Stuck → Skill: "systematic-debugging"
+4. Skill: "verification-before-completion" before claiming done
+5. Skill: "review". Fix flagged. Unclear/questionable → Skill: "receiving-code-review"
+6. Skill: "simplify"
+7. Full test suite: <TEST_COMMAND>
+8. Documented behavior changed → update README.md, CLAUDE.md
+9. Stage + commit in one message, clear semantic subject
+10. git push -u origin <BRANCH_NAME>
+11. Log to <WORKSPACE>/workers/<UNIT_NAME>.md:
     - Summary (1-2 paragraphs)
     - Deviations from spec, why
+    - Skills invoked (which, when) — for self-audit
     - Test results (which, pass/fail)
     - Files changed
     - Integration notes (gotchas, cross-unit deps, follow-ups)
-13. Return: "Done. Log: <WORKSPACE>/workers/<UNIT_NAME>.md. Branch: <BRANCH_NAME>. Tests: passed." If stuck, return early with the blocker described.
+12. Return: "Done. Log: <WORKSPACE>/workers/<UNIT_NAME>.md. Branch: <BRANCH_NAME>. Tests: passed." If stuck, return early with the blocker described.
 ```
 
 ## Phase 3: Process Returns, Merge
