@@ -48,6 +48,7 @@ Skills chain naturally: each suggests a next step based on context. The intended
 | **code-reviewer** | Reviews code against project guidelines and plans, with confidence scoring (>= 80 threshold) and anti-complexity bias on proposed fixes. | `/review` Wave 1, Wave 2 cross-unit |
 | **spec-reviewer** | Verifies implementation matches a specification (which can be a `/design` plan file). Skeptical, independent reading. | `/implement` Phase 4 (when plan file present), `/review` Wave 1, manual |
 | **code-simplifier** | Simplifies code while preserving functionality. Direct-modify in `/simplify` standalone, advisory in `/review`. | `/simplify`, `/review` Wave 1, `/implement` workers + Phase 4 |
+| **implementer** | Single-unit worker for `/implement`. Bakes the worker procedure (skill loop, push, log, audit) into its system prompt so compliance is structural. Does not further delegate. | `/implement` Phase 2, manual single-unit builds |
 | **comment-analyzer** | Checks comment accuracy and long-term maintainability. Anti-complexity: removing bad comments preferred over adding obvious ones. | `/review` Wave 1 |
 | **test-analyzer** | Reviews test coverage quality, prioritizing behavioral coverage. Each proposed test must articulate failure scenario + likelihood + consequence. | `/review` Wave 1 |
 | **silent-failure-hunter** | Finds swallowed errors and inadequate error handling. Each finding must articulate the actual failure mode, not abstract concern. | `/review` Wave 1 |
