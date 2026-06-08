@@ -82,10 +82,10 @@ If any unit fails irrecoverably, ask user: continue with partial results or abor
 
 After all units merged:
 
-1. `/review all` — catch cross-unit inconsistencies (naming, patterns, interface mismatches, duplication)
-2. `/simplify` — remove cross-unit duplication
+1. `/review all` — catch cross-unit inconsistencies (naming, patterns, interface mismatches, duplication). Before fixing, invoke `Skill: "receiving-code-review"`.
+2. `Skill: "simplify"` — apply each finding's fix. Skip findings that change behavior or fall outside the merged diff.
 3. Run integration tests from the plan
-4. **Plan-completion check** (if plan file present): spawn `spec-reviewer` via Task with plan as spec. Address gaps.
+4. **Plan-completion check** (if plan file present): spawn `spec-reviewer` via Task with plan as spec. Address gaps after invoking `Skill: "receiving-code-review"`.
 5. **Invoke `Skill: "verification-before-completion"`** before PR.
 6. Resolve conflicting doc edits from workers
 7. Fix issues, re-run tests
