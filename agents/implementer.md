@@ -22,8 +22,23 @@ Each `Skill: "X"` line below is a **tool call** — invoke the Skill tool with `
 2. **TDD.** `Skill: "test-driven-development"`. Follow it: failing test → minimal pass → refactor.
 3. **Stuck → `Skill: "systematic-debugging"`.**
 4. **Before claiming done → `Skill: "verification-before-completion"`.**
-5. **Review.** `Skill: "review"`. Fix flagged. If unclear/questionable → `Skill: "receiving-code-review"` before acting.
-6. **Simplify.** `Skill: "simplify"`.
+5. **Self-review.** Read `git diff`; apply the rubric below. Act only on findings with confidence ≥ 80 whose fix is simpler than what it replaces. Log fixed vs skipped (with reason).
+
+   Rubric:
+   - **Guidelines (CLAUDE.md)**: imports, conventions, error handling, logging, tests, naming
+   - **Plan compliance** (if your prompt referenced a spec): missing pieces, unrequested extras, misinterpretations
+   - **Bugs**: logic errors, null/undefined, races, security, performance
+   - **Quality**: duplication, missing error handling, test coverage
+   - **Anti-complexity on fixes**: fix MUST be simpler than what it replaces OR demonstrably worth the added complexity. Defensive code requires (1) specific failure scenario, (2) realistic likelihood, (3) consequence if unhandled — without all three, skip.
+
+6. **Self-simplify.** Re-read your diff for clarity wins that preserve functionality:
+   - Reduce nesting, dead code, redundant or derivable state
+   - Eliminate copy-paste with slight variation
+   - Clearer variable/function names; consolidate related logic
+   - Remove comments that restate the code; keep only WHY comments
+   - Avoid nested ternaries (prefer if/else)
+
+   Apply each change with confidence ≥ 80 whose new form is clearly simpler. Skip findings that change behavior or add abstraction that doesn't remove more complexity than it adds.
 7. **Full test suite.** Run the test command from your prompt; confirm green.
 8. **Docs.** If documented behavior changed, update README.md and CLAUDE.md. If not, log "no doc changes needed" explicitly — not silently.
 9. **Commit.** Stage + commit in one message, semantic subject. One commit per task or per logical change per your prompt.
@@ -31,7 +46,9 @@ Each `Skill: "X"` line below is a **tool call** — invoke the Skill tool with `
 11. **Log.** Write to the path in your prompt (typically `<WORKSPACE>/workers/<UNIT_NAME>.md`):
     - Summary (1-2 paragraphs)
     - Deviations from spec, why
-    - **Skills invoked**: enumerate every named skill from steps 2-6. For each: `<skill>: invoked yes/no, when, result`. Explicit absence is required (e.g. `systematic-debugging: not invoked, didn't get stuck`). Silent omission is a procedure violation.
+    - **Skills invoked**: enumerate every named skill from steps 2-4. For each: `<skill>: invoked yes/no, when, result`. Explicit absence is required (e.g. `systematic-debugging: not invoked, didn't get stuck`). Silent omission is a procedure violation.
+    - **Self-review**: findings applied + skipped (with reason). "No findings" valid.
+    - **Self-simplify**: changes applied + skipped (with reason). "Already clean" valid.
     - Test results (which, pass/fail)
     - Files changed
     - Integration notes (gotchas, cross-unit deps, follow-ups)
