@@ -25,7 +25,8 @@ Gather the real information the Phase 2 decisions will rest on. Exploration and 
 - The **real outcome** wanted, in a sentence — the result, not the literal feature. Open-ended task ("here's our situation, build something useful")? Then *what to build* is the first and highest-leverage decision; spend real thought there.
 - The **deliverable type** — a script, a service, a patch to an existing system, a config, a one-off analysis. Don't default to greenfield.
 - **Constraints**: budget (depth scales to it), the concrete end state ("working" = what, exactly), the environment and stack.
-- Can't ask and can't check? **State an assumption and move on.** Surface only the consequential or irreversible ones.
+- Can't ask and can't check? **State an assumption and keep moving** — and surface the assumptions you make. A stated assumption is something the user can correct; a buried one is a trap.
+- **Flag what's tricky** rather than smoothing it over: a goal underspecified in a way that changes *what* to build, considerations that genuinely pull against each other, footguns (the part that looks cheap but isn't — an auth handshake, a rate limit, a messy data format). These steer the slice and the choices.
 
 ### 1.2 Codebase (existing systems only)
 
@@ -92,13 +93,20 @@ The **minimal end-to-end path** that runs and also seats future work — the rig
 
 The Choices table + the slice + the test calls. Seeds the handoff's "decisions + tradeoffs".
 
-## Phase 3: Confirm
+## Phase 3: Premortem & confirm
+
+### Premortem
+
+Assume the built prototype failed to show the outcome — why? Name the likeliest failure modes: the integration that won't authenticate, data messier than assumed, a library that doesn't do the thing, scope quietly too big for the budget. On a simple build there may be none worth naming — say so, don't manufacture them. Fold cheap de-risks into the slice now; carry the rest to the gate.
+
+### Confirm
 
 The decision point. Present inline — the user shouldn't have to open the brief:
 
 1. **Goal + slice** — the outcome, the sound core you'll build, what's deferred.
 2. **Choices** — the decision table, consequential and high-debt-if-wrong ones first.
-3. **Worth your input** — genuinely-uncertain calls, each with its strongest alternative and the crux that would flip it, so the choice is made on merits rather than nodded through. Omit if none.
+3. **Risks** — the premortem's top failure modes and how each is handled: de-risked in the slice, accepted, or still open.
+4. **Worth your input** — genuinely-uncertain calls, each with its strongest alternative and the crux that would flip it, so the choice is made on merits rather than nodded through. Omit if none.
 
 Stop for confirmation on the consequential or hard-to-reverse. Make reversible calls yourself and say you did; silence on those is assent.
 
