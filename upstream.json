@@ -181,6 +181,11 @@
       "adaptation": "new"
     },
     {
+      "praxis": "skills/prototype/SKILL.md",
+      "upstream": [],
+      "adaptation": "new"
+    },
+    {
       "praxis": "agents/code-explorer.md",
       "upstream": [
         {

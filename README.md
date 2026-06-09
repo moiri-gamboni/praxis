@@ -1,6 +1,6 @@
 # Praxis
 
-A Claude Code plugin for software development. Skills teach Claude structured approaches to ideation, design, implementation, and code review. They invoke as slash commands (`/design`, `/implement`, `/review`, `/ship`, etc.) and auto-trigger when relevant. Specialized agents handle parallel exploration, adversarial design review, multi-dimensional code review, and plan-document review.
+A Claude Code plugin for software development. Skills teach Claude structured approaches to ideation, design, prototyping, implementation, and code review. They invoke as slash commands (`/design`, `/implement`, `/review`, `/ship`, etc.) and auto-trigger when relevant. Specialized agents handle parallel exploration, adversarial design review, multi-dimensional code review, and plan-document review.
 
 Praxis incorporates material from [superpowers](https://github.com/obra/superpowers), Anthropic's [claude-plugins-official](https://github.com/anthropics/claude-plugins-official) (feature-dev, pr-review-toolkit, commit-commands, frontend-design), and Claude Code's [built-in skills](https://github.com/anthropics/claude-code), picking the best version of each component and filling gaps between them.
 
@@ -28,6 +28,7 @@ Per Claude Code's unified skills/commands architecture, every skill is also a sl
 | **verification-before-completion** | Auto-activates when about to claim work is complete or passing |
 | **receiving-code-review** | Auto-activates when receiving code review or red-team feedback |
 | **frontend-design** | Auto-activates when building web components, pages, or applications |
+| **`/prototype <what>`** | Build the first working version fast but sound: understand (codebase + prior art via parallel subagents) → judicious tech choices in a decision record → confirm gate → thin end-to-end slice built to an extensible standard → independent verification → handoff. For MVPs, POCs, spikes, demos, timed tasks. Also auto-activates. |
 | **`/design <feature>`** | Architecture design: 4-dim shared exploration → competing architects → synthesis matrix → red-team fleet. Reads `plans/<slug>-ideation.md` if present. Writes `plans/<slug>.md`. |
 | **`/implement <task or plan>`** | Parallel work orchestration: decompose, spawn sub-agents in worktrees (each with TDD + review + simplify gates), then integrate with spec-reviewer + verification-before-completion. |
 | **`/review [git-range]`** | Multi-wave code review by logical units: per-unit deep review with full reviewer fleet → cross-unit boundary review → verification pass on Critical findings. |
@@ -35,7 +36,7 @@ Per Claude Code's unified skills/commands architecture, every skill is also a sl
 | **`/ship [merge] [test cmd]`** | PR-first shipping. State-driven default: opens or updates a PR. With `merge` arg: explicit local merge after acceptance prompt. |
 | **`/clean-gone`** | Delete local branches whose remote counterpart is gone, plus their worktrees. Auto-fires after `/ship merge` and at the end of `/implement`. |
 
-Skills chain naturally: each suggests a next step based on context. The intended pipeline is **ideate → /design → /implement → /review → /ship**.
+Skills chain naturally: each suggests a next step based on context. The intended pipeline is **ideate → /design → /implement → /review → /ship**; **/prototype** is the fast-path alternative when the goal is a working MVP or spike rather than a production-bar build.
 
 ## Agents
 
