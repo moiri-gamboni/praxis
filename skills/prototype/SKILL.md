@@ -97,7 +97,7 @@ The Choices table + the slice + the test calls. Seeds the handoff's "decisions +
 
 ### Premortem
 
-Assume the built prototype failed to show the outcome — why? Name the likeliest failure modes: the integration that won't authenticate, data messier than assumed, a library that doesn't do the thing, scope quietly too big for the budget. On a simple build there may be none worth naming — say so, don't manufacture them. Fold cheap de-risks into the slice now; carry the rest to the gate.
+Assume the built prototype failed to show the outcome — why? Name the likeliest failure modes: the integration that won't authenticate, data messier than assumed, a library that doesn't do the thing, scope quietly too big for the budget, an assumption about the inputs or environment that's wrong in a way the build would mask rather than surface. On a simple build there may be none worth naming — say so, don't manufacture them. Fold cheap de-risks into the slice now; carry the rest to the gate.
 
 ### Confirm
 
@@ -127,7 +127,12 @@ Trust evidence, not the agent's own say-so about code it just wrote. Run it, sho
 - Non-deterministic or model output → spot-check against explicit criteria, validate shape and ranges, flag low-confidence cases for a human.
 - Data → reconcile against the source of truth, not the pipeline's report of itself.
 
-Leave no junk behind from runs against live resources. Report what you checked, what it establishes, and what it doesn't; keep verified separate from assumed. "It ran and looks right" is not a check.
+Two traps that make checks lie:
+
+- **Unfalsifiable checks.** Verifying the happy path only proves the happy path. Find the assumption the result rests on — the one that would change the answer if it's wrong — and aim a check that can actually *fail* at it. A check that cannot fail proves nothing.
+- **Correlated checks don't add up.** Several methods, a second implementation, or another reviewer that share an input or an assumption agree *by construction* on everything upstream of them — that's one check in several costumes, not several checks. If every safeguard would still pass when your core assumption is wrong, you have one. Independence means probing from an angle that doesn't run through the shared assumption.
+
+Leave no junk behind from runs against live resources. Report what you checked, what it establishes, and what it doesn't; keep verified separate from assumed, and match your stated confidence to what you actually exercised — not to how many checks ran. "It ran and looks right" is not a check.
 
 ## Phase 6: Iterate or wrap
 
