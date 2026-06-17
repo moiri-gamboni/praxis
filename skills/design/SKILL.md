@@ -1,6 +1,6 @@
 ---
 name: design
-description: "Architecture design with competing approaches, adversarial review, test design, and implementation planning"
+description: Use when starting a new feature that needs architectural design before implementation — works through competing approaches, adversarial review, test design, and implementation plan.
 argument-hint: "<feature description>"
 allowed-tools: Read, Write, Edit, Glob, Grep, Task, Skill, AskUserQuestion
 ---

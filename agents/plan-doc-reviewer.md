@@ -1,6 +1,7 @@
 ---
 name: plan-doc-reviewer
-description: Reviews implementation plan documents for completeness, spec alignment, and buildability. Independent second pair of eyes on a plan written by another agent. Calibrated to flag only real implementation problems.
+description: Use after another agent has written an implementation plan, before commitment — verifies completeness, spec alignment, buildability. Calibrated for real implementation problems, not nits.
+tools: Glob, Grep, LS, Read, Write
 model: opus
 color: cyan
 ---

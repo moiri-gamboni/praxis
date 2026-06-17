@@ -1,6 +1,6 @@
 ---
 name: ship
-description: PR-first shipping. On main, opens a PR. On feature branches, opens a PR or pushes to an existing one. With "merge" arg, performs an explicit local merge after acceptance.
+description: Use when ready to send a change for review — opens a PR (on main: creates branch + PR; on feature branch: opens new or pushes to existing). With "merge" arg, performs an explicit local merge after acceptance.
 argument-hint: "[merge] [test command]"
 allowed-tools: Bash(git*), Bash(gh*), Bash(npm test:*), Bash(cargo test:*), Bash(pytest:*), Bash(go test:*), Bash(pnpm test:*), Bash(yarn test:*), Bash(bun test:*)
 ---

@@ -1,6 +1,6 @@
 ---
 name: code-explorer
-description: Deeply analyzes existing codebase features by tracing execution paths, mapping architecture layers, understanding patterns and abstractions, and documenting dependencies to inform new development
+description: Use when needing deep understanding of an existing codebase feature before modifying or extending it — traces execution paths, maps architecture layers, documents dependencies and abstractions.
 tools: Glob, Grep, LS, Read, Write, WebSearch, WebFetch
 model: opus
 color: yellow

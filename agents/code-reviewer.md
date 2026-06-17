@@ -1,6 +1,6 @@
 ---
 name: code-reviewer
-description: Review code against project guidelines and implementation plans. Auto-detects whether a plan is provided and adjusts scope accordingly. Use proactively after writing or modifying code, before committing or creating PRs.
+description: Use after writing or modifying code, before committing or creating PRs — reviews against project guidelines and (if provided) implementation plan; auto-detects plan presence.
 tools: Glob, Grep, LS, Read, Write
 model: opus
 color: green

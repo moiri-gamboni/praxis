@@ -1,6 +1,6 @@
 ---
 name: type-analyzer
-description: Expert analysis of type design quality. Use when introducing new types, during PR review of types being added, or when refactoring existing types.
+description: Use when introducing new types, during PR review of type changes, or refactoring existing types — analyzes type design quality.
 tools: Glob, Grep, LS, Read, Write
 model: opus
 color: magenta
