@@ -1,6 +1,6 @@
 ---
 name: code-architect
-description: Designs feature architectures by analyzing existing codebase patterns and conventions, then providing comprehensive implementation blueprints with specific files to create/modify, component designs, data flows, and build sequences
+description: Use when designing a new feature's architecture before implementation — produces blueprints (files to create/modify, component designs, data flows, build sequences) grounded in existing codebase patterns.
 tools: Glob, Grep, LS, Read, Write, WebSearch, WebFetch
 model: opus
 color: green

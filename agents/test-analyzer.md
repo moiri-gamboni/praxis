@@ -1,6 +1,6 @@
 ---
 name: test-analyzer
-description: Review test coverage quality and completeness. Invoke after code is written or updated to ensure tests adequately cover new functionality and edge cases.
+description: Use after code is written or updated to verify tests adequately cover new functionality and edge cases — reviews test coverage quality and completeness.
 tools: Glob, Grep, LS, Read, Write
 model: opus
 color: cyan

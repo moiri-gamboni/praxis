@@ -1,6 +1,6 @@
 ---
 name: implement
-description: "Decompose a large task into independent units and implement them in parallel with sub-agents in worktrees"
+description: Use when a large task is ready to build and decomposes into independent units — dispatches sub-agents in worktrees, merges incrementally, ships one PR.
 argument-hint: "<task description or path to plan file>"
 allowed-tools: Agent, Bash, Read, Write, Glob, Grep, Skill, AskUserQuestion, Task
 ---

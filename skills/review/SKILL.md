@@ -1,6 +1,6 @@
 ---
 name: review
-description: Multi-dimensional code review using all specialized reviewer agents, organized by logical code path units rather than by file. Multi-wave with cross-unit pass and verification. Optional git range argument scopes the review.
+description: Use when a body of code changes needs deep multi-dimensional review (correctness, quality, types, tests, error handling) — organized by logical code-path units, multi-wave with cross-unit pass and verification. Scopes to working tree, git range, or PR.
 argument-hint: "[git range, e.g. main..HEAD]"
 allowed-tools: Bash(git diff:*), Bash(git status:*), Bash(git log:*), Bash(gh pr view:*), Glob, Grep, Read, Task, Skill, AskUserQuestion
 ---

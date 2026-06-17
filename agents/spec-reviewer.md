@@ -1,6 +1,6 @@
 ---
 name: spec-reviewer
-description: Verify that an implementation matches its specification exactly. Takes a skeptical stance, independently reading code rather than trusting implementer reports. Use after a teammate completes a task to catch gaps, extras, misunderstandings.
+description: Use after a teammate completes a task against a spec — verifies the implementation matches exactly, catching gaps, extras, misunderstandings. Reads code independently rather than trusting reports.
 tools: Glob, Grep, LS, Read, Write
 model: opus
 color: cyan

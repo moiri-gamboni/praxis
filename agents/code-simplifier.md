@@ -1,6 +1,6 @@
 ---
 name: code-simplifier
-description: Simplify recently modified code for clarity, consistency, and maintainability while preserving all functionality. Trigger after completing a coding task or a logical chunk of code.
+description: Use after completing a coding task or logical chunk to simplify for clarity, consistency, and maintainability — preserves functionality.
 tools: Glob, Grep, LS, Read, Write, Edit
 model: opus
 color: green

@@ -1,6 +1,6 @@
 ---
 name: simplify
-description: Run a simplification pass on recently modified code
+description: Use when recently modified code should be simplified — dispatches a single code-simplifier agent.
 argument-hint: "[file or scope]"
 allowed-tools: Bash(git diff:*), Bash(git status:*), Read, Glob, Grep, Task
 ---

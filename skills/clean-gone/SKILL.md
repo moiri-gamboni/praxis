@@ -1,6 +1,6 @@
 ---
 name: clean-gone
-description: Clean up local branches deleted on remote, including associated worktrees
+description: Use when local branches whose remotes have been deleted should be cleaned up, along with any associated worktrees.
 allowed-tools: Bash(git branch:*), Bash(git worktree:*)
 ---
 

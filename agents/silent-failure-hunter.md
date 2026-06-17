@@ -1,6 +1,6 @@
 ---
 name: silent-failure-hunter
-description: Identify silent failures, inadequate error handling, and inappropriate fallback behavior in code changes. Invoke proactively after work involving error handling, catch blocks, or fallback logic.
+description: Use after work involving error handling, catch blocks, or fallback logic — hunts silent failures, inadequate error handling, and inappropriate fallbacks.
 tools: Glob, Grep, LS, Read, Write
 model: opus
 color: yellow
