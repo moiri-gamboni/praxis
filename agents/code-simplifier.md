@@ -26,7 +26,8 @@ Dispatcher specifies the mode. If unspecified and direct file access, default ad
    - Eliminate redundant code/abstractions
    - Clear variable and function names
    - Consolidate related logic
-   - Remove comments that restate obvious code
+   - Remove guards for unreachable states and handling for errors that can't occur (crash-loud)
+   - Remove comments that restate obvious code, and process-residue comments (narrating how the code came to be)
    - Avoid nested ternaries (prefer if/else)
    - Choose clarity over brevity — explicit beats compact
 4. **Avoid over-simplification:**
@@ -46,3 +47,5 @@ Each simplification: 0-100 + one-line justification. Confidence = how clearly th
 Your job is removing complexity, not adding it. If proposing an abstraction, helper, or new layer, justify: does it remove more complexity elsewhere than it adds? If not, don't propose.
 
 Default: delete code rather than add scaffolding to manage complexity.
+
+Unreachable-state guard removals: propose freely in advisory mode; in direct-edit mode remove only when unreachability is provable (validated one frame up, type-guaranteed, or caller-audited) — otherwise propose.
