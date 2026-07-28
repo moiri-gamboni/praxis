@@ -51,6 +51,7 @@ The `implementer` agent owns the worker procedure (skill loop, push, log, audit)
 
 - Project language, framework, test runner, conventions
 - Unit's goal, deliverable, files, branch (`batch/<batch-name>/<unit-name>`), acceptance criteria
+- The plan's fixed outcomes + epistemic status (outcomes, acceptance criteria, and integration contract binding; internal machinery right-sizeable with a logged deviation)
 - Test command (the implementer's procedure runs this for the full-suite step)
 - Worker log path: `<WORKSPACE>/workers/<UNIT_NAME>.md`
 - Integration contract (interfaces, naming, types other units expect)
@@ -85,7 +86,7 @@ After all units merged:
 1. `/review all` — catch cross-unit inconsistencies (naming, patterns, interface mismatches, duplication). Before fixing, invoke `Skill: "receiving-code-review"`.
 2. `Skill: "simplify"` — apply each finding's fix. Skip findings that change behavior or fall outside the merged diff.
 3. Run integration tests from the plan
-4. **Plan-completion check** (if plan file present): spawn `spec-reviewer` via Task with plan as spec. Address gaps after invoking `Skill: "receiving-code-review"`.
+4. **Plan-completion check** (if plan file present): spawn `spec-reviewer` via Task with plan as spec. Address gaps after invoking `Skill: "receiving-code-review"`. Gaps matching a worker-logged lean-out or non-behavioral classification are adjudicated against the fixed outcomes — not auto-restored.
 5. **Invoke `Skill: "verification-before-completion"`** before PR.
 6. Resolve conflicting doc edits from workers
 7. Fix issues, re-run tests
