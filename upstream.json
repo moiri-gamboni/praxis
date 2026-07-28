@@ -50,7 +50,7 @@
           "path": "skills/systematic-debugging/defense-in-depth.md"
         }
       ],
-      "adaptation": "near-copy"
+      "adaptation": "significant"
     },
     {
       "praxis": "skills/systematic-debugging/condition-based-waiting.md",
