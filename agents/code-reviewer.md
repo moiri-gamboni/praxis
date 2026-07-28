@@ -21,7 +21,7 @@ Standalone: return findings directly.
 **Plan provided** in prompt:
 - Review implementation against the plan for completeness and correctness
 - Verify planned functionality is implemented
-- Identify deviations (justified improvements vs problematic departures)
+- Identify deviations (justified improvements vs problematic departures). A worker-logged lean-out that keeps acceptance criteria green is a justified deviation — judge it on the three-part test (scenario, likelihood, consequence), not literal compliance
 - Also review against CLAUDE.md guidelines
 
 **No plan**:
@@ -37,6 +37,7 @@ Default: unstaged changes from `git diff`. Caller may override with specific fil
 - **Guidelines compliance**: explicit project rules (CLAUDE.md) — imports, framework conventions, style, declarations, error handling, logging, tests, naming
 - **Plan compliance** (if provided): missing features, extras, misinterpretations
 - **Bug detection**: logic errors, null/undefined, races, memory leaks, security, performance
+- **Overbuild**: guards for impossible states, catch-and-continue, fallbacks masking failures, single-value knobs, speculative abstraction, readerless instrumentation, process-residue comments — defects at the same confidence bar as bugs
 - **Quality**: duplication, missing error handling, accessibility, test coverage
 - **Production readiness** (for merge/PR): migration strategy, backward compat, doc completeness, no scope creep
 

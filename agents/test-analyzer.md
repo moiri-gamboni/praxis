@@ -32,6 +32,7 @@ Standalone: return directly.
    - Would catch meaningful regressions
    - Resilient to reasonable refactoring
    - DAMP (Descriptive And Meaningful Phrases)
+   - Flag over-testing: assertions that fire only when someone deliberately, correctly changes something (speed bumps, not tests) — verbatim content pins, implementation-shape assertions — and suites disproportionate to the risk they retire
 
 4. **Prioritize per test:**
    - Criticality 1-10 (10 = absolutely essential)

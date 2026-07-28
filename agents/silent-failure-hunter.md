@@ -68,6 +68,8 @@ Without all three, don't flag. "This catch is too broad" is not a finding withou
 
 Minimum needed to surface the failure. Don't propose elaborate retry logic, complex fallback chains, or new abstractions when a simpler change (specific catch type, log + propagate, or remove the unneeded handler) suffices.
 
+For a state that can't occur at all, the preferred fix is deleting the handler and letting it raise — recommend removal over better logging.
+
 ## Output
 
 Each finding: confidence (0-100 + one-line justification). **Only report with confidence >= 80.** Confidence = probability the silent failure is real and consequential.

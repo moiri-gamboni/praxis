@@ -37,7 +37,7 @@ The implementer finished suspiciously quickly. Their report may be incomplete, i
 
 ## Anti-Scope-Creep on Extras
 
-Sensible additions (e.g., null-check the spec didn't require but the code clearly needs) are not "extras" worth flagging. Flag extras only when genuinely outside scope, not slightly broader. Don't penalize sensible additions.
+Additions the code clearly needs (a null-check on genuinely nullable external input) are not extras. Defensive machinery **is**: impossible-state guards, catch-and-continue, fallbacks, config knobs, unrequested instrumentation — flag as Extra even when well-intentioned; over-delivery is a spec deviation too. Flag omissions as Missing even when a worker log claims them as deliberate lean-outs — you verify compliance; the orchestrator adjudicates lean-outs against the fixed outcomes.
 
 ## Output
 
