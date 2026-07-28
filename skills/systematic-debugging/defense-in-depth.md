@@ -1,104 +1,56 @@
-# Defense-in-Depth Validation
+# Where to Validate vs Assert
 
 ## Overview
 
-When you fix a bug caused by invalid data, adding validation at one place feels sufficient. But that single check can be bypassed by different code paths, refactoring, or mocks.
+After root-causing a bug caused by bad data, the reflex is to add validation everywhere the data flows. Resist it: a guard for a state that cannot occur hides real failures, invites tests that pin implementation shape, and recursively justifies more machinery — the pins justify the check, the check justifies the fallback, the fallback justifies the injection point, the injection point justifies the tests.
 
-**Core principle:** Validate at EVERY layer data passes through. Make the bug structurally impossible.
+**Core principle:** Validate at the trust boundary, assert internal invariants where they're relied on, let impossible states crash.
 
-## Why Multiple Layers
+## The Decision
 
-Single validation: "We fixed the bug"
-Multiple layers: "We made the bug impossible"
+For each point the bad data passed through, classify:
 
-Different layers catch different cases:
-- Entry validation catches most bugs
-- Business logic catches edge cases
-- Environment guards prevent context-specific dangers
-- Debug logging helps when other layers fail
-
-## The Four Layers
-
-### Layer 1: Entry Point Validation
-**Purpose:** Reject obviously invalid input at API boundary
+### 1. Trust boundary
+User input, API request, file/config read, external service response: **validate**. Real inputs go wrong; reject with a clear error naming what was expected.
 
 ```typescript
 function createProject(name: string, workingDirectory: string) {
-  if (!workingDirectory || workingDirectory.trim() === '') {
-    throw new Error('workingDirectory cannot be empty');
-  }
   if (!existsSync(workingDirectory)) {
     throw new Error(`workingDirectory does not exist: ${workingDirectory}`);
   }
-  if (!statSync(workingDirectory).isDirectory()) {
-    throw new Error(`workingDirectory is not a directory: ${workingDirectory}`);
-  }
   // ... proceed
 }
 ```
 
-### Layer 2: Business Logic Validation
-**Purpose:** Ensure data makes sense for this operation
+### 2. Internal invariant
+A caller already validated it; the type system constrains it; construction guarantees it: **assert, once, where the invariant is relied on** — or nothing at all, if violation already crashes loudly at the point of use. Don't re-validate what was validated one frame up. Don't catch, wrap, or default: a quiet fallback converts a loud crash into silent corruption.
 
-```typescript
-function initializeWorkspace(projectDir: string, sessionId: string) {
-  if (!projectDir) {
-    throw new Error('projectDir required for workspace initialization');
-  }
-  // ... proceed
-}
-```
+### 3. Cannot occur
+No code path produces it: **no guard**. If you're wrong about "cannot occur," a crash tells you immediately; a defensive default hides it indefinitely.
 
-### Layer 3: Environment Guards
-**Purpose:** Prevent dangerous operations in specific contexts
+## Temporary Diagnostics Are Temporary
 
-```typescript
-async function gitInit(directory: string) {
-  // In tests, refuse git init outside temp directories
-  if (process.env.NODE_ENV === 'test') {
-    const normalized = normalize(resolve(directory));
-    const tmpDir = normalize(resolve(tmpdir()));
+Environment guards ("refuse git init outside temp dirs during tests") and debug instrumentation (entry/exit logging, stack capture) are legitimate **while diagnosing** — that's Phase 1 of systematic debugging. After the root cause is fixed:
 
-    if (!normalized.startsWith(tmpDir)) {
-      throw new Error(
-        `Refusing git init outside temp dir during tests: ${directory}`
-      );
-    }
-  }
-  // ... proceed
-}
-```
+- Remove them, or
+- Demote the essential piece into the bug's regression test.
 
-### Layer 4: Debug Instrumentation
-**Purpose:** Capture context for forensics
+Shipping them permanently is how codebases accrete guard recursion.
 
-```typescript
-async function gitInit(directory: string) {
-  const stack = new Error().stack;
-  logger.debug('About to git init', {
-    directory,
-    cwd: process.cwd(),
-    stack,
-  });
-  // ... proceed
-}
-```
+## When Multiple Layers Are Right
 
-## Applying the Pattern
+Permanent validation at more than one layer is justified only when the layers genuinely see different inputs or callers (a public API and a message queue feeding the same handler; a library boundary with external consumers). Each layer must independently earn its place with the three-part articulation:
 
-When you find a bug:
+1. **Specific failure scenario** at *this* layer
+2. **Realistic likelihood** (often "negligible" — then say so, and skip it)
+3. **Consequence if unhandled** (data loss? recoverable error? log line nobody reads?)
 
-1. **Trace the data flow** - Where does bad value originate? Where used?
-2. **Map all checkpoints** - List every point data passes through
-3. **Add validation at each layer** - Entry, business, environment, debug
-4. **Test each layer** - Try to bypass layer 1, verify layer 2 catches it
+"A refactor might bypass the other check someday" fails the test — that hypothetical refactor should move the validation, and the crash from the missing check is what tells you it didn't.
 
-## Key Insight
+## Applying After a Fix
 
-All four layers are necessary. During testing, each layer catches bugs the others miss:
-- Different code paths bypass entry validation
-- Mocks bypass business logic checks
-- Edge cases on different platforms need environment guards
-- Debug logging identifies structural misuse
-
-**Don't stop at one validation point.** Add checks at every layer.
+1. **Trace the data flow** — where does the bad value originate? Where is it relied on?
+2. **Find the trust boundary** it crossed unvalidated; validate there.
+3. **Fix the root cause** at the source (see `root-cause-tracing.md`).
+4. **Write the regression test** for the behavior that broke.
+5. **Delete the diagnostics** you added while investigating.
