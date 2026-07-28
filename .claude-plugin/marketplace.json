@@ -11,12 +11,18 @@
       "name": "praxis",
       "source": "./",
       "description": "Unified development workflow plugin combining behavioral discipline, composable commands, and specialized review agents",
-      "version": "1.4.6",
+      "version": "1.5.1",
       "author": {
         "name": "Moiri Gamboni"
       },
       "license": "AGPL-3.0",
-      "keywords": ["workflow", "review", "tdd", "debugging", "git"]
+      "keywords": [
+        "workflow",
+        "review",
+        "tdd",
+        "debugging",
+        "git"
+      ]
     }
   ]
 }
