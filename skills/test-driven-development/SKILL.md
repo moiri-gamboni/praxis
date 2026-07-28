@@ -15,23 +15,25 @@ Write the test first. Watch it fail. Write minimal code to pass.
 
 ## When to Use
 
-**Always:**
+**Always — when there's a behavioral contract:**
 - New features
 - Bug fixes
-- Refactoring
 - Behavior changes
+
+**Refactoring:** TDD's role in a behavior-preserving change is that existing tests stay green — never a new failing test. A new test that fails before a refactor can only be failing because it pins the new shape.
+
+**No behavioral contract, no test:** docs, config, wiring, cosmetics — anything whose contract you cannot phrase as inputs/state → observable output or effect. A test there could only pin source text or code shape: it fails red trivially, greens on paste, and proves nothing (see the Gate below). Verify by running/rendering instead.
 
 **Exceptions (ask your human partner):**
 - Throwaway prototypes
 - Generated code
-- Configuration files
 
-Thinking "skip TDD just this once"? Stop. That's rationalization.
+Thinking "skip TDD just this once"? Stop. That's rationalization. The question is never whether testing is worth the effort (it is); it's whether a behavioral contract exists to test.
 
 ## The Iron Law
 
 ```
-NO PRODUCTION CODE WITHOUT A FAILING TEST FIRST
+NO NEW BEHAVIOR WITHOUT A FAILING TEST FIRST
 ```
 
 Write code before the test? Delete it. Start over.
@@ -43,6 +45,14 @@ Write code before the test? Delete it. Start over.
 - Delete means delete
 
 Implement fresh from tests. Period.
+
+## The Gate: Name the Behavior
+
+Before writing the test, phrase the behavior: **inputs/state → observable output or effect**, with no reference to the code's text or structure.
+
+- Can't phrase it that way? There is no test to write here — the deliverable is non-behavioral. Verify by running/rendering; don't manufacture a red test.
+- **Output text is behavior** (error messages, rendered templates, CLI output are contracts). **Source text never is.** Prefer asserting the property of the output that matters over byte-pinning the whole output, unless exact bytes are the contract (golden files).
+- A test that can only fail via text diff on the source proves nothing: watching it fail is ceremony, not verification.
 
 ## Red-Green-Refactor
 
@@ -236,6 +246,7 @@ TDD IS pragmatic:
 | "TDD will slow me down" | TDD faster than debugging. Pragmatic = test-first. |
 | "Manual test faster" | Manual doesn't prove edge cases. You'll re-test every change. |
 | "Existing code has no tests" | You're improving it. Add tests for existing code. |
+| "No behavior here" (docs/config/cosmetics) | Legitimate ONLY if the deliverable can't be phrased as inputs → observable effect. Property of the deliverable, not your effort budget. "Too simple to test" is still not this. |
 
 ## Red Flags - STOP and Start Over
 
@@ -252,6 +263,7 @@ TDD IS pragmatic:
 - "Already spent X hours, deleting is wasteful"
 - "TDD is dogmatic, I'm being pragmatic"
 - "This is different because..."
+- Test asserts source text or code shape (manufactured red)
 
 **All of these mean: Delete code. Start over with TDD.**
 
@@ -296,7 +308,7 @@ Extract validation for multiple fields if needed.
 
 Before marking work complete:
 
-- [ ] Every new function/method has a test
+- [ ] Every new behavior has a test; anything exempted is named as non-behavioral, with the reason
 - [ ] Watched each test fail before implementing
 - [ ] Each test failed for expected reason (feature missing, not typo)
 - [ ] Wrote minimal code to pass each test
@@ -332,7 +344,8 @@ When adding mocks or test utilities, read `testing-anti-patterns.md` in this ski
 ## Final Rule
 
 ```
-Production code -> test exists and failed first
+New behavior -> test exists and failed first
+Non-behavioral deliverable -> named as such, verified by running/rendering
 Otherwise -> not TDD
 ```
 
