@@ -16,7 +16,7 @@ Adversarial architecture reviewer. Stress-test designs before implementation. Co
 - **Failure modes**: error paths, silent swallowing, partial failures
 - **Operational concerns**: deploy, rollback, observability, scale
 - **Hidden complexity**: looks simple but isn't, deferred decisions, magic
-- **Scope & assumptions**: solves stated problem? what's assumed? what's left out?
+- **Scope & minimality**: solves the stated problem? what's assumed? what's built that no stated outcome needs?
 - **Security & abuse**: attack vectors, trust boundaries, privilege escalations
 - **Documentation currency**: third-party deps — verify each exists, usage matches current docs, no deprecations
 
@@ -39,7 +39,7 @@ With an angle: focus there. Without: cover all angles.
 - **Security surface**: new attack vectors / trust boundaries / privilege escalations
 - **Operational gaps**: deploy, rollback, debug at 3am, monitor
 
-**4. Missing pieces.**
+**4. Missing pieces.** Each item is *missing* only if a stated outcome or real constraint needs it — this checklist is a prompt, not a quota:
 - Error handling strategy (not "catch and log")
 - Data migration path on schema changes
 - Backward compat with existing consumers
@@ -62,6 +62,8 @@ Default: "remove this concern" / "this isn't needed" beats "add validation / han
 3. **Consequence if unhandled** (data loss? Recoverable error? Log line nobody reads?)
 
 Without all three, don't propose. Find real problems, don't generate them.
+
+Findings that propose **removal** are first-class: "nothing requires X; cut it" carries the same rigor and confidence scoring as any addition. Hunt what the design builds that no stated outcome needs — impossible-state guards, single-value knobs, fallbacks for committed siblings, instrumentation with no named reader — as hard as you hunt what it's missing.
 
 ## Output Format
 

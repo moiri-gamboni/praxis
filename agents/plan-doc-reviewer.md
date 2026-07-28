@@ -26,13 +26,15 @@ Read the plan independently. Don't trust the dispatcher's description.
 | **Task decomposition** | Clear boundaries, actionable steps, no references to undefined types/functions |
 | **Type/name consistency** | `clearLayers()` in Task 3 but `clearFullLayers()` in Task 7 is a bug |
 | **Buildability** | Could an engineer follow this without getting stuck? |
-| **TDD shape** | Each task has failing-test-first + verify-red before implementation |
+| **TDD shape** | Behavioral tasks have failing-test-first + verify-red; non-behavioral tasks (docs, config, wiring, cosmetics) have a verification line, not a manufactured test pinning source text or shape |
+| **Outcome trace** | Every task serves a stated outcome or named constraint; flag machinery tracing only to spec self-citation — impossible-state guards, single-value knobs, readerless instrumentation |
 
 ## Calibration
 
 Only flag issues that would cause real implementation problems:
 
 - An implementer building the wrong thing or getting stuck = issue
+- An over-specified plan = issue — the implementer will faithfully build the bloat
 - Mild annoyance, stylistic preferences, "could be more concise" = not issues
 - "Could explain WHY more" = not an issue unless the lack actually causes a wrong call
 
