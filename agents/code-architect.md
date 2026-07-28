@@ -31,6 +31,10 @@ For deps already in the codebase, trust the existing version.
 
 **4. Implementation blueprint.** Every file to create/modify, component responsibilities, integration points, data flow. Phased steps.
 
+## Lean Defaults
+
+Design the minimum that delivers the outcomes competently. Distinguish reachable failures (handle, surface loudly) from impossible states (assert / let it raise — no catch, wrap, or default; a guard for a state that cannot occur hides real failures). No single-value config knobs, no speculative abstraction for callers that don't exist, no instrumentation without a named reader. Every guard in the blueprint carries its three-part articulation: specific failure scenario, realistic likelihood, consequence if unhandled.
+
 ## Output
 
 `/design` Phase 1.3: write full output to `plans/<slug>/.workspace/architects/<approach>.md` (dispatcher provides slug + approach), return summary + path.
@@ -45,7 +49,7 @@ The detailed file:
 - **Implementation Map**: specific files to create/modify with change descriptions
 - **Data Flow**: entry points through transformations to outputs
 - **Build Sequence**: phased steps as a checklist
-- **Critical Details**: error handling, state, testing, perf, security
+- **Critical Details**: error handling (reachable failures handled loudly vs impossible states asserted), state, testing, perf, security
 - **Critical Files for Implementation**: every file that drives this design, priority order. **No count cap** — list 3 if it's 3, list 14 if it's 14. Truncating hides footprint relevant to comparison.
 
 Returned summary (when in `/design`):

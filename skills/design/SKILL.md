@@ -9,6 +9,14 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Task, Skill, AskUserQuestion
 
 **Feature:** "$ARGUMENTS"
 
+## Working Principle
+
+**Fixed outcomes vs variable means.** The features/results the user asked for are fixed; all machinery delivering them is variable. Design the minimum that delivers them competently — tested, sound seams, real errors surfaced, sensible performance. The floor is real: don't cut tests for reachable behavior, error surfacing for reachable failures, or the seams extension needs.
+
+**Code is a liability.** Every guard, knob, fallback, abstraction, instrument, and test carries permanent comprehension and maintenance cost. A requirement that traces only to "the spec/design doc says so" is challengeable; one that traces to a fixed outcome or a real external constraint (law, data loss, PII, money) is not.
+
+**Crash-loud beats handle-quietly for impossible states.** If a state can't happen, let it raise — don't catch, wrap, default, or re-validate what was validated one frame up. A guard for a state that cannot occur hides real failures. Defensive code needs all three: specific failure scenario, realistic likelihood, consequence if unhandled.
+
 ## Phase 1: Architecture
 
 ### 1.1 Validate Input + Read Ideation
@@ -58,7 +66,7 @@ Material changes only. Cap at one re-exploration. User approval required.
 
 Restate the goal back to the user before architect dispatch:
 
-1. **Goal + context**: paraphrase intent + scope; name the dominant failure mode. Invite correction.
+1. **Goal + fixed outcomes**: paraphrase intent + scope; list the **fixed outcomes** — the features/results the user actually asked for, stated as results, not mechanisms; name the dominant failure mode. Invite correction. The plan must deliver the fixed outcomes; everything else — guard density, knobs, instrumentation, schema richness, test volume — is means, chosen lean.
 2. **Architectural change appetite** (only if 1.2.5 coverage flags in-pattern gaps): "Should architects stay in-pattern, or is infrastructure in scope?"
 
 Silence = confirmation.
@@ -71,7 +79,9 @@ Spawn 2-3 `code-architect` agents in parallel, each with a different philosophy:
 - **Clean architecture**: best design, maintainability, long-term extensibility
 - **Pragmatic balance**: sweet spot between minimal and clean
 
-Each receives the shared context + ideation file (if any) + their philosophy. Architects do narrower exploration scoped to their approach (their job: "what my approach needs to touch," not "the lay of the land").
+Each receives the shared context + ideation file (if any) + the fixed outcomes from 1.2.8 + their philosophy. Architects do narrower exploration scoped to their approach (their job: "what my approach needs to touch," not "the lay of the land").
+
+All three philosophies share a floor (competent: tested, sound seams) and a ceiling (nothing that doesn't trace to a fixed outcome or real constraint). Clean means better factored, not more machinery.
 
 Each writes design to `plans/<slug>/.workspace/architects/<approach>.md` containing:
 - Patterns & conventions found (with `file:line`)
@@ -93,6 +103,7 @@ Coordinator-level. No agent dispatch — operate on architect outputs and shared
    - **Stakes** (high/med/low): how bad if this pick is wrong. Consider feature impact, reversibility, and user-visibility.
    - **Confidence** (high/med/low): property of the pick; row pattern (one `✓✓` = clear, two = close call, all `✓` = doesn't matter)
    - **Crux to flip**: one line; what would change the pick
+   - **Lean tie-break**: when a row is a close call (two `✓✓`) or doesn't matter (all `✓`), default to the leaner pick; the crux-to-flip records what would justify the heavier one
    - High stakes + medium-or-lower conf → user input matters here
 
 3. **Sort** by stakes (high → low), then confidence (low → high).
@@ -132,7 +143,7 @@ Spawn `red-team` agents in parallel, one per attack angle. Standard angles:
 2. **Failure modes** — error paths, silent swallowing, partial failures
 3. **Operational concerns** — deploy, rollback, observability, scale behavior
 4. **Hidden complexity** — looks simple but isn't, deferred decisions, magic
-5. **Scope & assumptions** — solves stated problem? what's assumed? what's left out?
+5. **Scope & minimality** — solves the stated problem? what's assumed? what does the design build that no fixed outcome needs — impossible-state guards, single-value knobs, fallbacks for committed siblings, instrumentation with no named reader, duplicated machinery? Cut-proposals are first-class findings.
 
 Conditional:
 
@@ -157,6 +168,8 @@ Present merged plan + matrix + aggregated findings. Each finding gets severity (
 
 Iterate (revise plan, re-run affected angles). Severity and resolution stay separate; funnel ("1 Critical Fixed, 3 Important Deferred, 5 Suggestion Rejected") is meaningful.
 
+**Resolution triage.** Fixed-by-adding-machinery requires the three-part articulation (scenario, likelihood, consequence) — without it, the finding resolves Rejected or Deferred, not Fixed. Rejected (by analysis) is a healthy, expected outcome; the funnel is meaningful precisely because not everything gets fixed. When a finding contests a decision the architects settled unanimously, first ask: did it actually contest the choice, or identify a narrow add they missed? The latter is an auto-resolution (apply the narrow fix), not a new decision point.
+
 **Traceability check**. Trace the user-stated symptom through the plan: "User does X. Today: Y. After plan: Z." For every failure mode in 1.2 dimension 5. If any doesn't trace to a closed gap (or explicit deferral), return to architects/red-team.
 
 Run the fleet one final time. Clean run = ready for Phase 2.
@@ -169,8 +182,10 @@ Design the test strategy for the chosen architecture:
 
 1. Identify key behaviors per component
 2. Write test specs (inputs, expected outputs, edge cases)
-3. Map tests to components — each plan task starts with a clear failing test
+3. Map tests to components — each task with a behavioral deliverable starts with a clear failing test. Not every task has one: tasks whose deliverable is docs, config, wiring, or cosmetics get a **verification line** (run it / render it / review it), never a manufactured test asserting source text or code shape to satisfy the red-green ritual.
 4. Identify integration tests across components
+
+**Behavior-only rule**: keep a test only if it exercises a code path and asserts its output or effect. Volume proportional to the risk retired. A test locks behavior — don't lock implementation shape, constants meant to change, or behavior the plan doesn't need.
 
 Present the strategy. These tests become the plan's acceptance criteria.
 
@@ -182,6 +197,8 @@ Write to `plans/<slug>.md`. Propose a kebab-case slug if not obvious or ask the 
 
 Write the plan assuming the implementer has zero codebase context.
 
+**Plan epistemic status**: fixed outcomes, acceptance criteria, and integration contracts are binding downstream. The rest of the plan is the current best operationalization — implementers right-size internal machinery (guards, knobs, fallbacks, instrumentation) against the crash-loud principle, logging each deviation. Never silently dropped, never silently gold-plated.
+
 Plan structure:
 
 ### Plan Header
@@ -190,6 +207,7 @@ Plan structure:
 # [Feature] Implementation Plan
 
 **Goal:** [One sentence]
+**Fixed outcomes:** [Short list from 1.2.8: the features/results the user asked for — what the plan must deliver; everything else is means]
 **Architecture:** [2-3 sentences]
 **Failure mode targeted:** [The dominant failure mode this plan closes, from 1.2 dimension 5]
 **Tech Stack:** [Key technologies]
@@ -205,6 +223,7 @@ The Decision Record is the canonical source for everything Phase 3's Present for
 - **Already implemented** (skip if empty): items found in exploration; no work needed.
 - **Actually new**: genuine deliverables.
 - **Departures from brief** (drops AND additions): `brief asked X → plan delivers Y → why diverged`. Load-bearing justification.
+- **Left out (deliberately)** (skip if empty): machinery considered and not built — guard / knob / fallback / instrument — one line each with the trigger that would justify adding it later. Makes leanness auditable rather than a silent absence.
 
 **Per-decision matrix** (from 1.4):
 ```
@@ -361,6 +380,8 @@ Each task targets one component. Task header references skills the implementer a
 - [ ] Commit with semantic message
 ````
 
+For tasks without a behavioral deliverable (docs, config, wiring, cosmetics): drop the `test-driven-development` activation and swap the red-green checklist for `- [ ] Verify: <command / render / check + expected result>` — never a test pinning source text or shape.
+
 For frontend features, note in plan header that `frontend-design` skill auto-activates during implementation.
 
 ### Quality Rules
@@ -377,6 +398,7 @@ After writing, check:
 3. Type consistency: names match across tasks
 4. Scope: each task touches ≤2-3 files
 5. Ambiguity: no requirement reads two ways
+6. Outcome trace (reverse): every task, guard, knob, field, and test serves a fixed outcome or named external constraint; anything tracing only to a design doc's say-so gets cut or moved to Left-out
 
 Fix inline.
 
