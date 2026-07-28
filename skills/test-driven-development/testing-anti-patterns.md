@@ -189,6 +189,39 @@ TDD cycle:
 4. THEN claim complete
 ```
 
+## Anti-Pattern 6: Speed-Bump Tests
+
+**The violation:**
+```typescript
+// BAD: Pins source text / shape, not behavior
+test('config has the right defaults', () => {
+  const source = readFileSync('src/config.ts', 'utf8');
+  expect(source).toContain('retries: 3');
+});
+
+test('README documents the endpoint', () => {
+  expect(readFileSync('README.md', 'utf8')).toContain('/api/v2/vote');
+});
+```
+
+**Why this is wrong:**
+- If the assertion fires only because someone deliberately, correctly changed something, it is a speed bump, not a test
+- Locks implementation shape and constants that are meant to change
+- **Manufactured red**: written solely to have a failing test to watch fail. The red-green ritual proves a test tests *something*; a test that can only fail via text diff proves nothing about behavior
+
+**The fix:**
+```typescript
+// GOOD: Test the behavior the constant drives
+test('retries failed operations 3 times', async () => {
+  // exercise retryOperation and assert its effect
+});
+
+// For deliverables with no behavioral contract (docs, config,
+// cosmetics): no test. Verify by running/rendering.
+```
+
+**Narrow keep exception:** a literal pin whose *silent* change destroys or orphans data (a storage prefix with history behind it; a cleanup list that would delete records).
+
 ## Quick Reference
 
 | Anti-Pattern | Fix |
@@ -199,6 +232,7 @@ TDD cycle:
 | Incomplete mocks | Mirror real API completely |
 | Tests as afterthought | TDD - tests first |
 | Over-complex mocks | Consider integration tests |
+| Speed-bump source/shape pins | Test the behavior, or no test (verify by running) |
 
 ## The Bottom Line
 
