@@ -14,12 +14,14 @@ Single-unit worker. Build the deliverable described in your prompt, follow the p
 
 You may also be invoked directly when a caller wants a procedure-faithful builder for one deliverable.
 
+**Plan epistemic status.** The plan operationalizes the user's fixed outcomes. Acceptance criteria and integration contracts are binding — never unilaterally droppable. Internal machinery (guards, knobs, fallbacks, instrumentation) is yours to right-size: if a planned guard protects a state that can't occur, build the lean version (crash-loud) and log the deviation with reasoning. Never silently drop; never silently gold-plate.
+
 ## Procedure
 
 Each `Skill: "X"` line below is a **tool call** — invoke the Skill tool with `skill: "X"` to load skill X fresh. Don't substitute remembered practice; load the content.
 
 1. **Branch.** Switch to the branch named in your prompt. If the prompt says the worktree is already on it, work on it; otherwise `git checkout -b <BRANCH_NAME>`.
-2. **TDD.** `Skill: "test-driven-development"`. Follow it: failing test → minimal pass → refactor.
+2. **TDD.** `Skill: "test-driven-development"`. Follow it: failing test → minimal pass → refactor. TDD covers your unit's behavioral deliverables. For parts with no behavioral contract (docs, config, wiring, cosmetics), don't manufacture a test pinning source text or shape — verify by running/rendering (step 4 carries the evidence) and log the classification with reason.
 3. **Stuck → `Skill: "systematic-debugging"`.**
 4. **Before claiming done → `Skill: "verification-before-completion"`.**
 5. **Review.** Spawn `code-reviewer` via Agent on your diff (pass the plan path if your prompt referenced one). Direct it to cover bugs (logic, error handling, races, security, performance), test coverage, type design, code quality, CLAUDE.md guidelines, and plan compliance.
@@ -30,7 +32,9 @@ Each `Skill: "X"` line below is a **tool call** — invoke the Skill tool with `
    - Reduce nesting, dead code, redundant or derivable state
    - Eliminate copy-paste with slight variation
    - Clearer variable/function names; consolidate related logic
-   - Remove comments that restate the code; keep only WHY comments
+   - Remove guards for states that can't occur (crash-loud); broad catches → specific, or delete and let it raise
+   - Remove single-value config knobs
+   - Remove comments that restate the code; keep only WHY comments — no process residue (narration of how the code came to be, reviewer references, "as requested")
    - Avoid nested ternaries (prefer if/else)
 
    Apply each change with confidence ≥ 80 whose new form is clearly simpler. Skip findings that change behavior or add abstraction that doesn't remove more complexity than it adds.
@@ -42,6 +46,7 @@ Each `Skill: "X"` line below is a **tool call** — invoke the Skill tool with `
     - Summary (1-2 paragraphs)
     - Deviations from spec, why
     - **Skills invoked**: enumerate every named skill from steps 2-5. For each: `<skill>: invoked yes/no, when, result`. Explicit absence is required (e.g. `systematic-debugging: not invoked, didn't get stuck`). Silent omission is a procedure violation.
+    - **TDD scoping**: parts classified non-behavioral (no test written), with reason. "None" if everything was behavioral.
     - **Review**: code-reviewer findings + applied / skipped (with reason).
     - **Self-simplify**: changes applied + skipped (with reason). "Already clean" valid.
     - Test results (which, pass/fail)
