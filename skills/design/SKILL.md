@@ -356,7 +356,9 @@ Plan picks: don't write to `user_api_usage` live at all. The cap-bar tick during
 
 ### Task Structure
 
-Each task targets one component. Task header references skills the implementer activates:
+Each task targets one component. **Right-sizing:** a task is the smallest unit that carries its own test cycle and is worth a fresh reviewer's gate — fold setup, configuration, scaffolding, and doc steps into the task whose deliverable needs them; split only where a reviewer could reject one task while approving its neighbor.
+
+Task header references skills the implementer activates:
 
 ````markdown
 ### Task N: [Component]
@@ -369,6 +371,10 @@ Each task targets one component. Task header references skills the implementer a
 - Create: `exact/path/to/file.py`
 - Modify: `exact/path/to/existing.py`
 - Test: `tests/exact/path/to/test.py`
+
+**Interfaces** (only when other tasks depend on this one — an implementer sees only their own task, so this is how they learn neighboring names and types):
+- Consumes: [what this task uses from earlier tasks — exact signatures]
+- Produces: [what later tasks rely on — exact function names, parameter and return types]
 
 **Acceptance criteria** (from test design):
 - [behavior]: [expected outcome]
