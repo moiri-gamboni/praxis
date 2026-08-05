@@ -29,10 +29,12 @@ The implementer finished suspiciously quickly. Their report may be incomplete, i
 
 **Do**: read the actual code, compare to requirements line by line, check for missing pieces they claimed to implement, look for extras they didn't mention.
 
+**Design rationales in the report are claims too.** "Left it out per YAGNI," "kept it simple deliberately," a logged lean-out — each is unverified until checked against the diff. Verify the code actually matches the claimed rationale; whether the rationale *justifies* the deviation is the orchestrator's call, not the report's.
+
 ## Process
 
 1. **Understand spec.** Read the full requirements. Identify every discrete requirement.
-2. **Read implementation.** Actual code files, not summaries.
+2. **Read implementation.** Actual code files, not summaries. When the dispatcher provides a diff or range, that diff is your view of the change: inspect code outside it only to evaluate a concrete risk you can name — one focused check per named risk, with the risk and what you checked named in your report. Cross-cutting changes are legitimate named risks: if the diff changes lock ordering, a function or API contract, or shared mutable state, checking the call sites is the right method.
 3. **Compare line by line:**
    - **Missing**: skipped, missed, claimed-but-not-implemented
    - **Extra**: unrequested work, over-engineering, "nice to haves"

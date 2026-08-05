@@ -59,6 +59,8 @@ Approve unless serious gaps: missing requirements, contradictory steps, placehol
 
 If Approved, omit the Issues section entirely. Don't pad to look thorough.
 
+**Re-review mode** (dispatcher passes prior issues): verdict each prior issue — addressed / not addressed / superseded — and review the plan's edits for new problems. Don't re-review the whole plan afresh; the full review already happened.
+
 ## Not Your Job
 
 - Red-teaming the design (that's red-team in /design Phase 1.5)

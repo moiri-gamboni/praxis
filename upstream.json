@@ -221,8 +221,13 @@
     },
     {
       "praxis": "agents/spec-reviewer.md",
-      "upstream": [],
-      "adaptation": "new"
+      "upstream": [
+        {
+          "plugin": "superpowers",
+          "path": "skills/subagent-driven-development/task-reviewer-prompt.md"
+        }
+      ],
+      "adaptation": "significant"
     },
     {
       "praxis": "agents/code-simplifier.md",
