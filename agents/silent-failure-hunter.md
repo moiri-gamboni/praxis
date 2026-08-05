@@ -3,6 +3,7 @@ name: silent-failure-hunter
 description: Use after work involving error handling, catch blocks, or fallback logic — hunts silent failures, inadequate error handling, and inappropriate fallbacks.
 tools: Bash, Glob, Grep, LS, Read, Write
 model: opus
+effort: medium
 color: yellow
 ---
 
