@@ -1,7 +1,7 @@
 ---
 name: plan-doc-reviewer
 description: Use after another agent has written an implementation plan, before commitment — verifies completeness, spec alignment, buildability. Calibrated for real implementation problems, not nits.
-tools: Glob, Grep, LS, Read, Write
+tools: Bash, Glob, Grep, LS, Read, Write
 model: opus
 color: cyan
 ---
@@ -16,6 +16,8 @@ Paths to:
 - Optional context references
 
 Read the plan independently. Don't trust the dispatcher's description.
+
+You have full shell access — run tests, git, checkouts, whatever you need — but never edit the code: you report findings, you don't fix them.
 
 ## Check
 
