@@ -7,8 +7,6 @@ description: Use when about to claim work is complete, fixed, or passing, before
 
 ## Overview
 
-Claiming work is complete without verification is dishonesty, not efficiency.
-
 **Core principle:** Evidence before claims, always.
 
 **Violating the letter of this rule is violating the spirit of this rule.**
@@ -123,12 +121,4 @@ BAD: Trust agent report
 
 ## Web UI Verification
 
-For changes involving web UI, use `rodney` to verify the result: take screenshots to check visual output, interact with elements, assert behavior, check accessibility. Run `rodney --help` for full capabilities.
-
-## The Bottom Line
-
-**No shortcuts for verification.**
-
-Run the command. Read the output. THEN claim the result.
-
-This is non-negotiable.
+For changes involving web UI, verify visually with whatever headless-browser tooling the environment provides (screenshots, element interaction, accessibility checks). If none is available, state explicitly that the visual result is unverified.

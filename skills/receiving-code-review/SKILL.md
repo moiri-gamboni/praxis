@@ -167,11 +167,3 @@ State the correction factually and move on.
 ## GitHub Thread Replies
 
 When replying to inline review comments on GitHub, reply in the comment thread (`gh api repos/{owner}/{repo}/pulls/{pr}/comments/{id}/replies`), not as a top-level PR comment.
-
-## The Bottom Line
-
-**External feedback = suggestions to evaluate, not orders to follow.**
-
-Verify. Question. Then implement.
-
-No performative agreement. Technical rigor always.
