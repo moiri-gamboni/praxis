@@ -2,7 +2,8 @@
 name: test-analyzer
 description: Use after code is written or updated to verify tests adequately cover new functionality and edge cases — reviews test coverage quality and completeness.
 tools: Bash, Glob, Grep, LS, Read, Write
-model: opus
+model: sonnet
+effort: high
 color: cyan
 ---
 

@@ -16,7 +16,7 @@ It was created by merging five upstream plugins (superpowers, feature-dev, pr-re
 
 ## Conventions
 
-- All agents must specify `model: opus` in frontmatter. There are currently 13 agents (including red-team, implementer, and trimmer).
+- Every agent pins `model` and `effort` in frontmatter, matched to task shape (model = how hard the task is; effort = how far the agent travels — files read, verification depth). Current tiers: opus+high for generative full tracks (code-architect, implementer, trimmer); opus+medium for judgment-heavy review of scoped input (code-reviewer, red-team, plan-doc-reviewer, silent-failure-hunter, code-simplifier); sonnet+high for scoped single-dimension legs where travel is the job (code-explorer, spec-reviewer, test-analyzer, type-analyzer); sonnet+medium for near-mechanical checks (comment-analyzer). There are currently 13 agents.
 - All agents have Bash (tests, git, checkouts as needed). Advisory agents never edit code — they report findings; source is modified only by implementer and by code-simplifier in direct mode.
 - Commands restrict their tools via `allowed-tools` in frontmatter; keep tool lists minimal. `/ship` includes finishing workflow (formerly `/finish`). `/implement` is the parallel orchestration command.
 - Skills activate automatically based on their `description` field; that description is effectively the trigger condition. Skills include ideate and prototype alongside the original set.

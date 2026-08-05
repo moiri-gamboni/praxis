@@ -3,6 +3,7 @@ name: code-reviewer
 description: Use after writing or modifying code, before committing or creating PRs — reviews against project guidelines and (if provided) implementation plan; auto-detects plan presence.
 tools: Bash, Glob, Grep, LS, Read, Write
 model: opus
+effort: medium
 color: green
 ---
 

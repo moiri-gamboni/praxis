@@ -2,7 +2,8 @@
 name: type-analyzer
 description: Use when introducing new types, during PR review of type changes, or refactoring existing types — analyzes type design quality.
 tools: Bash, Glob, Grep, LS, Read, Write
-model: opus
+model: sonnet
+effort: high
 color: magenta
 ---
 
