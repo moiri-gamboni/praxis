@@ -73,11 +73,11 @@
       "adaptation": "moderate"
     },
     {
-      "praxis": "skills/test-driven-development/testing-anti-patterns.md",
+      "praxis": "skills/test-driven-development/writing-good-tests.md",
       "upstream": [
         {
           "plugin": "superpowers",
-          "path": "skills/test-driven-development/testing-anti-patterns.md"
+          "path": "skills/test-driven-development/writing-good-tests.md"
         }
       ],
       "adaptation": "near-copy"
