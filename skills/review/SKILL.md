@@ -134,9 +134,13 @@ After presenting, invoke `Skill: "verification-before-completion"` before the us
 
 - **Cross-unit deduplication**: if multiple Wave 1 reviewers (in different units) flag the same boundary issue, combine the evidence into one Wave 2 cross-unit finding rather than reporting 3x.
 
+## Re-Review After Fixes
+
+A re-run after a fix round is **scoped, not fresh**: verdict each prior finding (addressed / not addressed / superseded) and review only the fix diff for new breakage. The full review already happened; re-running it from scratch re-litigates settled findings and invites fabricated new ones.
+
 ## Next Step
 
-- Critical (confirmed) found → "Fix critical confirmed issues, re-run /review to verify."
+- Critical (confirmed) found → "Fix critical confirmed issues, then re-run /review scoped to the fixes."
 - Only disputed Critical → "Decide on disputed findings, then re-run /review."
 - Only Important / Suggestions → "/ship when ready."
 - Clean → "Ready to /ship."

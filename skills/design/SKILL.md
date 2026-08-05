@@ -420,7 +420,7 @@ Adjudicate each finding into the Resolution Log (angle: trim), same vocabulary a
 
 ### Plan-Document Review
 
-Dispatch `plan-doc-reviewer` via Task with paths to the plan and ideation file. It returns Approved | Issues. On Issues: fix flagged items, re-run. Iterate to Approved. Recommendations are advisory.
+Dispatch `plan-doc-reviewer` via Task with paths to the plan and ideation file. It returns Approved | Issues. On Issues: fix flagged items, re-run — passing the prior issues so the re-run verdicts each one and reviews the edits, not the whole plan afresh. Iterate to Approved. Recommendations are advisory.
 
 ### Present for Approval
 
