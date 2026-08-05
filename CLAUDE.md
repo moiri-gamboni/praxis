@@ -17,6 +17,7 @@ It was created by merging five upstream plugins (superpowers, feature-dev, pr-re
 ## Conventions
 
 - All agents must specify `model: opus` in frontmatter. There are currently 12 agents (including red-team and implementer).
+- All agents have Bash (tests, git, checkouts as needed). Advisory agents never edit code — they report findings; source is modified only by implementer and by code-simplifier in direct mode.
 - Commands restrict their tools via `allowed-tools` in frontmatter; keep tool lists minimal. `/ship` includes finishing workflow (formerly `/finish`). `/implement` is the parallel orchestration command.
 - Skills activate automatically based on their `description` field; that description is effectively the trigger condition. Skills include ideate and prototype alongside the original set.
 - **CSO (Claude Search Optimization):** Skill descriptions should state WHEN to use the skill (trigger conditions), not WHAT the skill does or how the workflow works. When descriptions summarize the workflow, Claude follows the description shortcut instead of reading the full skill content.
