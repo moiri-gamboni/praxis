@@ -214,10 +214,6 @@
         },
         {
           "plugin": "superpowers",
-          "path": "agents/code-reviewer.md"
-        },
-        {
-          "plugin": "superpowers",
           "path": "skills/requesting-code-review/code-reviewer.md"
         }
       ],
@@ -225,13 +221,8 @@
     },
     {
       "praxis": "agents/spec-reviewer.md",
-      "upstream": [
-        {
-          "plugin": "superpowers",
-          "path": "skills/subagent-driven-development/spec-reviewer-prompt.md"
-        }
-      ],
-      "adaptation": "moderate"
+      "upstream": [],
+      "adaptation": "new"
     },
     {
       "praxis": "agents/code-simplifier.md",

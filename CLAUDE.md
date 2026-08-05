@@ -22,7 +22,7 @@ It was created by merging five upstream plugins (superpowers, feature-dev, pr-re
 - **CSO (Claude Search Optimization):** Skill descriptions should state WHEN to use the skill (trigger conditions), not WHAT the skill does or how the workflow works. When descriptions summarize the workflow, Claude follows the description shortcut instead of reading the full skill content.
 - **Lean mandate:** user-stated outcomes are fixed, machinery is variable; minimum competent implementation; crash-loud for impossible states; defensive code needs scenario/likelihood/consequence; cut-proposals are first-class review findings; tests assert behavior (inputs/state → observable output/effect), never source text or shape. Both pipelines carry an explicit trim pass (the `trimmer` agent): `/design` Phase 3 on the plan, `/implement` Phase 4 on the merged diff. Canonical statement in `skills/design/SKILL.md`; rationale in `plans/lean-mandate.md`.
 - **Token efficiency:** Keep skill content concise. Frequently activated skills: < 200 words getting-started section. Other skills: < 500 words for core content. Supporting files can be longer.
-- The code-reviewer agent merges three upstream variants. It auto-detects plan context, applies confidence scoring (threshold >= 80), and ends with a "Ready to merge?" verdict.
+- The code-reviewer agent merges what were originally three upstream variants (one has since been deleted upstream; two remain tracked). It auto-detects plan context, applies confidence scoring (threshold >= 80), and ends with a "Ready to merge?" verdict.
 
 ## Upstream Tracking
 
