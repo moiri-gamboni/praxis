@@ -294,6 +294,11 @@
       "adaptation": "new"
     },
     {
+      "praxis": "agents/trimmer.md",
+      "upstream": [],
+      "adaptation": "new"
+    },
+    {
       "praxis": "agents/plan-doc-reviewer.md",
       "upstream": [
         {

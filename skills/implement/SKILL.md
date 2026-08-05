@@ -84,12 +84,13 @@ If any unit fails irrecoverably, ask user: continue with partial results or abor
 After all units merged:
 
 1. `/review all` — catch cross-unit inconsistencies (naming, patterns, interface mismatches, duplication). Before fixing, invoke `Skill: "receiving-code-review"`.
-2. `Skill: "simplify"` — apply each finding's fix. Skip findings that change behavior or fall outside the merged diff.
-3. Run integration tests from the plan
-4. **Plan-completion check** (if plan file present): spawn `spec-reviewer` via Task with plan as spec. Address gaps after invoking `Skill: "receiving-code-review"`. Gaps matching a worker-logged lean-out or non-behavioral classification are adjudicated against the fixed outcomes — not auto-restored.
-5. **Invoke `Skill: "verification-before-completion"`** before PR.
-6. Resolve conflicting doc edits from workers
-7. Fix issues, re-run tests
+2. **Trim pass**: dispatch `trimmer` (diff mode) on the integration branch's full diff, with the plan's fixed outcomes (or the task's stated outcomes when there's no plan), test command, and report path `<workspace>/trim.md`. Adjudicate via `Skill: "receiving-code-review"`: apply an L1 cut only when its outcome-trace and falsifier hold up — for guard removals, verify unreachability (validated one frame up, type-guaranteed, or caller-audited) before deleting. L2 findings (the plan clause itself questioned) go to the user, never auto-applied. Each applied cut is its own commit (revivable via `git revert`); re-run tests after cuts.
+3. `Skill: "simplify"` — apply each finding's fix. Skip findings that change behavior or fall outside the merged diff.
+4. Run integration tests from the plan
+5. **Plan-completion check** (if plan file present): spawn `spec-reviewer` via Task with plan as spec. Address gaps after invoking `Skill: "receiving-code-review"`. Gaps matching a worker-logged lean-out, a non-behavioral classification, or an applied trim cut are adjudicated against the fixed outcomes — not auto-restored.
+6. **Invoke `Skill: "verification-before-completion"`** before PR.
+7. Resolve conflicting doc edits from workers
+8. Fix issues, re-run tests
 
 ## Phase 5: Final PR
 
