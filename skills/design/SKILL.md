@@ -255,7 +255,7 @@ The Decision Record is the canonical source for everything Phase 3's Present for
 
 **Synthesis shape**: label from 1.4 (pick-per-dimension / base + borrow / true hybrid) plus one paragraph on coupling.
 
-**Red-Team Resolution Log** (one entry per finding from 1.5):
+**Resolution Log** (one entry per finding from 1.5 and from the Phase 3 trim pass, `angle: trim`):
 ```
 - **<finding title>** (severity: Critical | Important | Suggestion; angle: <attack angle>)
   - Confidence: <0-100>
@@ -343,7 +343,7 @@ Plan picks: don't write to `user_api_usage` live at all. The cap-bar tick during
 
 [... cross-cutting trigger to watch, if any]
 
-### Red-Team Resolution Log
+### Resolution Log
 
 26 findings: 17 Fixed, 4 Deferred, 5 Rejected.
 
@@ -401,6 +401,16 @@ After writing, check:
 6. Outcome trace (reverse): every task, guard, knob, field, and test serves a fixed outcome or named external constraint; anything tracing only to a design doc's say-so gets cut or moved to Left-out
 
 Fix inline.
+
+### Trim Pass
+
+Self-Review check 6 is your own reverse trace; this is the independent one. Dispatch `trimmer` via Task (plan mode) with the plan path, the fixed outcomes from 1.2.8, the ideation file if any, and report path `plans/<slug>/.workspace/trim.md`. It returns cut-proposals — L1 (the plan delivers the same with less) and L2 (a plan clause itself doesn't earn its cost) — each with outcome-trace, counted cost, risk + falsifier, confidence.
+
+Adjudicate each finding into the Resolution Log (angle: trim), same vocabulary as red-team findings:
+
+- **L1 accepted** → edit the plan; machinery deliberately not built goes to Left-out with its re-add trigger.
+- **L2** → judge against the fixed outcomes; material ones surface in Worth-your-input rather than being decided silently.
+- **Rejected** → cite the outcome or constraint the machinery serves (three-part articulation for defensive code).
 
 ### Plan-Document Review
 

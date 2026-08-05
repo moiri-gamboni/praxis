@@ -50,6 +50,7 @@ Skills chain naturally: each suggests a next step based on context. The intended
 | **spec-reviewer** | Verifies implementation matches a specification (which can be a `/design` plan file). Skeptical, independent reading. | `/implement` Phase 4 (when plan file present), `/review` Wave 1, manual |
 | **code-simplifier** | Simplifies code while preserving functionality. Direct-modify in `/simplify` standalone, advisory in `/review`. | `/simplify`, `/review` Wave 1, `/implement` workers + Phase 4 |
 | **implementer** | Single-unit worker for `/implement`. Bakes the worker procedure (skill loop, push, log, audit) into its system prompt so compliance is structural. Does not further delegate. | `/implement` Phase 2, manual single-unit builds |
+| **trimmer** | Dedicated subtraction pass: proposes cuts (machinery no fixed outcome requires) as findings with outcome-traces, counted costs, risk + falsifier, and L1 (cut under current plan) / L2 (leaner plan justifiable) levels. Advisory only. | `/design` Phase 3 trim pass, `/implement` Phase 4, manual |
 | **comment-analyzer** | Checks comment accuracy and long-term maintainability. Anti-complexity: removing bad comments preferred over adding obvious ones. | `/review` Wave 1 |
 | **test-analyzer** | Reviews test coverage quality, prioritizing behavioral coverage. Each proposed test must articulate failure scenario + likelihood + consequence. | `/review` Wave 1 |
 | **silent-failure-hunter** | Finds swallowed errors and inadequate error handling. Each finding must articulate the actual failure mode, not abstract concern. | `/review` Wave 1 |
@@ -65,11 +66,13 @@ All agents run on Opus. Reviewer agents use a per-finding confidence threshold (
 
 **Adversarial review fleet.** Phase 1.5 dispatches `red-team` agents in parallel along attack angles (architectural soundness, failure modes, operational concerns, hidden complexity, scope/assumptions; conditional security; conditional documentation currency with web-tool verification of named libraries). Per-finding confidence scores. Optional verification pass on Critical findings. Resolution Log enforces explicit Fixed/Rejected/Deferred per finding — silent acceptance not allowed.
 
-**Plan-doc reviewer.** After Phase 3 self-review, `plan-doc-reviewer` reads the plan + ideation file independently and returns Approved or Issues. Calibrated to only flag real implementation problems.
+**Trim pass.** After Phase 3 self-review, a `trimmer` agent runs a dedicated subtraction pass over the plan: every task, guard, knob, field, and test either traces to a fixed outcome (or real external constraint) or becomes a cut-proposal, adjudicated into the Resolution Log. The same agent runs in `/implement` Phase 4 against the merged diff — the cheapest place to cut machinery is before it exists; the second cheapest is before it ships.
+
+**Plan-doc reviewer.** After the trim pass, `plan-doc-reviewer` reads the plan + ideation file independently and returns Approved or Issues. Calibrated to only flag real implementation problems.
 
 **Hybrid file-writing.** Explorer and architect agents write detailed outputs to `plans/<slug>/.workspace/exploration/<dimension>.md` and `plans/<slug>/.workspace/architects/<approach>.md`, returning summary + path. Coordinator context stays light.
 
-**Parallel implementation.** `/implement` decomposes work into independent units, spawns workers in isolated worktrees (each using TDD + review + simplify + verification gates). Workers write structured logs to `<workspace>/workers/<unit>.md`. Team lead merges incrementally, runs cross-cutting `/review` + `/simplify` + `spec-reviewer` against the plan + `verification-before-completion`. Calls `/clean-gone` to sweep stale state at the end.
+**Parallel implementation.** `/implement` decomposes work into independent units, spawns workers in isolated worktrees (each using TDD + review + simplify + verification gates). Workers write structured logs to `<workspace>/workers/<unit>.md`. Team lead merges incrementally, runs cross-cutting `/review` + trim pass + `/simplify` + `spec-reviewer` against the plan + `verification-before-completion`. Calls `/clean-gone` to sweep stale state at the end.
 
 **Multi-wave code review.** `/review` identifies logical code-path units (not files), dispatches the full reviewer fleet per unit (scaled to complexity), runs a cross-unit boundary review, then a verification pass that re-runs each Critical finding through a fresh second agent. Confirmed/Disputed labels; never auto-drop disputed findings.
 

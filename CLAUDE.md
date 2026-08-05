@@ -16,12 +16,12 @@ It was created by merging five upstream plugins (superpowers, feature-dev, pr-re
 
 ## Conventions
 
-- All agents must specify `model: opus` in frontmatter. There are currently 12 agents (including red-team and implementer).
+- All agents must specify `model: opus` in frontmatter. There are currently 13 agents (including red-team, implementer, and trimmer).
 - All agents have Bash (tests, git, checkouts as needed). Advisory agents never edit code — they report findings; source is modified only by implementer and by code-simplifier in direct mode.
 - Commands restrict their tools via `allowed-tools` in frontmatter; keep tool lists minimal. `/ship` includes finishing workflow (formerly `/finish`). `/implement` is the parallel orchestration command.
 - Skills activate automatically based on their `description` field; that description is effectively the trigger condition. Skills include ideate and prototype alongside the original set.
 - **CSO (Claude Search Optimization):** Skill descriptions should state WHEN to use the skill (trigger conditions), not WHAT the skill does or how the workflow works. When descriptions summarize the workflow, Claude follows the description shortcut instead of reading the full skill content.
-- **Lean mandate:** user-stated outcomes are fixed, machinery is variable; minimum competent implementation; crash-loud for impossible states; defensive code needs scenario/likelihood/consequence; cut-proposals are first-class review findings; tests assert behavior (inputs/state → observable output/effect), never source text or shape. Canonical statement in `skills/design/SKILL.md`; rationale in `plans/lean-mandate.md`.
+- **Lean mandate:** user-stated outcomes are fixed, machinery is variable; minimum competent implementation; crash-loud for impossible states; defensive code needs scenario/likelihood/consequence; cut-proposals are first-class review findings; tests assert behavior (inputs/state → observable output/effect), never source text or shape. Both pipelines carry an explicit trim pass (the `trimmer` agent): `/design` Phase 3 on the plan, `/implement` Phase 4 on the merged diff. Canonical statement in `skills/design/SKILL.md`; rationale in `plans/lean-mandate.md`.
 - **Token efficiency:** Keep skill content concise. Frequently activated skills: < 200 words getting-started section. Other skills: < 500 words for core content. Supporting files can be longer.
 - The code-reviewer agent merges three upstream variants. It auto-detects plan context, applies confidence scoring (threshold >= 80), and ends with a "Ready to merge?" verdict.
 
