@@ -1,7 +1,7 @@
 {
-  "commit-commands": "020446a4294f09d9c32e60bff0c4ae8fb39205cb",
-  "feature-dev": "020446a4294f09d9c32e60bff0c4ae8fb39205cb",
-  "frontend-design": "020446a4294f09d9c32e60bff0c4ae8fb39205cb",
-  "pr-review-toolkit": "020446a4294f09d9c32e60bff0c4ae8fb39205cb",
-  "superpowers": "6efe32c9e2dd002d0c394e861e0529675d1ab32e"
+  "commit-commands": "87c11d11ec90ecabd5def24a11929c0f6e4614b0",
+  "feature-dev": "87c11d11ec90ecabd5def24a11929c0f6e4614b0",
+  "frontend-design": "87c11d11ec90ecabd5def24a11929c0f6e4614b0",
+  "pr-review-toolkit": "87c11d11ec90ecabd5def24a11929c0f6e4614b0",
+  "superpowers": "44c9b2d6e889982ac18c27d05a19fefe335194e1"
 }
