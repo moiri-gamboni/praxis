@@ -67,7 +67,8 @@ Material changes only. Cap at one re-exploration. User approval required.
 Restate the goal back to the user before architect dispatch:
 
 1. **Goal + fixed outcomes**: paraphrase intent + scope; list the **fixed outcomes** — the features/results the user actually asked for, stated as results, not mechanisms; name the dominant failure mode. Invite correction. The plan must deliver the fixed outcomes; everything else — guard density, knobs, instrumentation, schema richness, test volume — is means, chosen lean.
-2. **Architectural change appetite** (only if 1.2.5 coverage flags in-pattern gaps): "Should architects stay in-pattern, or is infrastructure in scope?"
+2. **Constraint audit**: list every constraint the architecture will bend around, each with its provenance tag from the ideation doc — `[user]` (quote their words), `[fact]` (cite), `[assumed]`. **Batch-confirm the `[assumed]` ones with the user now**: each costs them one word to confirm or overturn; each wrong assumption that slips through becomes an invented contract that costs an architect round to build around and a red-team round to demolish. If the ideation doc carries no tags, derive them here — anything not traceable to the user's words or a cited fact is `[assumed]`.
+3. **Architectural change appetite** (only if 1.2.5 coverage flags in-pattern gaps): "Should architects stay in-pattern, or is infrastructure in scope?"
 
 Silence = confirmation.
 
@@ -82,6 +83,8 @@ Spawn 2-3 `code-architect` agents in parallel, each with a different philosophy:
 Each receives the shared context + ideation file (if any) + the fixed outcomes from 1.2.8 + their philosophy. Architects do narrower exploration scoped to their approach (their job: "what my approach needs to touch," not "the lay of the land").
 
 All three philosophies share a floor (competent: tested, sound seams) and a ceiling (nothing that doesn't trace to a fixed outcome or real constraint). Clean means better factored, not more machinery.
+
+**Constraint bindingness follows provenance.** `[user]` decisions bind — a conflict is flagged explicitly, never silently obeyed into a worse design or silently violated. `[assumed]` constraints are challengeable by default, and the trigger is cost: the moment honoring one requires compensating machinery or a worse architecture (e.g. inventing a byte-identical-output contract to satisfy an assumed "never change this component"), escalate the question instead of paying the price. Do not brief architects with blanket "the ideation doc is binding" language — bindingness is per-constraint.
 
 Each writes design to `plans/<slug>/.workspace/architects/<approach>.md` containing:
 - Patterns & conventions found (with `file:line`)
@@ -143,7 +146,7 @@ Spawn `red-team` agents in parallel, one per attack angle. Standard angles:
 2. **Failure modes** — error paths, silent swallowing, partial failures
 3. **Operational concerns** — deploy, rollback, observability, scale behavior
 4. **Hidden complexity** — looks simple but isn't, deferred decisions, magic
-5. **Scope & minimality** — solves the stated problem? what's assumed? what does the design build that no fixed outcome needs — impossible-state guards, single-value knobs, fallbacks for committed siblings, instrumentation with no named reader, duplicated machinery? Cut-proposals are first-class findings.
+5. **Scope & minimality** — solves the stated problem? what's assumed? what does the design build that no fixed outcome needs — impossible-state guards, single-value knobs, fallbacks for committed siblings, instrumentation with no named reader, duplicated machinery? Cut-proposals are first-class findings. Includes the **invented-constraints hunt**: for each constraint the design pays a material price to honor, trace it to a user statement, code fact, or external reality (law, data loss, money); a constraint traceable only to a design/ideation doc's own phrasing is a finding — attack the premise, not just the machinery built to satisfy it.
 
 Conditional:
 

@@ -57,6 +57,8 @@ Default leans build-vs-buy in favor of buy unless there's clear reason to build.
 
 Don't soften, don't hedge, don't ask to verify what you can determine. Multiple observations: group by category (codebase / framing / prior art), lead with highest impact, no count cap.
 
+**Hedges don't survive compression — preserve them explicitly.** A user musing ("probably not, but worth thinking about", "not sure", "maybe") is an **Open Question**, never a constraint. Writing a hedge into the doc in binding language is how invented contracts are born: each later phase inherits the closed form, builds machinery to satisfy it, and nobody re-derives it because nothing marks whose constraint it was. Tag every constraint's provenance in the doc (see template) and quote the user's actual words for `[user]` items.
+
 Ask only for what you genuinely can't determine: priorities, external constraints, preferences.
 
 **Explore alternatives.** 2-3 high-level approaches with tradeoffs. Lead with recommendation + reasoning. Don't settle on the first workable idea.
@@ -85,7 +87,11 @@ On approval, write to `plans/<slug>-ideation.md`:
 <1-3 paragraphs at concept level. NOT file paths, NOT signatures.>
 
 ## Key Constraints Surfaced
-<From dialogue: perf, security/compliance, compat, integration boundaries>
+<From dialogue: perf, security/compliance, compat, integration boundaries.
+Every item carries a provenance tag:
+`[user]` — the user decided it; quote their words.
+`[fact]` — verified against code/docs; cite where.
+`[assumed]` — your inference or a conservative default; downstream phases treat it as challengeable.>
 
 ## Open Questions
 <Unresolved items for /design or implementation>
