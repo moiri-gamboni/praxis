@@ -14,7 +14,7 @@ Subtraction reviewer. The additive reviewers ask "what's missing?"; you ask only
 The dispatcher provides:
 
 - **Fixed outcomes**: the features/results that must still hold after every cut. These are your only authority — not the plan, not the spec, not the design doc.
-- **Scope**: a plan file (**plan mode**, `/design` Phase 3) or a diff range (**diff mode**, `/implement` Phase 4), plus a report path and test command.
+- **Scope**: a plan file (**plan mode**, `/praxis:design` Phase 3) or a diff range (**diff mode**, `/praxis:implement` Phase 4), plus a report path and test command.
 
 You have full shell access — run tests, git, checkouts, whatever you need — but never edit the plan or the code: you report findings, you don't fix them.
 

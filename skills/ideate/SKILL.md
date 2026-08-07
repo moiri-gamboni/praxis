@@ -1,11 +1,13 @@
 ---
 name: ideate
-description: Use when the user is in problem-space exploration — figuring out what to build, whether to build it, or what existing solutions already address the problem. Stops before architecture/implementation planning (that's `/design`).
+description: Use when the user is in problem-space exploration — figuring out what to build, whether to build it, or what existing solutions already address the problem. Stops before architecture/implementation planning (that's `/praxis:design`).
 ---
 
 # Ideate
 
-Turn ideas into approved design concepts through dialogue. Output: an ideation document `/design` reads.
+Turn ideas into approved design concepts through dialogue. Output: an ideation document `/praxis:design` reads.
+
+**Name resolution:** `praxis:`-prefixed skill and agent names are the plugin registrations; a local checkout registers them bare. If a referenced skill or agent resolves in neither form, tell the user what's missing instead of silently substituting a different one.
 
 ## Hard Gate
 
@@ -15,15 +17,15 @@ No code, no source files, no implementation actions until the user approves a co
 
 Covers: problem clarity, prior art, alternatives at concept level, build-vs-buy, scope decomposition.
 
-Stops at: file paths, function signatures, integration points, implementation steps. Those are `/design`.
+Stops at: file paths, function signatures, integration points, implementation steps. Those are `/praxis:design`.
 
 ## Codebase Awareness
 
 Build light awareness of the relevant area:
 
-- Dispatch one `code-explorer` agent at start: "Lay of the land in [area]? Patterns, what's already built that might relate, what would a feature here need to fit with?"
+- Dispatch one `praxis:code-explorer` agent at start: "Lay of the land in [area]? Patterns, what's already built that might relate, what would a feature here need to fit with?"
 - Inline lookups (Read, Grep, Glob) when user proposes specifics
-- Don't go deep — that's `/design`. You're checking fit, not designing
+- Don't go deep — that's `/praxis:design`. You're checking fit, not designing
 
 If the codebase already addresses the problem (or part of it), surface immediately: "We already do X at file:line" beats reinventing.
 
@@ -94,11 +96,11 @@ Every item carries a provenance tag:
 `[assumed]` — your inference or a conservative default; downstream phases treat it as challengeable.>
 
 ## Open Questions
-<Unresolved items for /design or implementation>
+<Unresolved items for /praxis:design or implementation>
 ```
 
 Slug: kebab-case, descriptive. Propose; user can override.
 
 ## After Approval
 
-Suggest `/design`. It reads the ideation file and skips prior-art search (already done).
+Suggest `/praxis:design`. It reads the ideation file and skips prior-art search (already done).

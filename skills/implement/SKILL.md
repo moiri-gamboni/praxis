@@ -11,11 +11,13 @@ Decompose work, dispatch sub-agents in worktrees, merge incrementally, cross-cut
 
 **Instruction:** "$ARGUMENTS"
 
+**Name resolution:** `praxis:`-prefixed skill and agent names are the plugin registrations; a local checkout registers them bare. If a referenced skill or agent resolves in neither form, tell the user what's missing instead of silently substituting a different one.
+
 ## When to use
 
-`/design` and Phase 1's batch plan pin integration contracts before workers spawn — sequential build-ups (data model → service → API → UI) parallelize cleanly because workers build to the pinned contract. Surface key findings inline either way; "merged ✓" hides what the worker found.
+`/praxis:design` and Phase 1's batch plan pin integration contracts before workers spawn — sequential build-ups (data model → service → API → UI) parallelize cleanly because workers build to the pinned contract. Surface key findings inline either way; "merged ✓" hides what the worker found.
 
-Scope unclear → `/design` first. No tests in the codebase → judgment call: route through `/design` (Phase 2 covers tests) if they fit; ask when not clear-cut; otherwise proceed with what doesn't gate on tests.
+Scope unclear → `/praxis:design` first. No tests in the codebase → judgment call: route through `/praxis:design` (Phase 2 covers tests) if they fit; ask when not clear-cut; otherwise proceed with what doesn't gate on tests.
 
 ## Phase 1: Research & Decomposition
 
@@ -27,7 +29,7 @@ Research before routing — the single-vs-parallel call needs codebase context, 
 
 2. **Route based on what you found.**
    - **Parallel**: 2+ units, each with its own test surface, all buildable from a pinned contract. Continue with steps 3-5.
-   - **Single agent**: no separable contract-able parts. Cases: wide-but-shallow refactors (rename, type change), structural reorganization, single dense file, whole-system invariant changes, or too small to orchestrate. Skip to Phase 2; spawn one `implementer` (`subagent_type: "implementer"`, `isolation: "worktree"`) with the Phase 2 prompt.
+   - **Single agent**: no separable contract-able parts. Cases: wide-but-shallow refactors (rename, type change), structural reorganization, single dense file, whole-system invariant changes, or too small to orchestrate. Skip to Phase 2; spawn one `praxis:implementer` (`subagent_type: "praxis:implementer"`, `isolation: "worktree"`) with the Phase 2 prompt.
 
 3. **Identify work units.** Each unit needs:
    - Clear deliverable (files, behavior)
@@ -45,9 +47,9 @@ Research before routing — the single-vs-parallel call needs codebase context, 
 
 ## Phase 2: Dispatch Workers
 
-Launch all workers in parallel: a single message with multiple `Agent` tool calls. Each call: `subagent_type: "implementer"`, `isolation: "worktree"`, unique `name`. Workers run independently and return when done — no inter-worker or back-channel communication.
+Launch all workers in parallel: a single message with multiple `Agent` tool calls. Each call: `subagent_type: "praxis:implementer"`, `isolation: "worktree"`, unique `name`. Workers run independently and return when done — no inter-worker or back-channel communication.
 
-The `implementer` agent owns the worker procedure (skill loop, push, log, audit). Your dispatch prompt provides only the unit specifics — it must be **fully self-contained** (workers can't see your conversation or peer workers):
+The `praxis:implementer` agent owns the worker procedure (skill loop, push, log, audit). Your dispatch prompt provides only the unit specifics — it must be **fully self-contained** (workers can't see your conversation or peer workers):
 
 - Project language, framework, test runner, conventions
 - Unit's goal, deliverable, files, branch (`batch/<batch-name>/<unit-name>`), acceptance criteria
@@ -61,7 +63,7 @@ The `implementer` agent owns the worker procedure (skill loop, push, log, audit)
 
 Workers run independently and return when done. Process each return as it arrives. If a worker returned blocked or failed, diagnose: re-dispatch with more context, or escalate to the user.
 
-**Context economy.** Yours is the only context that spans the batch; compacting mid-orchestration loses coordination state nothing else records. Spend it on coordination, not code: read worker logs, not merged diffs (Phase 4's reviewers and trimmer read the code themselves), and don't re-derive what a worker already reported. The fix split, for every phase: a few obvious lines → fix inline; anything more → an agent. For a unit-scoped fix, send the finding back to the owning worker via SendMessage — it still holds the unit's context, so it writes the fix, commits, and pushes, and you re-merge (its tree predates peers' merges; fine for unit-scoped work). For cross-unit fixes, or once workers are swept, dispatch a fresh `implementer` (worktree, fix branch, self-contained brief listing the findings) and merge its branch like any unit.
+**Context economy.** Yours is the only context that spans the batch; compacting mid-orchestration loses coordination state nothing else records. Spend it on coordination, not code: read worker logs, not merged diffs (Phase 4's reviewers and trimmer read the code themselves), and don't re-derive what a worker already reported. The fix split, for every phase: a few obvious lines → fix inline; anything more → an agent. For a unit-scoped fix, send the finding back to the owning worker via SendMessage — it still holds the unit's context, so it writes the fix, commits, and pushes, and you re-merge (its tree predates peers' merges; fine for unit-scoped work). For cross-unit fixes, or once workers are swept, dispatch a fresh `praxis:implementer` (worktree, fix branch, self-contained brief listing the findings) and merge its branch like any unit.
 
 On worker done:
 
@@ -85,15 +87,15 @@ If any unit fails irrecoverably, ask user: continue with partial results or abor
 
 After all units merged:
 
-1. `/review all` — catch cross-unit inconsistencies (naming, patterns, interface mismatches, duplication). Before fixing, invoke `Skill: "receiving-code-review"`.
-2. **Trim pass**: dispatch `trimmer` (diff mode) on the integration branch's full diff, with the plan's fixed outcomes (or the task's stated outcomes when there's no plan), test command, and report path `<workspace>/trim.md`. Adjudicate via `Skill: "receiving-code-review"`: apply an L1 cut only when its outcome-trace and falsifier hold up — for guard removals, verify unreachability (validated one frame up, type-guaranteed, or caller-audited) before deleting. L2 findings (the plan clause itself questioned) go to the user, never auto-applied. Each applied cut is its own commit (revivable via `git revert`); re-run tests after cuts.
-3. `Skill: "simplify"` — apply each finding's fix. Skip findings that change behavior or fall outside the merged diff.
+1. Invoke `Skill: "praxis:review"` with args `all` — catch cross-unit inconsistencies (naming, patterns, interface mismatches, duplication). Before fixing, invoke `Skill: "praxis:receiving-code-review"`.
+2. **Trim pass**: dispatch `praxis:trimmer` (diff mode) on the integration branch's full diff, with the plan's fixed outcomes (or the task's stated outcomes when there's no plan), test command, and report path `<workspace>/trim.md`. Adjudicate via `Skill: "praxis:receiving-code-review"`: apply an L1 cut only when its outcome-trace and falsifier hold up — for guard removals, verify unreachability (validated one frame up, type-guaranteed, or caller-audited) before deleting. L2 findings (the plan clause itself questioned) go to the user, never auto-applied. Each applied cut is its own commit (revivable via `git revert`); re-run tests after cuts.
+3. `Skill: "praxis:simplify"` — apply each finding's fix. Skip findings that change behavior or fall outside the merged diff.
 4. Run integration tests from the plan
-5. **Plan-completion check** (if plan file present): spawn `spec-reviewer` via Task with plan as spec. Address gaps after invoking `Skill: "receiving-code-review"`. Gaps matching a worker-logged lean-out, a non-behavioral classification, or an applied trim cut are adjudicated against the fixed outcomes — not auto-restored.
-6. **Invoke `Skill: "verification-before-completion"`** before PR.
+5. **Plan-completion check** (if plan file present): spawn `praxis:spec-reviewer` via Agent with plan as spec. Address gaps after invoking `Skill: "praxis:receiving-code-review"`. Gaps matching a worker-logged lean-out, a non-behavioral classification, or an applied trim cut are adjudicated against the fixed outcomes — not auto-restored.
+6. **Invoke `Skill: "praxis:verification-before-completion"`** before PR.
 7. Resolve conflicting doc edits from workers
 8. Fix remaining issues — routed per Phase 3's context economy — and re-run tests
-9. **Sweep worker worktrees + local branches**: `git worktree remove <path>` then `git branch -d <branch>` for each. Remotes stay for audit; `/clean-gone` sweeps after PR merge.
+9. **Sweep worker worktrees + local branches**: `git worktree remove <path>` then `git branch -d <branch>` for each. Remotes stay for audit; `/praxis:clean-gone` sweeps after PR merge.
 
 ## Phase 5: Final PR
 
@@ -106,4 +108,4 @@ Create PR from integration branch:
 
 Present PR URL.
 
-**Invoke `Skill: "clean-gone"`** for opportunistic sweep of pre-existing `[gone]` branches. Worker remotes still exist; they'll be swept later when the PR merges.
+**Invoke `Skill: "praxis:clean-gone"`** for opportunistic sweep of pre-existing `[gone]` branches. Worker remotes still exist; they'll be swept later when the PR merges.

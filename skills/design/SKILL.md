@@ -2,12 +2,14 @@
 name: design
 description: Use when starting a new feature that needs architectural design before implementation — works through competing approaches, adversarial review, test design, and implementation plan.
 argument-hint: "<feature description>"
-allowed-tools: Read, Write, Edit, Glob, Grep, Task, Skill, AskUserQuestion
+allowed-tools: Read, Write, Edit, Glob, Grep, Agent, Task, Skill, AskUserQuestion
 ---
 
 # Design
 
 **Feature:** "$ARGUMENTS"
+
+**Name resolution:** `praxis:`-prefixed skill and agent names are the plugin registrations; a local checkout registers them bare. If a referenced skill or agent resolves in neither form, tell the user what's missing instead of silently substituting a different one.
 
 ## Working Principle
 
@@ -23,11 +25,11 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Task, Skill, AskUserQuestion
 
 Require a feature description; ask if missing.
 
-Check for `plans/<slug>-ideation.md`. If present, read it (output of `ideate`: problem, prior art, alternatives, concept, constraints) and use as foundational context. If absent, ask: "No ideation file. Run `ideate` first, or proceed without prior-art search?"
+Check for `plans/<slug>-ideation.md`. If present, read it (output of `praxis:ideate`: problem, prior art, alternatives, concept, constraints) and use as foundational context. If absent, ask: "No ideation file. Run `praxis:ideate` first, or proceed without prior-art search?"
 
 ### 1.2 Shared Exploration Wave
 
-Dispatch 5 `code-explorer` agents in parallel, one per **dimension**:
+Dispatch 5 `praxis:code-explorer` agents in parallel, one per **dimension**:
 
 - **Architectural fit**: existing patterns, abstractions, conventions
 - **Touchpoints**: files, modules, integration points crossed; data flow boundaries
@@ -37,7 +39,7 @@ Dispatch 5 `code-explorer` agents in parallel, one per **dimension**:
 
 Each explorer writes findings to `plans/<slug>/.workspace/exploration/<dimension>.md` and returns: 1-paragraph overview + path + top 3 headlines + 5-10 essential files.
 
-Prior art belongs to `ideate`, not here.
+Prior art belongs to `praxis:ideate`, not here.
 
 ### 1.2.5 Synthesize Shared Context
 
@@ -74,7 +76,7 @@ Silence = confirmation.
 
 ### 1.3 Per-Architect Exploration + Design
 
-Spawn 2-3 `code-architect` agents in parallel, each with a different philosophy:
+Spawn 2-3 `praxis:code-architect` agents in parallel, each with a different philosophy:
 
 - **Minimal changes**: smallest change set, maximum reuse, low risk
 - **Clean architecture**: best design, maintainability, long-term extensibility
@@ -140,7 +142,7 @@ Output: matrix, coupling, synthesis shape, Net statements, Alternatives.
 
 ### 1.5 Red-Team Fleet
 
-Spawn `red-team` agents in parallel, one per attack angle. Standard angles:
+Spawn `praxis:red-team` agents in parallel, one per attack angle. Standard angles:
 
 1. **Architectural soundness** — abstraction violations, hidden coupling, pattern fit
 2. **Failure modes** — error paths, silent swallowing, partial failures
@@ -179,7 +181,7 @@ Run the fleet one final time. Clean run = ready for Phase 2.
 
 ## Phase 2: Test Design
 
-Invoke `Skill: "test-driven-development"`.
+Invoke `Skill: "praxis:test-driven-development"`.
 
 Design the test strategy for the chosen architecture:
 
@@ -367,8 +369,8 @@ Task header references skills the implementer activates:
 ### Task N: [Component]
 
 **Skills to activate:**
-- `test-driven-development` (failing test first; verify red; implement; verify green)
-- `verification-before-completion` (confirm tests pass with evidence before commit)
+- `praxis:test-driven-development` (failing test first; verify red; implement; verify green)
+- `praxis:verification-before-completion` (confirm tests pass with evidence before commit)
 
 **Files:**
 - Create: `exact/path/to/file.py`
@@ -389,9 +391,9 @@ Task header references skills the implementer activates:
 - [ ] Commit with semantic message
 ````
 
-For tasks without a behavioral deliverable (docs, config, wiring, cosmetics): drop the `test-driven-development` activation and swap the red-green checklist for `- [ ] Verify: <command / render / check + expected result>` — never a test pinning source text or shape.
+For tasks without a behavioral deliverable (docs, config, wiring, cosmetics): drop the `praxis:test-driven-development` activation and swap the red-green checklist for `- [ ] Verify: <command / render / check + expected result>` — never a test pinning source text or shape.
 
-For frontend features, note in plan header that `frontend-design` skill auto-activates during implementation.
+For frontend features, note in plan header that `praxis:frontend-design` skill auto-activates during implementation.
 
 ### Quality Rules
 
@@ -413,7 +415,7 @@ Fix inline.
 
 ### Trim Pass
 
-Self-Review check 6 is your own reverse trace; this is the independent one. Dispatch `trimmer` via Task (plan mode) with the plan path, the fixed outcomes from 1.2.8, the ideation file if any, and report path `plans/<slug>/.workspace/trim.md`. It returns cut-proposals — L1 (the plan delivers the same with less) and L2 (a plan clause itself doesn't earn its cost) — each with outcome-trace, counted cost, risk + falsifier, confidence.
+Self-Review check 6 is your own reverse trace; this is the independent one. Dispatch `praxis:trimmer` via Agent (plan mode) with the plan path, the fixed outcomes from 1.2.8, the ideation file if any, and report path `plans/<slug>/.workspace/trim.md`. It returns cut-proposals — L1 (the plan delivers the same with less) and L2 (a plan clause itself doesn't earn its cost) — each with outcome-trace, counted cost, risk + falsifier, confidence.
 
 Adjudicate each finding into the Resolution Log (angle: trim), same vocabulary as red-team findings:
 
@@ -423,7 +425,7 @@ Adjudicate each finding into the Resolution Log (angle: trim), same vocabulary a
 
 ### Plan-Document Review
 
-Dispatch `plan-doc-reviewer` via Task with paths to the plan and ideation file. It returns Approved | Issues. On Issues: fix flagged items, re-run — passing the prior issues so the re-run verdicts each one and reviews the edits, not the whole plan afresh. Iterate to Approved. Recommendations are advisory.
+Dispatch `praxis:plan-doc-reviewer` via Agent with paths to the plan and ideation file. It returns Approved | Issues. On Issues: fix flagged items, re-run — passing the prior issues so the re-run verdicts each one and reviews the edits, not the whole plan afresh. Iterate to Approved. Recommendations are advisory.
 
 ### Present for Approval
 
@@ -438,6 +440,6 @@ Sections (mirror Decision Record subsections):
 5. **Architect approaches** = renders Decision Record's Architect approaches (below matrix, since dimensions are now defined).
 6. **Synthesis shape** = renders Decision Record's Synthesis shape.
 7. **Resolution Log** = renders Decision Record's Resolution Log, **ordered Deferred → Rejected → Fixed** (user cares about Deferred/Rejected most; group Fixed by severity with Critical at full detail, Important+ collapsed).
-8. **Plan path** + `/implement`.
+8. **Plan path** + `/praxis:implement`.
 
 Anti-patterns: code blocks, file lists, task numbers, implementation walkthroughs.

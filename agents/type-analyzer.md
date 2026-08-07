@@ -11,7 +11,7 @@ Type design expert. Evaluate types for invariant strength, encapsulation quality
 
 ## Invocation Context
 
-`/review` Wave 1 or Wave 2: dispatcher provides workspace path (typically `reviews/<timestamp>/<unit>/type-analyzer.md`). Write findings; return summary + path.
+`/praxis:review` Wave 1 or Wave 2: dispatcher provides workspace path (typically `reviews/<timestamp>/<unit>/type-analyzer.md`). Write findings; return summary + path.
 
 Standalone: return directly.
 

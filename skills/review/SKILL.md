@@ -2,12 +2,14 @@
 name: review
 description: Use when a body of code changes needs deep multi-dimensional review (correctness, quality, types, tests, error handling) — organized by logical code-path units, multi-wave with cross-unit pass and verification. Scopes to working tree, git range, or PR.
 argument-hint: "[git range, e.g. main..HEAD]"
-allowed-tools: Bash(git diff:*), Bash(git status:*), Bash(git log:*), Bash(gh pr view:*), Glob, Grep, Read, Task, Skill, AskUserQuestion
+allowed-tools: Bash(git diff:*), Bash(git status:*), Bash(git log:*), Bash(gh pr view:*), Glob, Grep, Read, Agent, Task, Skill, AskUserQuestion
 ---
 
 # Code Review
 
 Multi-wave review by logical code-path units (not files): per-unit deep review → cross-unit boundary review → verification of Critical findings.
+
+**Name resolution:** `praxis:`-prefixed skill and agent names are the plugin registrations; a local checkout registers them bare. If a referenced skill or agent resolves in neither form, tell the user what's missing instead of silently substituting a different one.
 
 **Optional git range:** "$ARGUMENTS"
 
@@ -50,15 +52,15 @@ Wrong grouping poisons downstream — ask when ambiguous.
 
 ## Step 4: Wave 1 — Per-Unit Deep Review
 
-Per unit, dispatch the reviewer fleet in parallel via Task:
+Per unit, dispatch the reviewer fleet in parallel via Agent:
 
-- `code-reviewer` — general quality, guidelines, plan compliance
-- `spec-reviewer` — implementation matches spec (when plan/spec present)
-- `code-simplifier` — clarity, consistency
-- `comment-analyzer` — comment accuracy
-- `test-analyzer` — test coverage, behavioral focus
-- `silent-failure-hunter` — swallowed errors, fallback misuse
-- `type-analyzer` — type design (when types added/changed)
+- `praxis:code-reviewer` — general quality, guidelines, plan compliance
+- `praxis:spec-reviewer` — implementation matches spec (when plan/spec present)
+- `praxis:code-simplifier` — clarity, consistency
+- `praxis:comment-analyzer` — comment accuracy
+- `praxis:test-analyzer` — test coverage, behavioral focus
+- `praxis:silent-failure-hunter` — swallowed errors, fallback misuse
+- `praxis:type-analyzer` — type design (when types added/changed)
 
 **Per-reviewer briefing**: the root (repo or worktree) to work from and the test command, plus what the tree can't reveal — the branch's base point relative to other in-flight work, and the provenance/freshness of any generated or snapshot data in the diff.
 
@@ -70,7 +72,7 @@ Each reviewer writes detailed findings to `reviews/<timestamp>/<unit>/<reviewer>
 
 ## Step 5: Wave 2 — Cross-Unit Review
 
-After Wave 1, dispatch a smaller cross-unit fleet (`code-reviewer`, `type-analyzer`) that takes Wave 1 findings as input and looks at **boundaries between units**:
+After Wave 1, dispatch a smaller cross-unit fleet (`praxis:code-reviewer`, `praxis:type-analyzer`) that takes Wave 1 findings as input and looks at **boundaries between units**:
 
 - Contract matching between units (interfaces, types, shapes)
 - Naming consistency across units
@@ -128,7 +130,7 @@ Every reviewer finding lands in your message (user only sees what's here). False
 - **Defer (with reason)**: out of scope, depends on unmerged work, needs unavailable input. Default to not deferring.
 ```
 
-After presenting, invoke `Skill: "verification-before-completion"` before the user acts on findings.
+After presenting, invoke `Skill: "praxis:verification-before-completion"` before the user acts on findings.
 
 ## Tips
 
@@ -140,7 +142,7 @@ A re-run after a fix round is **scoped, not fresh**: verdict each prior finding 
 
 ## Next Step
 
-- Critical (confirmed) found → "Fix critical confirmed issues, then re-run /review scoped to the fixes."
-- Only disputed Critical → "Decide on disputed findings, then re-run /review."
-- Only Important / Suggestions → "/ship when ready."
-- Clean → "Ready to /ship."
+- Critical (confirmed) found → "Fix critical confirmed issues, then re-run /praxis:review scoped to the fixes."
+- Only disputed Critical → "Decide on disputed findings, then re-run /praxis:review."
+- Only Important / Suggestions → "/praxis:ship when ready."
+- Clean → "Ready to /praxis:ship."

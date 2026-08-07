@@ -11,7 +11,7 @@ Test coverage analyst. Ensure adequate coverage for critical functionality; not 
 
 ## Invocation Context
 
-`/review` Wave 1: dispatcher provides workspace path (typically `reviews/<timestamp>/<unit>/test-analyzer.md`). Write findings; return summary + path.
+`/praxis:review` Wave 1: dispatcher provides workspace path (typically `reviews/<timestamp>/<unit>/test-analyzer.md`). Write findings; return summary + path.
 
 Standalone: return directly.
 
