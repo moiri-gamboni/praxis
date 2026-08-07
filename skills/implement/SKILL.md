@@ -61,13 +61,13 @@ The `implementer` agent owns the worker procedure (skill loop, push, log, audit)
 
 Workers run independently and return when done. Process each return as it arrives. If a worker returned blocked or failed, diagnose: re-dispatch with more context, or escalate to the user.
 
-**Context economy.** Yours is the only context that spans the batch; compacting mid-orchestration loses coordination state nothing else records. Spend it on coordination, not code: read worker logs, not merged diffs (Phase 4's reviewers and trimmer read the code themselves), and don't re-derive what a worker already reported. The fix split, for every phase: a few obvious lines → fix inline; anything more → an agent. Before a worker's worktree is cleaned up, send the fix back to that worker via SendMessage (it keeps its unit context); after cleanup, or for cross-unit fixes, dispatch a fresh `implementer` (worktree, fix branch, self-contained brief listing the findings) and merge its branch like any unit.
+**Context economy.** Yours is the only context that spans the batch; compacting mid-orchestration loses coordination state nothing else records. Spend it on coordination, not code: read worker logs, not merged diffs (Phase 4's reviewers and trimmer read the code themselves), and don't re-derive what a worker already reported. The fix split, for every phase: a few obvious lines → fix inline; anything more → an agent. For a unit-scoped fix, send the finding back to the owning worker via SendMessage — it still holds the unit's context, so it writes the fix, commits, and pushes, and you re-merge (its tree predates peers' merges; fine for unit-scoped work). For cross-unit fixes, or once workers are swept, dispatch a fresh `implementer` (worktree, fix branch, self-contained brief listing the findings) and merge its branch like any unit.
 
 On worker done:
 
 1. Merge their branch into the integration branch
 2. Run tests post-merge. Resolve conflicts per the integration contract
-3. **Clean up worktree + local branch**: `git worktree remove <path>` then `git branch -d <branch>`. Remote stays for audit; `/clean-gone` sweeps after PR merge.
+3. **Keep the worktree + local branch** — the worker stays resumable for fixes; cleanup is one sweep at the end of Phase 4.
 4. **Surface inline**: pull deviations, integration concerns, and follow-ups from the worker log into your update.
 
 Status table:
@@ -93,6 +93,7 @@ After all units merged:
 6. **Invoke `Skill: "verification-before-completion"`** before PR.
 7. Resolve conflicting doc edits from workers
 8. Fix remaining issues — routed per Phase 3's context economy — and re-run tests
+9. **Sweep worker worktrees + local branches**: `git worktree remove <path>` then `git branch -d <branch>` for each. Remotes stay for audit; `/clean-gone` sweeps after PR merge.
 
 ## Phase 5: Final PR
 
