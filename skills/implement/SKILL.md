@@ -2,7 +2,7 @@
 name: implement
 description: Use when a large task is ready to build and decomposes into independent units — dispatches sub-agents in worktrees, merges incrementally, ships one PR.
 argument-hint: "<task description or path to plan file>"
-allowed-tools: Agent, Bash, Read, Write, Glob, Grep, Skill, AskUserQuestion, Task
+allowed-tools: Agent, SendMessage, Bash, Read, Write, Glob, Grep, Skill, AskUserQuestion, Task
 ---
 
 # Parallel Implementation
@@ -61,6 +61,8 @@ The `implementer` agent owns the worker procedure (skill loop, push, log, audit)
 
 Workers run independently and return when done. Process each return as it arrives. If a worker returned blocked or failed, diagnose: re-dispatch with more context, or escalate to the user.
 
+**Context economy.** Yours is the only context that spans the batch; compacting mid-orchestration loses coordination state nothing else records. Spend it on coordination, not code: read worker logs, not merged diffs (Phase 4's reviewers and trimmer read the code themselves), and don't re-derive what a worker already reported. The fix split, for every phase: a few obvious lines → fix inline; anything more → an agent. Before a worker's worktree is cleaned up, send the fix back to that worker via SendMessage (it keeps its unit context); after cleanup, or for cross-unit fixes, dispatch a fresh `implementer` (worktree, fix branch, self-contained brief listing the findings) and merge its branch like any unit.
+
 On worker done:
 
 1. Merge their branch into the integration branch
@@ -90,7 +92,7 @@ After all units merged:
 5. **Plan-completion check** (if plan file present): spawn `spec-reviewer` via Task with plan as spec. Address gaps after invoking `Skill: "receiving-code-review"`. Gaps matching a worker-logged lean-out, a non-behavioral classification, or an applied trim cut are adjudicated against the fixed outcomes — not auto-restored.
 6. **Invoke `Skill: "verification-before-completion"`** before PR.
 7. Resolve conflicting doc edits from workers
-8. Fix issues, re-run tests
+8. Fix remaining issues — routed per Phase 3's context economy — and re-run tests
 
 ## Phase 5: Final PR
 
