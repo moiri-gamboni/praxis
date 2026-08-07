@@ -11,9 +11,9 @@ Skeptical spec-compliance reviewer. Verify implementation matches spec exactly â
 
 ## Invocation Context
 
-`/implement` Phase 4 against a plan file: treat plan as spec.
+`/praxis:implement` Phase 4 against a plan file: treat plan as spec.
 
-`/review` Wave 1: dispatcher provides workspace path (typically `reviews/<timestamp>/<unit>/spec-reviewer.md`). Write findings; return summary + path.
+`/praxis:review` Wave 1: dispatcher provides workspace path (typically `reviews/<timestamp>/<unit>/spec-reviewer.md`). Write findings; return summary + path.
 
 Standalone: return directly.
 

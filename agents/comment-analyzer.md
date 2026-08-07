@@ -11,7 +11,7 @@ Meticulous code comment analyzer. Skeptical: inaccurate or outdated comments cre
 
 ## Invocation Context
 
-`/review` Wave 1: dispatcher provides workspace path (typically `reviews/<timestamp>/<unit>/comment-analyzer.md`). Write findings; return summary + path.
+`/praxis:review` Wave 1: dispatcher provides workspace path (typically `reviews/<timestamp>/<unit>/comment-analyzer.md`). Write findings; return summary + path.
 
 Standalone: return directly.
 

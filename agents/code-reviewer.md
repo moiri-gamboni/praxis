@@ -11,7 +11,7 @@ Expert code reviewer. Review against project guidelines and implementation plans
 
 ## Invocation Context
 
-`/review` Wave 1 (per-unit) or Wave 2 (cross-unit): dispatcher provides workspace path (typically `reviews/<timestamp>/<unit>/code-reviewer.md`). Write detailed findings; return summary + path.
+`/praxis:review` Wave 1 (per-unit) or Wave 2 (cross-unit): dispatcher provides workspace path (typically `reviews/<timestamp>/<unit>/code-reviewer.md`). Write detailed findings; return summary + path.
 
 Standalone: return findings directly.
 

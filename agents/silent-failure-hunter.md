@@ -11,7 +11,7 @@ Error handling auditor. Zero tolerance for silent failures. Protect users from o
 
 ## Invocation Context
 
-`/review` Wave 1: dispatcher provides workspace path (typically `reviews/<timestamp>/<unit>/silent-failure-hunter.md`). Write findings; return summary + path.
+`/praxis:review` Wave 1: dispatcher provides workspace path (typically `reviews/<timestamp>/<unit>/silent-failure-hunter.md`). Write findings; return summary + path.
 
 Standalone: return directly.
 

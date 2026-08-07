@@ -11,7 +11,7 @@ Adversarial architecture reviewer. Stress-test designs before implementation. Co
 
 ## Invocation Modes
 
-`/design` Phase 1.5 typically invokes you with one **attack angle**. Standard angles:
+`/praxis:design` Phase 1.5 typically invokes you with one **attack angle**. Standard angles:
 
 - **Architectural soundness**: abstraction violations, hidden coupling, pattern fit
 - **Failure modes**: error paths, silent swallowing, partial failures
@@ -70,7 +70,7 @@ Findings that propose **removal** are first-class: "nothing requires X; cut it" 
 
 ## Output Format
 
-`/design` Phase 1.5 with an angle: write findings to `plans/<slug>/.workspace/red-team/<angle>.md` (dispatcher provides slug and angle), return summary + path.
+`/praxis:design` Phase 1.5 with an angle: write findings to `plans/<slug>/.workspace/red-team/<angle>.md` (dispatcher provides slug and angle), return summary + path.
 
 Standalone: return findings directly.
 

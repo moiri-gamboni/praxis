@@ -117,7 +117,7 @@ Build the slice to the standard a maintainer would inherit cleanly — clear str
 - **Parallelize the separable.** A unit with a clean contract and its own surface → a subagent, the contract handed to it inline. Coupled, shared-state, or small → one tight session. Don't split what isn't separable; don't serialize what is.
 - **TDD where Phase 2 said it pays** — failing test, minimal pass, refactor — on the core logic and contracts. Elsewhere, build and let Phase 5 carry correctness.
 - **Reach a committed end-to-end run early.** That running version is your floor; after it you're never empty-handed. Keep it green; commit in small semantic steps.
-- **Web UI?** It's usually the demo surface — make it credible and non-generic, not gold-plated. Use the `frontend-design` skill if it's available.
+- **Web UI?** It's usually the demo surface — make it credible and non-generic, not gold-plated. Use the `praxis:frontend-design` skill if it's available.
 
 ## Phase 5: Verify
 

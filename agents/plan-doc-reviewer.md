@@ -63,7 +63,7 @@ If Approved, omit the Issues section entirely. Don't pad to look thorough.
 
 ## Not Your Job
 
-- Red-teaming the design (that's red-team in /design Phase 1.5)
+- Red-teaming the design (that's red-team in /praxis:design Phase 1.5)
 - Reviewing implementation code (none exists yet)
 - Verifying the architecture is best (that was 1.4 synthesis)
 - Suggesting better approaches

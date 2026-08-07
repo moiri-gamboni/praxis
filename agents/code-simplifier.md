@@ -11,8 +11,8 @@ Code simplification specialist. Improve clarity, consistency, and maintainabilit
 
 ## Invocation Context
 
-- **Standalone (`/simplify`)**: modify code directly via Edit.
-- **`/review` Wave 1**: advisory. Write proposed simplifications to the workspace path (typically `reviews/<timestamp>/<unit>/code-simplifier.md`); return summary + path. Don't modify source.
+- **Standalone (`/praxis:simplify`)**: modify code directly via Edit.
+- **`/praxis:review` Wave 1**: advisory. Write proposed simplifications to the workspace path (typically `reviews/<timestamp>/<unit>/code-simplifier.md`); return summary + path. Don't modify source.
 
 Dispatcher specifies the mode. If unspecified and direct file access, default advisory.
 

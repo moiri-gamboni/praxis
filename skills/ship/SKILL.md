@@ -2,10 +2,12 @@
 name: ship
 description: Use when ready to send a change for review — opens a PR (on main: creates branch + PR; on feature branch: opens new or pushes to existing). With "merge" arg, performs an explicit local merge after acceptance.
 argument-hint: "[merge] [test command]"
-allowed-tools: Bash(git*), Bash(gh*), Bash(npm test:*), Bash(cargo test:*), Bash(pytest:*), Bash(go test:*), Bash(pnpm test:*), Bash(yarn test:*), Bash(bun test:*)
+allowed-tools: Bash(git*), Bash(gh*), Bash(npm test:*), Bash(cargo test:*), Bash(pytest:*), Bash(go test:*), Bash(pnpm test:*), Bash(yarn test:*), Bash(bun test:*), Agent, Task, Skill
 ---
 
 **Argument:** "$ARGUMENTS"
+
+**Name resolution:** `praxis:`-prefixed skill and agent names are the plugin registrations; a local checkout registers them bare. If a referenced skill or agent resolves in neither form, tell the user what's missing instead of silently substituting a different one.
 
 Argument starts with `merge` → **Merge path**. Remaining argument (if any) is the test command override.
 
@@ -40,7 +42,7 @@ All in one message. No other tools, no other text besides these calls.
 Detect: `gh pr list --head <branch> --state open --json number --jq '.[0].number'` returns empty.
 
 1. Verify tests pass (detected command or argument override). On failure, stop and surface.
-2. **Invoke `Skill: "simplify"`** for final polish before the world sees it. Skip if changes just came from `/implement` Phase 4 (already simplified).
+2. **Invoke `Skill: "praxis:simplify"`** for final polish before the world sees it. Skip if changes just came from `/praxis:implement` Phase 4 (already simplified).
 3. Push to origin
 4. `gh pr create`
 
@@ -64,7 +66,7 @@ Push <N> commits to PR #<number>?
 
 ## Merge Path
 
-Triggered by `/ship merge`. Local merge into base branch — use when not going through PR review (small/local/private).
+Triggered by `/praxis:ship merge`. Local merge into base branch — use when not going through PR review (small/local/private).
 
 1. Base branch from `git symbolic-ref refs/remotes/origin/HEAD`
 2. Verify tests pass. On failure, stop.
@@ -75,7 +77,7 @@ Merge <feature-branch> into <base-branch>?
 - Checkout <base>, pull, merge <feature>
 - Test merged result
 - Delete <feature> on success
-- Clean worktree, /clean-gone sweep
+- Clean worktree, /praxis:clean-gone sweep
 
 Proceed?
 ```
@@ -91,7 +93,7 @@ git branch -d <feature-branch>
 ```
 
 5. If in a worktree: `git worktree remove <path>`
-6. Invoke `Skill: "clean-gone"` to sweep other stale branches
+6. Invoke `Skill: "praxis:clean-gone"` to sweep other stale branches
 
 **Next:** "Merged. Worktree cleaned. Stale branches swept."
 
@@ -117,4 +119,4 @@ Show what you ran. On failure, surface and stop.
 - Detect existing PR before opening a new one
 - Verify tests on feature branches before any push
 - Show commit summary before pushing to existing PR
-- Run `/clean-gone` after a local merge
+- Run `/praxis:clean-gone` after a local merge
