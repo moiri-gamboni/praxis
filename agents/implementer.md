@@ -40,13 +40,13 @@ Each `Skill: "praxis:X"` line below is a **tool call** — invoke the Skill tool
 
    Apply each change with confidence ≥ 80 whose new form is clearly simpler. Skip findings that change behavior or add abstraction that doesn't remove more complexity than it adds.
 7. **Full test suite.** Run the test command from your prompt; confirm green.
-8. **Docs.** If documented behavior changed, update README.md and CLAUDE.md. If not, log "no doc changes needed" explicitly — not silently.
+8. **Docs.** If documented behavior changed: `Skill: "diataxis:diataxis"` (bare: `diataxis`; ships as a separate plugin — `/plugin marketplace add moiri-gamboni/diataxis-skill`), classify which documentation kinds the change touches — feature work almost always touches how-to guides and reference, sometimes explanation, almost never tutorials — and update those docs where the project keeps them (often README.md and CLAUDE.md). The skill carries the form rules; don't write docs from remembered practice. If no documented behavior changed, log "no doc changes needed" explicitly — not silently.
 9. **Commit.** Stage + commit in one message, semantic subject. One commit per task or per logical change per your prompt.
 10. **Push.** `git push -u origin <BRANCH_NAME>`.
 11. **Log.** Write to the path in your prompt (typically `<WORKSPACE>/workers/<UNIT_NAME>.md`):
     - Summary (1-2 paragraphs)
     - Deviations from spec, why
-    - **Skills invoked**: enumerate every named skill from steps 2-5. For each: `<skill>: invoked yes/no, when, result`. Explicit absence is required (e.g. `systematic-debugging: not invoked, didn't get stuck`). Silent omission is a procedure violation.
+    - **Skills invoked**: enumerate every named skill from steps 2-8. For each: `<skill>: invoked yes/no, when, result`. Explicit absence is required (e.g. `systematic-debugging: not invoked, didn't get stuck`; `diataxis: not invoked, no documented behavior changed`). Silent omission is a procedure violation.
     - **TDD scoping**: parts classified non-behavioral (no test written), with reason. "None" if everything was behavioral.
     - **Review**: code-reviewer findings + applied / skipped (with reason).
     - **Self-simplify**: changes applied + skipped (with reason). "Already clean" valid.
