@@ -393,6 +393,8 @@ Task header references skills the implementer activates:
 
 For tasks without a behavioral deliverable (docs, config, wiring, cosmetics): drop the `praxis:test-driven-development` activation and swap the red-green checklist for `- [ ] Verify: <command / render / check + expected result>` — never a test pinning source text or shape.
 
+For documentation deliverables specifically: list `diataxis:diataxis` under **Skills to activate** (ships as a separate plugin; the name-resolution rule applies — if it resolves in neither namespaced nor bare form, surface `/plugin marketplace add moiri-gamboni/diataxis-skill` as what's missing), and name the kind(s) the deliverable serves in the task title and acceptance criteria — "update the how-to for X", "extend the Y reference" — never a bare "update docs". Feature work almost always touches how-to guides and reference, sometimes explanation, almost never tutorials. The kind classification belongs in the plan; the form rules stay in the skill.
+
 For frontend features, note in plan header that `praxis:frontend-design` skill auto-activates during implementation.
 
 ### Quality Rules

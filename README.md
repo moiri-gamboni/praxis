@@ -78,6 +78,8 @@ Agents pin `model` + `effort` frontmatter to task shape: Opus for generative and
 
 **PR-first shipping.** `/praxis:ship` is state-driven: on main fast-paths to PR creation; on feature branch opens a PR or pushes update to existing one with summary confirmation. `/praxis:ship merge` runs an explicit local merge with typed acceptance.
 
+**Documentation discipline.** Documentation updates route through the separate [diataxis](https://github.com/moiri-gamboni/diataxis-skill) plugin (the Diátaxis framework as verbatim reference text behind a routing skill): the implementer's docs step loads it before writing, `/praxis:ship` gates feature-branch PRs on docs-updated-or-deferred-with-reason (covering solo work that never passes through the implementer), `/praxis:design` doc tasks activate it and name the kind they serve (how-to, reference, explanation, tutorial), and `/praxis:review` briefs reviewers of documentation units to check kind-purity. Praxis carries only the classification gates; the form rules live in the plugin, and praxis degrades gracefully when it isn't installed (the standard name-resolution guard surfaces the install command).
+
 ## Example Workflows
 
 ### Large feature (parallel)

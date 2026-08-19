@@ -43,8 +43,9 @@ Detect: `gh pr list --head <branch> --state open --json number --jq '.[0].number
 
 1. Verify tests pass (detected command or argument override). On failure, stop and surface.
 2. **Invoke `Skill: "praxis:simplify"`** for final polish before the world sees it. Skip if changes just came from `/praxis:implement` Phase 4 (already simplified).
-3. Push to origin
-4. `gh pr create`
+3. **Docs check.** Diff changes user-visible behaviour, interfaces, or workflows with no corresponding doc change? Either update the docs now — `Skill: "diataxis:diataxis"` first (bare: `diataxis`; resolves in neither form → surface `/plugin marketplace add moiri-gamboni/diataxis-skill`, don't substitute) — or state in the PR body that docs are deferred and why. Skip if changes came through `/praxis:implement` (implementer step 8 already ran the docs pass).
+4. Push to origin
+5. `gh pr create`
 
 **Next:** "PR opened."
 
