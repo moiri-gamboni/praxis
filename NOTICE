@@ -80,7 +80,7 @@ Author: Anthropic
 License: No license specified in repository as of 2026-02-16
 
 Files derived from these plugins:
-  commands/commit.md, commands/clean-gone.md (commit-commands)
+  commands/commit.md (commit-commands)
   commands/review.md (pr-review-toolkit)
   agents/code-explorer.md, agents/code-architect.md (feature-dev)
   agents/code-reviewer.md (partial, merged with other sources)

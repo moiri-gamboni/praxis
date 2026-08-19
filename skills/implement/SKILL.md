@@ -95,7 +95,7 @@ After all units merged:
 6. **Invoke `Skill: "praxis:verification-before-completion"`** before PR.
 7. Resolve conflicting doc edits from workers
 8. Fix remaining issues — routed per Phase 3's context economy — and re-run tests
-9. **Sweep worker worktrees + local branches**: `git worktree remove <path>` then `git branch -d <branch>` for each. Remotes stay for audit; `/praxis:clean-gone` sweeps after PR merge.
+9. **Sweep worker worktrees + local branches**: `git worktree remove <path>` then `git branch -d <branch>` for each. Remotes stay for audit; sweep them once the PR merges.
 
 ## Phase 5: Final PR
 
@@ -106,6 +106,4 @@ Create PR from integration branch:
 - Concerns/TODOs from workers
 - Links to plan/design artifacts
 
-Present PR URL.
-
-**Invoke `Skill: "praxis:clean-gone"`** for opportunistic sweep of pre-existing `[gone]` branches. Worker remotes still exist; they'll be swept later when the PR merges.
+Present PR URL. Worker remote branches still exist; sweep them once the PR merges.

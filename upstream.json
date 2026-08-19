@@ -123,16 +123,6 @@
       "adaptation": "significant"
     },
     {
-      "praxis": "skills/clean-gone/SKILL.md",
-      "upstream": [
-        {
-          "plugin": "commit-commands",
-          "path": "commands/clean_gone.md"
-        }
-      ],
-      "adaptation": "near-copy"
-    },
-    {
       "praxis": "skills/review/SKILL.md",
       "upstream": [
         {
