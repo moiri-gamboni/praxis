@@ -146,5 +146,5 @@ A re-run after a fix round is **scoped, not fresh**: verdict each prior finding 
 
 - Critical (confirmed) found → "Fix critical confirmed issues, then re-run /praxis:review scoped to the fixes."
 - Only disputed Critical → "Decide on disputed findings, then re-run /praxis:review."
-- Only Important / Suggestions → "/praxis:ship when ready."
-- Clean → "Ready to /praxis:ship."
+- Only Important / Suggestions → "Commit when ready."
+- Clean → "Ready to commit."

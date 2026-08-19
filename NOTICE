@@ -50,7 +50,6 @@ Files derived from superpowers:
   agents/spec-reviewer.md
   skills/design-exploration/SKILL.md (significant adaptation from brainstorming)
   skills/planning/SKILL.md (significant adaptation from writing-plans + brainstorming)
-  commands/ship.md (partial, merged with commit-commands and finishing-a-development-branch)
 
 -------------------------------------------------------------------------------
 
@@ -81,7 +80,7 @@ Author: Anthropic
 License: No license specified in repository as of 2026-02-16
 
 Files derived from these plugins:
-  commands/commit.md, commands/ship.md, commands/clean-gone.md (commit-commands)
+  commands/commit.md, commands/clean-gone.md (commit-commands)
   commands/review.md (pr-review-toolkit)
   agents/code-explorer.md, agents/code-architect.md (feature-dev)
   agents/code-reviewer.md (partial, merged with other sources)

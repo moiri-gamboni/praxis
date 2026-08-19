@@ -57,7 +57,7 @@ Per changed document, dispatch a fresh reviewer — never its writer: load `diat
 
 Summary: documents table (path, kind, action taken), unresolved accuracy flags, and gaps deliberately left open — each with the trigger that would justify filling it, never pre-filled scaffolding.
 
-**Next:** "/praxis:ship when ready."
+**Next:** "Commit when ready."
 
 ## Relation to /praxis:review
 
