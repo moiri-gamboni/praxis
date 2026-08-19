@@ -34,7 +34,6 @@ Per Claude Code's unified skills/commands architecture, every skill is also a sl
 | **`/praxis:review [git-range]`** | Multi-wave code review by logical units: per-unit deep review with full reviewer fleet → cross-unit boundary review → verification pass on Critical findings. |
 | **`/praxis:document [scope]`** | Corpus-scale documentation work: parallel Diátaxis classification → assessment table + approval gate → per-kind writers → kind-purity review. Requires the [diataxis](https://github.com/moiri-gamboni/diataxis-skill) plugin. For a single doc edit, the diataxis skill alone suffices. |
 | **`/praxis:simplify [scope]`** | Simplification pass on recently modified code. |
-| **`/praxis:clean-gone`** | Delete local branches whose remote counterpart is gone, plus their worktrees. Auto-fires at the end of `/praxis:implement`. |
 
 Skills chain naturally: each suggests a next step based on context. The intended pipeline is **ideate → /praxis:design → /praxis:implement → /praxis:review**; **/praxis:prototype** is the fast-path alternative when the goal is a working MVP or spike rather than a production-bar build.
 
@@ -72,7 +71,7 @@ Agents pin `model` + `effort` frontmatter to task shape: Opus for generative and
 
 **Hybrid file-writing.** Explorer and architect agents write detailed outputs to `plans/<slug>/.workspace/exploration/<dimension>.md` and `plans/<slug>/.workspace/architects/<approach>.md`, returning summary + path. Coordinator context stays light.
 
-**Parallel implementation.** `/praxis:implement` decomposes work into independent units, spawns workers in isolated worktrees (each using TDD + review + simplify + verification gates). Workers write structured logs to `<workspace>/workers/<unit>.md`. Team lead merges incrementally, runs cross-cutting `/praxis:review` + trim pass + `/praxis:simplify` + `praxis:spec-reviewer` against the plan + `praxis:verification-before-completion`. Calls `/praxis:clean-gone` to sweep stale state at the end.
+**Parallel implementation.** `/praxis:implement` decomposes work into independent units, spawns workers in isolated worktrees (each using TDD + review + simplify + verification gates). Workers write structured logs to `<workspace>/workers/<unit>.md`. Team lead merges incrementally, runs cross-cutting `/praxis:review` + trim pass + `/praxis:simplify` + `praxis:spec-reviewer` against the plan + `praxis:verification-before-completion`, and sweeps worker worktrees and branches at the end.
 
 **Multi-wave code review.** `/praxis:review` identifies logical code-path units (not files), dispatches the full reviewer fleet per unit (scaled to complexity), runs a cross-unit boundary review, then a verification pass that re-runs each Critical finding through a fresh second agent. Confirmed/Disputed labels; never auto-drop disputed findings.
 
