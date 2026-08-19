@@ -303,6 +303,11 @@
         }
       ],
       "adaptation": "moderate"
+    },
+    {
+      "praxis": "skills/document/SKILL.md",
+      "upstream": [],
+      "adaptation": "new"
     }
   ]
 }
