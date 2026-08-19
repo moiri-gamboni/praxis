@@ -123,20 +123,6 @@
       "adaptation": "significant"
     },
     {
-      "praxis": "skills/ship/SKILL.md",
-      "upstream": [
-        {
-          "plugin": "commit-commands",
-          "path": "commands/commit-push-pr.md"
-        },
-        {
-          "plugin": "superpowers",
-          "path": "skills/finishing-a-development-branch/SKILL.md"
-        }
-      ],
-      "adaptation": "significant"
-    },
-    {
       "praxis": "skills/clean-gone/SKILL.md",
       "upstream": [
         {

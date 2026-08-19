@@ -1,6 +1,6 @@
 # Praxis
 
-A Claude Code plugin for software development. Skills teach Claude structured approaches to ideation, design, prototyping, implementation, and code review. They invoke as slash commands (`/praxis:design`, `/praxis:implement`, `/praxis:review`, `/praxis:ship`, etc.) and auto-trigger when relevant. Specialized agents handle parallel exploration, adversarial design review, multi-dimensional code review, and plan-document review.
+A Claude Code plugin for software development. Skills teach Claude structured approaches to ideation, design, prototyping, implementation, and code review. They invoke as slash commands (`/praxis:design`, `/praxis:implement`, `/praxis:review`, etc.) and auto-trigger when relevant. Specialized agents handle parallel exploration, adversarial design review, multi-dimensional code review, and plan-document review.
 
 Praxis incorporates material from [superpowers](https://github.com/obra/superpowers), Anthropic's [claude-plugins-official](https://github.com/anthropics/claude-plugins-official) (feature-dev, pr-review-toolkit, commit-commands, frontend-design), and Claude Code's [built-in skills](https://github.com/anthropics/claude-code), picking the best version of each component and filling gaps between them.
 
@@ -34,10 +34,9 @@ Per Claude Code's unified skills/commands architecture, every skill is also a sl
 | **`/praxis:review [git-range]`** | Multi-wave code review by logical units: per-unit deep review with full reviewer fleet → cross-unit boundary review → verification pass on Critical findings. |
 | **`/praxis:document [scope]`** | Corpus-scale documentation work: parallel Diátaxis classification → assessment table + approval gate → per-kind writers → kind-purity review. Requires the [diataxis](https://github.com/moiri-gamboni/diataxis-skill) plugin. For a single doc edit, the diataxis skill alone suffices. |
 | **`/praxis:simplify [scope]`** | Simplification pass on recently modified code. |
-| **`/praxis:ship [merge] [test cmd]`** | PR-first shipping. State-driven default: opens or updates a PR. With `merge` arg: explicit local merge after acceptance prompt. |
-| **`/praxis:clean-gone`** | Delete local branches whose remote counterpart is gone, plus their worktrees. Auto-fires after `/praxis:ship merge` and at the end of `/praxis:implement`. |
+| **`/praxis:clean-gone`** | Delete local branches whose remote counterpart is gone, plus their worktrees. Auto-fires at the end of `/praxis:implement`. |
 
-Skills chain naturally: each suggests a next step based on context. The intended pipeline is **ideate → /praxis:design → /praxis:implement → /praxis:review → /praxis:ship**; **/praxis:prototype** is the fast-path alternative when the goal is a working MVP or spike rather than a production-bar build.
+Skills chain naturally: each suggests a next step based on context. The intended pipeline is **ideate → /praxis:design → /praxis:implement → /praxis:review**; **/praxis:prototype** is the fast-path alternative when the goal is a working MVP or spike rather than a production-bar build.
 
 ## Agents
 
@@ -77,9 +76,7 @@ Agents pin `model` + `effort` frontmatter to task shape: Opus for generative and
 
 **Multi-wave code review.** `/praxis:review` identifies logical code-path units (not files), dispatches the full reviewer fleet per unit (scaled to complexity), runs a cross-unit boundary review, then a verification pass that re-runs each Critical finding through a fresh second agent. Confirmed/Disputed labels; never auto-drop disputed findings.
 
-**PR-first shipping.** `/praxis:ship` is state-driven: on main fast-paths to PR creation; on feature branch opens a PR or pushes update to existing one with summary confirmation. `/praxis:ship merge` runs an explicit local merge with typed acceptance.
-
-**Documentation discipline.** Documentation updates route through the separate [diataxis](https://github.com/moiri-gamboni/diataxis-skill) plugin (the Diátaxis framework as verbatim reference text behind a routing skill): the implementer's docs step loads it before writing, `/praxis:ship` gates feature-branch PRs on docs-updated-or-deferred-with-reason (covering solo work that never passes through the implementer), `/praxis:design` doc tasks activate it and name the kind they serve (how-to, reference, explanation, tutorial), `/praxis:review` briefs reviewers of documentation units to check kind-purity, and `/praxis:document` orchestrates corpus-scale audits and restructures. Praxis carries only the classification gates; the form rules live in the plugin, and praxis degrades gracefully when it isn't installed (the standard name-resolution guard surfaces the install command).
+**Documentation discipline.** Documentation updates route through the separate [diataxis](https://github.com/moiri-gamboni/diataxis-skill) plugin (the Diátaxis framework as verbatim reference text behind a routing skill): the implementer's docs step loads it before writing, `/praxis:design` doc tasks activate it and name the kind they serve (how-to, reference, explanation, tutorial), `/praxis:review` briefs reviewers of documentation units to check kind-purity, and `/praxis:document` orchestrates corpus-scale audits and restructures. Solo work outside these paths relies on the diataxis skill's own auto-activation. Praxis carries only the classification gates; the form rules live in the plugin, and praxis degrades gracefully when it isn't installed (the standard name-resolution guard surfaces the install command).
 
 ## Example Workflows
 
@@ -89,21 +86,20 @@ Agents pin `model` + `effort` frontmatter to task shape: Opus for generative and
 2. `/praxis:design` reads ideation, runs shared exploration + architect approaches + red-team fleet, writes `plans/<slug>.md`
 3. `/praxis:implement plans/<slug>.md` spawns sub-agents in worktrees: each does TDD + review + simplify + verification + commit + push + log
 4. Coordinator merges incrementally, then cross-cutting `/praxis:review` + `/praxis:simplify` + `praxis:spec-reviewer` against plan + `praxis:verification-before-completion`, opens PR
-5. PR feedback iteration via manual edits + `/praxis:ship` to push updates
+5. PR feedback iteration via manual edits pushed to the PR branch
 
 ### Bug fix (solo)
 
 1. systematic-debugging skill activates automatically on the bug report
 2. test-driven-development skill activates (write failing test for the bug)
 3. Fix the bug; verification-before-completion confirms tests pass
-4. `/praxis:ship` to open a PR
+4. Commit (and open a PR if the project's workflow calls for one)
 
 ### Before opening a PR
 
 1. `/praxis:review` (multi-wave by logical units)
 2. Fix Critical confirmed findings
 3. `/praxis:simplify` (cross-cutting)
-4. `/praxis:ship` to open PR
 
 ## Upstream Tracking
 

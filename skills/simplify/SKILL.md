@@ -27,4 +27,4 @@ Run `praxis:code-simplifier` on recently modified code to improve clarity while 
 
 3. **Report results.** Files modified, changes (with before/after), rationale per simplification. If clean, report so.
 
-4. **Next:** "Simplification complete. /praxis:ship to commit and open a PR."
+4. **Next:** "Simplification complete. Commit when ready."
