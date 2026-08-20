@@ -34,8 +34,9 @@ Per Claude Code's unified skills/commands architecture, every skill is also a sl
 | **`/praxis:review [git-range]`** | Multi-wave code review by logical units: per-unit deep review with full reviewer fleet → cross-unit boundary review → verification pass on Critical findings. |
 | **`/praxis:document [scope]`** | Corpus-scale documentation work: parallel Diátaxis classification → assessment table + approval gate → per-kind writers → kind-purity review. Requires the [diataxis](https://github.com/moiri-gamboni/diataxis-skill) plugin. For a single doc edit, the diataxis skill alone suffices. |
 | **`/praxis:simplify [scope]`** | Simplification pass on recently modified code. |
+| **`/praxis:iterate [items]`** | Work through a stream of small changes to existing work — fixes, follow-ups, scope adjustments — one item at a time, each routed to the right discipline skill, with decisions recorded into the plan artifacts (or a minimal `plans/<slug>.md` created lazily when none exist). Also auto-activates. |
 
-Skills chain naturally: each suggests a next step based on context. The intended pipeline is **ideate → /praxis:design → /praxis:implement → /praxis:review**; **/praxis:prototype** is the fast-path alternative when the goal is a working MVP or spike rather than a production-bar build.
+Skills chain naturally: each suggests a next step based on context. The intended pipeline is **ideate → /praxis:design → /praxis:implement → /praxis:review**; **/praxis:prototype** is the fast-path alternative when the goal is a working MVP or spike rather than a production-bar build; **/praxis:iterate** is the loop after either — it maintains the pipeline's artifacts as the work evolves, so later design or iterate sessions inherit the decisions instead of re-litigating them.
 
 ## Agents
 
@@ -75,6 +76,8 @@ Agents pin `model` + `effort` frontmatter to task shape: Opus for generative and
 
 **Multi-wave code review.** `/praxis:review` identifies logical code-path units (not files), dispatches the full reviewer fleet per unit (scaled to complexity), runs a cross-unit boundary review, then a verification pass that re-runs each Critical finding through a fresh second agent. Confirmed/Disputed labels; never auto-drop disputed findings.
 
+**Living decision record.** `/praxis:iterate` keeps the plan artifacts current as work evolves post-pipeline: falsifier evidence lands against the Resolution Log entries it contradicts, scope changes amend the fixed outcomes, clarifications become provenance-tagged constraints. Sessions with no pipeline artifacts get a minimal `plans/<slug>.md` (header + constraints + Resolution Log, in the standard formats) created lazily on the first decision worth recording — so `/praxis:design` and later iterations read it like any other plan. Only decisions get recorded, never activity; git history stays the changelog.
+
 **Documentation discipline.** Documentation updates route through the separate [diataxis](https://github.com/moiri-gamboni/diataxis-skill) plugin (the Diátaxis framework as verbatim reference text behind a routing skill): the implementer's docs step loads it before writing, `/praxis:design` doc tasks activate it and name the kind they serve (how-to, reference, explanation, tutorial), `/praxis:review` briefs reviewers of documentation units to check kind-purity, and `/praxis:document` orchestrates corpus-scale audits and restructures. Solo work outside these paths relies on the diataxis skill's own auto-activation. Praxis carries only the classification gates; the form rules live in the plugin, and praxis degrades gracefully when it isn't installed (the standard name-resolution guard surfaces the install command).
 
 ## Example Workflows
@@ -93,6 +96,12 @@ Agents pin `model` + `effort` frontmatter to task shape: Opus for generative and
 2. test-driven-development skill activates (write failing test for the bug)
 3. Fix the bug; verification-before-completion confirms tests pass
 4. Commit (and open a PR if the project's workflow calls for one)
+
+### Iterating on existing work
+
+1. `/praxis:iterate` (or it auto-activates on a stream of follow-ups): clarify everything unclear, then one item at a time — bugs through systematic-debugging + TDD, small features through TDD, scope changes amend the plan first
+2. Decisions land in the plan's Resolution Log; solo sessions get a minimal `plans/<slug>.md` on the first recorded decision
+3. Batch wrap: review scoped to the batch and sized to its risk
 
 ### Before opening a PR
 

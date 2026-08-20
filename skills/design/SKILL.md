@@ -27,6 +27,8 @@ Require a feature description; ask if missing.
 
 Check for `plans/<slug>-ideation.md`. If present, read it (output of `praxis:ideate`: problem, prior art, alternatives, concept, constraints) and use as foundational context. If absent, ask: "No ideation file. Run `praxis:ideate` first, or proceed without prior-art search?"
 
+Also check for an existing `plans/<slug>.md` — prior `/praxis:iterate` work leaves a minimal one (fixed outcomes, provenance-tagged constraints, Resolution Log). Read it and carry sticky rejections and `[user]` constraints forward: the new plan supersedes the file, never the user's recorded decisions.
+
 ### 1.2 Shared Exploration Wave
 
 Dispatch 5 `praxis:code-explorer` agents in parallel, one per **dimension**:
@@ -271,6 +273,8 @@ The Decision Record is the canonical source for everything Phase 3's Present for
 ```
 
 Silent acceptance not allowed; every finding gets a logged resolution. **Entries marked "Rejected (by user direction; sticky)" are not for re-litigation**: red-team agents re-running against the plan must check this section and treat reframed reintroductions of rejected concerns as Rejected, not Deferred.
+
+The Resolution Log outlives the plan: `/praxis:iterate` appends entries (angle: iterate — falsifier evidence, scope amendments, post-ship decisions) as the work evolves. On a re-run of this skill, treat those entries as part of the record, not corruption.
 
 ### Truncated example plan file
 

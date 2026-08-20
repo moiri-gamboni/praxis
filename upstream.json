@@ -284,6 +284,11 @@
       "praxis": "skills/document/SKILL.md",
       "upstream": [],
       "adaptation": "new"
+    },
+    {
+      "praxis": "skills/iterate/SKILL.md",
+      "upstream": [],
+      "adaptation": "new"
     }
   ]
 }
