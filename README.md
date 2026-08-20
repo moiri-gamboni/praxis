@@ -34,7 +34,7 @@ Per Claude Code's unified skills/commands architecture, every skill is also a sl
 | **`/praxis:review [git-range]`** | Multi-wave code review by logical units: per-unit deep review with full reviewer fleet → cross-unit boundary review → verification pass on Critical findings. |
 | **`/praxis:document [scope]`** | Corpus-scale documentation work: parallel Diátaxis classification → assessment table + approval gate → per-kind writers → kind-purity review. Requires the [diataxis](https://github.com/moiri-gamboni/diataxis-skill) plugin. For a single doc edit, the diataxis skill alone suffices. |
 | **`/praxis:simplify [scope]`** | Simplification pass on recently modified code. |
-| **`/praxis:iterate [items]`** | Work through a stream of small changes to existing work — fixes, follow-ups, scope adjustments — one item at a time, each routed to the right discipline skill, with decisions recorded into the plan artifacts (or a minimal `plans/<slug>.md` created lazily when none exist). Also auto-activates. |
+| **`/praxis:iterate [items]`** | Small changes to existing work — fixes, follow-ups, scope adjustments, single or batched — one item at a time, each routed to the right discipline skill, with decisions recorded into the plan artifacts (or a minimal `plans/<slug>.md` created lazily when none exist). Also auto-activates. |
 
 Skills chain naturally: each suggests a next step based on context. The intended pipeline is **ideate → /praxis:design → /praxis:implement → /praxis:review**; **/praxis:prototype** is the fast-path alternative when the goal is a working MVP or spike rather than a production-bar build; **/praxis:iterate** is the loop after either — it maintains the pipeline's artifacts as the work evolves, so later design or iterate sessions inherit the decisions instead of re-litigating them.
 
@@ -92,14 +92,13 @@ Agents pin `model` + `effort` frontmatter to task shape: Opus for generative and
 
 ### Bug fix (solo)
 
-1. systematic-debugging skill activates automatically on the bug report
-2. test-driven-development skill activates (write failing test for the bug)
-3. Fix the bug; verification-before-completion confirms tests pass
-4. Commit (and open a PR if the project's workflow calls for one)
+1. iterate activates on the bug report (or `/praxis:iterate`) and routes it: systematic-debugging for the root cause, test-driven-development for the failing test
+2. Fix the bug; verification-before-completion confirms tests pass. If the bug fired through a trimmed guard or a Rejected/Deferred finding, the falsifier evidence lands in the plan's Resolution Log
+3. Commit (and open a PR if the project's workflow calls for one)
 
 ### Iterating on existing work
 
-1. `/praxis:iterate` (or it auto-activates on a stream of follow-ups): clarify everything unclear, then one item at a time — bugs through systematic-debugging + TDD, small features through TDD, scope changes amend the plan first
+1. `/praxis:iterate` (or it auto-activates on follow-up work): clarify everything unclear, then one item at a time — bugs through systematic-debugging + TDD, small features through TDD, scope changes amend the plan first
 2. Decisions land in the plan's Resolution Log; solo sessions get a minimal `plans/<slug>.md` on the first recorded decision
 3. Batch wrap: review scoped to the batch and sized to its risk
 
