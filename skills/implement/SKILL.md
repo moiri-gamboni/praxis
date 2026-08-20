@@ -43,7 +43,7 @@ Research before routing — the single-vs-parallel call needs codebase context, 
    - **Integration tests** to run after merge
    - **Risks**: what could go wrong, what to check on failure
 
-5. **Get approval.** Present the plan; ask about splits/merges/drops. No proceeding without explicit approval.
+5. **Surface decisions, then proceed.** Present the batch summary inline (units, integration contract, key risks) and continue to Phase 2 — the decomposition is orchestration machinery, and "approve this batch plan?" is not a real question; the user redirects on the next turn if the split is wrong. Block for input only on genuine tradeoffs surfaced during research: decisions where no option is clearly better and the pick materially changes what gets built — present each with the options, the tradeoff, and a recommendation, before any workers dispatch. Decisions a `/praxis:design` plan already adjudicated are settled; don't re-ask them.
 
 ## Phase 2: Dispatch Workers
 
