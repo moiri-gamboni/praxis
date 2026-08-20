@@ -431,6 +431,8 @@ Adjudicate each finding into the Resolution Log (angle: trim), same vocabulary a
 
 ### Plan-Document Review
 
+Runs only after the Trim Pass is fully adjudicated and accepted cuts are applied — never in parallel with the trimmer. The trimmer's cuts edit the plan; a reviewer dispatched alongside it verdicts the pre-trim document and is stale on arrival.
+
 Dispatch `praxis:plan-doc-reviewer` via Agent with paths to the plan and ideation file. It returns Approved | Issues. On Issues: fix flagged items, re-run — passing the prior issues so the re-run verdicts each one and reviews the edits, not the whole plan afresh. Iterate to Approved. Recommendations are advisory.
 
 ### Present for Approval
