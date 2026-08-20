@@ -67,9 +67,11 @@ You MUST complete each phase before proceeding to the next.
    - New dependencies, config changes
    - Environmental differences
 
-4. **Gather Evidence in Multi-Component Systems**
+4. **Gather Evidence With Instrumentation**
 
-   **WHEN system has multiple components (CI, build, signing, API, service, database):**
+   **WHEN the system has multiple components (CI, build, signing, API, service, database), OR the cause isn't directly observable by reading the code, OR a previous fix attempt failed:**
+
+   Prefer instrumentation over guessing: instrument to see where behavior diverges from your assumptions — whether the expected code fires, when it fires (if timing matters), and what values it sees.
 
    **BEFORE proposing fixes, add diagnostic instrumentation:**
    ```
@@ -153,6 +155,7 @@ You MUST complete each phase before proceeding to the next.
    - Make the SMALLEST possible change to test hypothesis
    - One variable at a time
    - Don't fix multiple things at once
+   - Prefer observation over trial-fixes: when a log line or assertion can check the hypothesis, instrument and run — a candidate fix that fails costs a full cycle and muddies the evidence
 
 3. **Verify Before Continuing**
    - Did it work? Yes, proceed to Phase 4
@@ -191,7 +194,7 @@ You MUST complete each phase before proceeding to the next.
 4. **If Fix Doesn't Work**
    - STOP
    - Count: How many fixes have you tried?
-   - If < 3: Return to Phase 1, re-analyze with new information
+   - If < 3: Return to Phase 1, re-analyze with new information — instrumented this time; a failed fix proves the divergence is somewhere you didn't look
    - **If >= 3: STOP and question the architecture (step 5 below)**
    - DON'T attempt Fix #4 without architectural discussion
 
