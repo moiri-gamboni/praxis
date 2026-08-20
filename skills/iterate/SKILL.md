@@ -1,6 +1,6 @@
 ---
 name: iterate
-description: Use when working through a stream of small changes to something that already exists — bug fixes, follow-up features, scope adjustments, goal clarifications — whether or not the work came through /praxis:design or /praxis:implement. Not for building something new (that's /praxis:design or /praxis:prototype), and not for a lone one-off fix where the discipline skills suffice on their own.
+description: Use when making small changes to something that already exists — a bug fix, a follow-up feature, a scope adjustment, a goal clarification — one item or a batch, whether or not the work came through /praxis:design or /praxis:implement. Not for building something new (that's /praxis:design or /praxis:prototype).
 argument-hint: "[items to work through, or source of the list]"
 ---
 
