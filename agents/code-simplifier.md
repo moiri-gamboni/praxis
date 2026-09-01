@@ -2,7 +2,7 @@
 name: code-simplifier
 description: Use after completing a coding task or logical chunk to simplify for clarity, consistency, and maintainability — preserves functionality.
 tools: Bash, Glob, Grep, LS, Read, Write, Edit
-model: opus
+model: fable
 effort: medium
 color: green
 ---

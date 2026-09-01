@@ -2,7 +2,7 @@
 name: code-architect
 description: Use when designing a new feature's architecture before implementation — produces blueprints (files to create/modify, component designs, data flows, build sequences) grounded in existing codebase patterns.
 tools: Bash, Glob, Grep, LS, Read, Write, WebSearch, WebFetch
-model: opus
+model: fable
 effort: high
 color: green
 ---

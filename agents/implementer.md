@@ -2,7 +2,7 @@
 name: implementer
 description: Use when an orchestrator (typically /praxis:implement) needs a procedure-faithful builder for one self-contained deliverable — implements to spec, invokes the skill loop (TDD, debug, verify, review, simplify), pushes, logs.
 tools: Bash, Read, Write, Edit, Glob, Grep, Skill, Agent
-model: opus
+model: fable
 effort: high
 color: orange
 ---
