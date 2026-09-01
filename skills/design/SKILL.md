@@ -154,7 +154,7 @@ Spawn `praxis:red-team` agents in parallel, one per attack angle. Standard angle
 
 Conditional:
 
-6. **Security & abuse** — when feature involves user input, auth, data exposure, privilege boundaries, external integrations. Dispatch this angle with `model: opus` (the per-call override wins over the agent's `fable`): attack-surface analysis trips Fable's cybersecurity classifier, which hops the request to another model mid-review.
+6. **Security & abuse** — when feature involves user input, auth, data exposure, privilege boundaries, external integrations
 7. **Documentation currency** — when design names third-party libs/APIs. Agent uses WebSearch/WebFetch to verify each named dependency exists, usage matches current docs, no deprecations
 
 Each returns findings with confidence (0-100 + justification).
