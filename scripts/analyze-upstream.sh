@@ -178,7 +178,7 @@ $CHANGED_FILES
 8. If no changes are worth incorporating, make no edits and explain why
 
 IMPORTANT:
-- Preserve praxis adaptations (model: opus, namespace changes, merged content). Don't revert those.
+- Preserve praxis adaptations (model: fable, namespace changes, merged content). Don't revert those.
 - For near-copy files, apply upstream changes directly.
 - For moderate/significant files, adapt the upstream improvement to fit praxis's version.
 - Do NOT make changes beyond what upstream changed. No opportunistic refactoring."

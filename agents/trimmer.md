@@ -2,7 +2,7 @@
 name: trimmer
 description: Use when a drafted plan or a completed diff needs a dedicated subtraction pass — proposes cuts (machinery no fixed outcome requires) as findings with outcome-traces and counted costs.
 tools: Bash, Glob, Grep, LS, Read, Write
-model: opus
+model: fable
 effort: high
 color: red
 ---

@@ -56,7 +56,7 @@ Skills chain naturally: each suggests a next step based on context. The intended
 | **silent-failure-hunter** | Finds swallowed errors and inadequate error handling. Each finding must articulate the actual failure mode, not abstract concern. | `/praxis:review` Wave 1 |
 | **type-analyzer** | Evaluates type design: encapsulation, invariants, enforcement. Each improvement must articulate specific bug class prevented vs cost. | `/praxis:review` Wave 1, Wave 2 cross-unit |
 
-Agents pin `model` + `effort` frontmatter to task shape: Opus for generative and judgment-heavy roles (architects, implementer, trimmer, code-reviewer, red-team), Sonnet for scoped single-dimension analysis (explorer, spec/test/type/comment analyzers). Reviewer agents use a per-finding confidence threshold (>= 80) and reject fabricating findings to look thorough.
+Agents pin `model` + `effort` frontmatter to task shape: Fable for generative and judgment-heavy roles (architects, implementer, trimmer, code-reviewer, red-team), Sonnet for scoped single-dimension analysis (explorer, spec/test/type/comment analyzers). Reviewer agents use a per-finding confidence threshold (>= 80) and reject fabricating findings to look thorough.
 
 ## Design
 
