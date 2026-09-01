@@ -3,7 +3,7 @@ name: comment-analyzer
 description: Use after generating documentation, before PR finalization with comment changes, or when auditing existing comments for technical debt — checks accuracy, completeness, long-term maintainability.
 tools: Bash, Glob, Grep, LS, Read, Write
 model: sonnet
-effort: medium
+effort: high
 color: green
 ---
 
