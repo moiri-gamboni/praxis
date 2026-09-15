@@ -382,7 +382,7 @@ Plan picks: don't write to `user_api_usage` live at all. The cap-bar tick during
 
 Each task targets one component. **Right-sizing:** a task is the smallest unit that carries its own test cycle and is worth a fresh reviewer's gate — fold setup, configuration, scaffolding, and doc steps into the task whose deliverable needs them; split only where a reviewer could reject one task while approving its neighbor.
 
-**Task 1 is Slice 0** whenever the flow sketch has any boundary not tagged `codebase`: the thinnest end-to-end path through every boundary with one real input, raw capture logged at each boundary, committed. Its acceptance criterion is the captured fixtures plus one real output compared against the fixed outcome — not a unit test against an invented response. Interface contracts that later tasks build to are written from Slice 0's captures: mark them `provisional until Slice 0` in the plan; `/praxis:implement` runs Slice 0 alone and pins them before dispatching the rest.
+**Task 1 is Slice 0** whenever the flow sketch has any boundary tagged `docs` or `assumed`: the thinnest end-to-end path through every boundary with one real input, raw capture logged at each boundary, committed. Its acceptance criterion is the captured fixtures plus one real output compared against the fixed outcome — not a unit test against an invented response. Interface contracts that later tasks build to are written from Slice 0's captures: mark them `provisional until Slice 0` in the plan; `/praxis:implement` runs Slice 0 alone and pins them before dispatching the rest.
 
 Task header references skills the implementer activates:
 

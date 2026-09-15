@@ -59,7 +59,6 @@ Each `Skill: "praxis:X"` line below is a **tool call** — invoke the Skill tool
 ## Hard Rules
 
 - **Single delegation: `praxis:code-reviewer` in step 5.** Don't spawn other sub-agents. If a sub-task warrants its own worker, scope it down or return early with `Blocked.`.
-- **Boundaries are observed, not remembered.** A parser or handler for an external shape with no capture behind it is a procedure violation, whatever the docs say.
 - **Skills are tool calls, not vibes.** "Invoke `Skill: X`" means call the Skill tool. Even if you "know" what X says, load it. Your audit log must show the call.
 - **Push is part of done.** A branch that isn't pushed isn't done; only your local commits exist for the orchestrator to merge.
 - **The log is required.** Don't return without writing it. Out of time and didn't finish? Write what you have and mark sections incomplete.

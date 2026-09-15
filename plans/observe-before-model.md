@@ -201,3 +201,15 @@ Misleading elements add: plan or design-doc pointers and IDs, acronyms the codeb
   - Confidence: 85
   - Resolution: Fixed (framing)
   - Detail: folded into step 2 as "Boundaries, then TDD" rather than inserted as its own step; the audit log still names the skill, and no cross-references needed renumbering.
+- **Slice 0 and spike triggers stated two ways** (severity: Important; angle: review)
+  - Confidence: 85
+  - Resolution: Fixed (framing)
+  - Detail: "not tagged `codebase`" (design Task Structure, plan-doc-reviewer, implement) and "`docs` or `assumed`" (everywhere else) disagree on a `capture` boundary, which is already observed. Both triggers now key on `docs` or `assumed`, and the skill's step 2 skips the real call when the codebase already makes it and a capture or raw log shows the shape — the premortem's ceremony falsifier, closed at the one site every caller loads.
+- **Implementer hard rule stricter than the skill** (severity: Important; angle: review)
+  - Confidence: 85
+  - Resolution: Fixed (scope)
+  - Detail: "no capture behind it is a procedure violation, whatever the docs say" contradicted the skill's "a capture or the docs" and was not in the plan. Deleted; step 2 and the Boundaries-observed log section already enforce the discipline.
+- **spec-reviewer needed the derived qualifier** (severity: Suggestion; angle: review)
+  - Confidence: 80
+  - Resolution: Fixed (code)
+  - Detail: listed under Deliberately not changed, but its "unrequested instrumentation" Extra would flag every mandated raw log line each batch. One word added.
