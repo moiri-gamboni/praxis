@@ -19,15 +19,28 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Agent, Task, Skill, AskUserQuestio
 
 **Crash-loud beats handle-quietly for impossible states.** If a state can't happen, let it raise — don't catch, wrap, default, or re-validate what was validated one frame up. A guard for a state that cannot occur hides real failures. Defensive code needs all three: specific failure scenario, realistic likelihood, consequence if unhandled.
 
+**Reachable failures propagate; boundaries capture raw.** For a failure that can happen, the default is still to let it raise, with the raw request, response, and input attached; a catch block needs a fourth part beyond those three — a named recovery that beats crashing. Every external boundary logs its raw request and response permanently; that capture is never machinery to cut. The named-reader test applies to *derived* instrumentation (counters, summaries, alarms). Operational rules: `praxis:observe-before-model`.
+
 ## Phase 1: Architecture
 
 ### 1.1 Validate Input + Read Ideation
 
 Require a feature description; ask if missing.
 
-Check for `plans/<slug>-ideation.md`. If present, read it (output of `praxis:ideate`: problem, prior art, alternatives, concept, constraints) and use as foundational context. If absent, ask: "No ideation file. Run `praxis:ideate` first, or proceed without prior-art search?"
+Check for `plans/<slug>-ideation.md`. If present, read it (output of `praxis:ideate`: problem, prior art, alternatives, concept, constraints) and use as foundational context. If absent, run a bounded prior-art pass here — one subagent via Agent, WebSearch + Exa: canonical implementations to read, reference repos, documented pitfalls for this kind of system, libraries to adopt — reported as one section of the 1.2.5 synthesis. Don't offer to skip it: building without asking what already exists is how the wheel gets reinvented with the same bugs.
 
 Also check for an existing `plans/<slug>.md` — prior `/praxis:iterate` work leaves a minimal one (fixed outcomes, provenance-tagged constraints, Resolution Log). Read it and carry sticky rejections and `[user]` constraints forward: the new plan supersedes the file, never the user's recorded decisions.
+
+### 1.1.5 Flow Sketch
+
+Before any exploration, write the system as stages and boundaries: what enters, each transformation, what leaves. Per boundary — every point where data crosses into or out of something this codebase doesn't own (HTTP API, SDK, CLI/subprocess, file format, database, queue, LLM) — record what crosses it and where its shape is known from:
+
+- `codebase` — a type or call already exercised here (`file:line`)
+- `docs` — the vendor's current reference (URL), not yet observed
+- `capture` — a raw response captured on disk (path)
+- `assumed` — nobody has checked
+
+Every `docs` and `assumed` boundary is where Slice 0 goes first (Task Structure). Greenfield or pipeline work with no codebase to explore: the sketch replaces 1.2, and architects design against it.
 
 ### 1.2 Shared Exploration Wave
 
@@ -41,7 +54,7 @@ Dispatch 5 `praxis:code-explorer` agents in parallel, one per **dimension**:
 
 Each explorer writes findings to `plans/<slug>/.workspace/exploration/<dimension>.md` and returns: 1-paragraph overview + path + top 3 headlines + 5-10 essential files.
 
-Prior art belongs to `praxis:ideate`, not here.
+Prior art comes from `praxis:ideate` when it ran, otherwise from 1.1's bounded pass — not from explorers.
 
 ### 1.2.5 Synthesize Shared Context
 
@@ -70,7 +83,7 @@ Material changes only. Cap at one re-exploration. User approval required.
 
 Restate the goal back to the user before architect dispatch:
 
-1. **Goal + fixed outcomes**: paraphrase intent + scope; list the **fixed outcomes** — the features/results the user actually asked for, stated as results, not mechanisms; name the dominant failure mode. Invite correction. The plan must deliver the fixed outcomes; everything else — guard density, knobs, instrumentation, schema richness, test volume — is means, chosen lean.
+1. **Goal + fixed outcomes**: paraphrase intent + scope; list the **fixed outcomes** — the features/results the user actually asked for, stated as results, not mechanisms; name the dominant failure mode. Invite correction. The plan must deliver the fixed outcomes; everything else — guard density, knobs, instrumentation, schema richness, test volume — is means, chosen lean. For each boundary the flow sketch marks `docs` or `assumed`, name the observation that will pin it.
 2. **Constraint audit**: list every constraint the architecture will bend around, each with its provenance tag from the ideation doc — `[user]` (quote their words), `[fact]` (cite), `[assumed]`. **Batch-confirm the `[assumed]` ones with the user now**: each costs them one word to confirm or overturn; each wrong assumption that slips through becomes an invented contract that costs an architect round to build around and a red-team round to demolish. If the ideation doc carries no tags, derive them here — anything not traceable to the user's words or a cited fact is `[assumed]`.
 3. **Architectural change appetite** (only if 1.2.5 coverage flags in-pattern gaps): "Should architects stay in-pattern, or is infrastructure in scope?"
 
@@ -84,7 +97,7 @@ Spawn 2-3 `praxis:code-architect` agents in parallel, each with a different phil
 - **Clean architecture**: best design, maintainability, long-term extensibility
 - **Pragmatic balance**: sweet spot between minimal and clean
 
-Each receives the shared context + ideation file (if any) + the fixed outcomes from 1.2.8 + their philosophy. Architects do narrower exploration scoped to their approach (their job: "what my approach needs to touch," not "the lay of the land").
+Each receives the shared context + the flow sketch + ideation file (if any) + the fixed outcomes from 1.2.8 + their philosophy. Architects do narrower exploration scoped to their approach (their job: "what my approach needs to touch," not "the lay of the land").
 
 All three philosophies share a floor (competent: tested, sound seams) and a ceiling (nothing that doesn't trace to a fixed outcome or real constraint). Clean means better factored, not more machinery.
 
@@ -155,7 +168,7 @@ Spawn `praxis:red-team` agents in parallel, one per attack angle. Standard angle
 Conditional:
 
 6. **Security & abuse** — when feature involves user input, auth, data exposure, privilege boundaries, external integrations
-7. **Documentation currency** — when design names third-party libs/APIs. Agent uses WebSearch/WebFetch to verify each named dependency exists, usage matches current docs, no deprecations
+7. **Documentation currency** — when the flow sketch has any boundary tagged `docs` or `assumed`, or the design names third-party libs/APIs. Agent uses WebSearch/WebFetch to verify each named dependency exists, usage matches current docs, no deprecations; pass it the sketch's boundary list
 
 Each returns findings with confidence (0-100 + justification).
 
@@ -191,6 +204,7 @@ Design the test strategy for the chosen architecture:
 2. Write test specs (inputs, expected outputs, edge cases)
 3. Map tests to components — each task with a behavioral deliverable starts with a clear failing test. Not every task has one: tasks whose deliverable is docs, config, wiring, or cosmetics get a **verification line** (run it / render it / review it), never a manufactured test asserting source text or code shape to satisfy the red-green ritual.
 4. Identify integration tests across components
+5. Test specs for a boundary marked `docs` or `assumed` are provisional until Slice 0 captures the real shape; the captured fixture replaces the invented one. Never mock a response nobody has seen.
 
 **Behavior-only rule**: keep a test only if it exercises a code path and asserts its output or effect. Volume proportional to the risk retired. A test locks behavior — don't lock implementation shape, constants meant to change, or behavior the plan doesn't need.
 
@@ -215,6 +229,7 @@ Plan structure:
 
 **Goal:** [One sentence]
 **Fixed outcomes:** [Short list from 1.2.8: the features/results the user asked for — what the plan must deliver; everything else is means]
+**Flow:** [The 1.1.5 sketch: stages → boundaries, each tagged codebase | docs | capture | assumed]
 **Architecture:** [2-3 sentences]
 **Failure mode targeted:** [The dominant failure mode this plan closes, from 1.2 dimension 5]
 **Tech Stack:** [Key technologies]
@@ -367,6 +382,8 @@ Plan picks: don't write to `user_api_usage` live at all. The cap-bar tick during
 
 Each task targets one component. **Right-sizing:** a task is the smallest unit that carries its own test cycle and is worth a fresh reviewer's gate — fold setup, configuration, scaffolding, and doc steps into the task whose deliverable needs them; split only where a reviewer could reject one task while approving its neighbor.
 
+**Task 1 is Slice 0** whenever the flow sketch has any boundary not tagged `codebase`: the thinnest end-to-end path through every boundary with one real input, raw capture logged at each boundary, committed. Its acceptance criterion is the captured fixtures plus one real output compared against the fixed outcome — not a unit test against an invented response. Interface contracts that later tasks build to are written from Slice 0's captures: mark them `provisional until Slice 0` in the plan; `/praxis:implement` runs Slice 0 alone and pins them before dispatching the rest.
+
 Task header references skills the implementer activates:
 
 ````markdown
@@ -406,6 +423,7 @@ For frontend features, note in plan header that `praxis:frontend-design` skill a
 - **No placeholders**: never "TBD", "add appropriate X", "similar to Task N"
 - **Bite-sized steps**: one action per step (2-5 minutes)
 - **Exact paths and code**: file paths, code blocks, commands with expected output
+- **Plan vocabulary stays in the plan**: task numbers, finding IDs, matrix dimensions, mode labels, architect names. Code, comments, commit messages, and docs use the domain's words; a plan ID in a comment is a defect — give the reason in plain words instead
 
 ### Self-Review
 
@@ -416,6 +434,7 @@ After writing, check:
 4. Scope: each task touches ≤2-3 files
 5. Ambiguity: no requirement reads two ways
 6. Outcome trace (reverse): every task, guard, knob, field, and test serves a fixed outcome or named external constraint; anything tracing only to a design doc's say-so gets cut or moved to Left-out
+7. Boundary pins: every `docs` or `assumed` boundary in the flow sketch is captured by Slice 0 before any task parses it
 
 Fix inline.
 
