@@ -46,6 +46,9 @@ You have full shell access — run tests, git, checkouts, whatever you need — 
    - Assumptions that may no longer hold
    - Examples that don't match current implementation
    - TODOs/FIXMEs that may have been addressed
+   - Plan or design-doc pointers and IDs (task numbers, finding IDs, matrix labels) standing in for the reason in plain words
+   - Acronyms the codebase doesn't define
+   - Narration of how the code came to be (reviewer references, "as requested", pass/wave history)
 
 5. **Suggest improvements:**
    - Rewrite unclear/inaccurate portions
