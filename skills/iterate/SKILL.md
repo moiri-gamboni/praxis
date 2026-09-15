@@ -22,6 +22,10 @@ Detect what exists for the work area:
 
 Artifacts present → changes land on their branch and the artifact-effects table applies to the existing files. Nothing present → solo mode: same table, file created lazily (below).
 
+## What done looks like
+
+Restate each item in the user's terms — one line each, inline — before working it. Without a plan file this is the only requirements record; Wrap checks the batch against it on real input.
+
 ## Triage (more than one item)
 
 Clarify ALL unclear items before working any — items may be related; partial understanding = wrong implementation. Order: blocking → simple → complex. One item at a time, one semantic commit each.
@@ -30,12 +34,14 @@ Items from a review or red-team round → invoke `Skill: "praxis:receiving-code-
 
 ## Route each item
 
+Any item that touches an external boundary (API, SDK, CLI/subprocess, file format, database, queue, LLM) → `Skill: "praxis:observe-before-model"` first — docs, one captured call, raw logging — then its route below.
+
 - **Bug / regression / test failure** → `Skill: "praxis:systematic-debugging"` (root cause before any fix; its 3-failed-fixes rule escalates here to a `/praxis:design` conversation, not fix #4), then `Skill: "praxis:test-driven-development"` (failing test reproducing the bug).
 - **Small new behavior** → `Skill: "praxis:test-driven-development"`. If the "small" feature turns out to need contract decisions across components, stop: that's `/praxis:design` (or `/praxis:implement` if already designed).
 - **Scope change** → amend the artifacts first (table below), then implement via the lane the change lands in. A user-initiated change needs no confirmation; stop only when it collides with a prior `[user]` decision or sticky rejection — surface the collision in one line and let the user pick.
 - **Goal clarification** → record it: a constraint with a provenance tag, or an `[assumed]` → `[user]` upgrade quoting their words. No code unless something now contradicts the clarified goal.
 
-Per item, before its commit: `Skill: "praxis:verification-before-completion"`. Delete diagnostics added while investigating, or demote the essential piece into the regression test. Documented behavior changed → `Skill: "diataxis:diataxis"` (bare: `diataxis`; separate plugin — if it resolves in neither form, surface `/plugin marketplace add moiri-gamboni/diataxis-skill`), classify the kind(s) touched, update those docs.
+Per item, before its commit: `Skill: "praxis:verification-before-completion"`. Delete the processed diagnostics added while investigating (prints of intermediate state), or demote the essential piece into the regression test; the raw capture at a boundary stays. Documented behavior changed → `Skill: "diataxis:diataxis"` (bare: `diataxis`; separate plugin — if it resolves in neither form, surface `/plugin marketplace add moiri-gamboni/diataxis-skill`), classify the kind(s) touched, update those docs.
 
 ## Artifact effects
 
@@ -54,6 +60,6 @@ Record only what a future session would otherwise re-litigate: decisions with ra
 
 ## Wrap (after the batch, not per item)
 
-Review scaled to the batch's risk: trivial → verification evidence suffices; error handling or fallbacks touched → one `praxis:silent-failure-hunter` via Agent on the batch diff; multi-file or risky → `Skill: "praxis:review"` scoped to the batch range — in its Re-Review mode when the batch answers prior review findings.
+Check the batch against the done-lines from above on real input, not only tests. Then review scaled to the batch's risk: trivial → verification evidence suffices; error handling or fallbacks touched → one `praxis:silent-failure-hunter` via Agent on the batch diff; comments or docs added or changed → one `praxis:comment-analyzer` via Agent on the batch diff, whatever the size; multi-file or risky → `Skill: "praxis:review"` scoped to the batch range — in its Re-Review mode when the batch answers prior review findings.
 
 Land where the work lives: open PR → push to its branch. Otherwise: "Commits are local; push when ready."
