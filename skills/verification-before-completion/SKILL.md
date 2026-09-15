@@ -46,6 +46,7 @@ Skip any step = lying, not verifying
 | Regression test works | Red-green cycle verified | Test passes once |
 | Agent completed | VCS diff shows changes | Agent reports "success" |
 | Requirements met | Line-by-line checklist | Tests passing |
+| Outcome delivered | End-to-end run on real input, output shown and compared to what was asked | Tests green; a mocked or invented-data run |
 
 ## Red Flags - STOP
 
@@ -95,6 +96,12 @@ BAD: "Linter passed" (linter doesn't check compilation)
 ```
 OK: Re-read plan -> Create checklist -> Verify each -> Report gaps or completion
 BAD: "Tests pass, phase complete"
+```
+
+**Outcome:**
+```
+OK: [Run the real thing on real input] [Show the output] [Compare to the ask] "Delivers X"
+BAD: "Tests pass, so it works" / a run against mocked or invented data
 ```
 
 **Agent delegation:**

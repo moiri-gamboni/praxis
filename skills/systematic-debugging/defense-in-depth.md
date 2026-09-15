@@ -30,7 +30,7 @@ No code path produces it: **no guard**. If you're wrong about "cannot occur," a 
 
 ## Temporary Diagnostics Are Temporary
 
-Environment guards ("refuse git init outside temp dirs during tests") and debug instrumentation (entry/exit logging, stack capture) are legitimate **while diagnosing** — that's Phase 1 of systematic debugging. After the root cause is fixed:
+Environment guards ("refuse git init outside temp dirs during tests") and debug instrumentation (entry/exit logging, stack capture) are legitimate **while diagnosing** — that's Phase 1 of systematic debugging. Raw request/response capture at an external boundary is not one of these: it stays, permanently (`praxis:observe-before-model`). After the root cause is fixed:
 
 - Remove them, or
 - Demote the essential piece into the bug's regression test.

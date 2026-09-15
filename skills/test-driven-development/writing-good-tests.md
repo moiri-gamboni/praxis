@@ -124,7 +124,9 @@ nothing. Give each branch (success, error, malformed) its own fixture or
 spy, so the wrong branch cannot satisfy the expectation.
 
 **Mirror real data completely.** Mock the complete structure as it exists
-in reality — all documented fields — not just the ones your test reads.
+in reality — from a captured real response, all documented fields — not
+just the ones your test reads. A hand-written imitation of an external
+shape is the partial mock in disguise.
 Partial mocks fail silently when downstream code reads an omitted field:
 the test passes while integration breaks.
 
