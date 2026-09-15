@@ -190,3 +190,14 @@ Misleading elements add: plan or design-doc pointers and IDs, acronyms the codeb
 - **Prompt bloat.** Budget: the new skill under 500 words core; one to three lines per touched file; anything larger references the skill rather than restating it.
 
 **Cruxes.** If the shape bugs originate mostly in *reading* code (parsing responses the codebase already receives correctly elsewhere), the docs and spike edits matter less and the raw-capture and propagate edits carry the value — evidence would be captures that match what Claude assumed. If they originate in *writing* calls (wrong parameter, wrong endpoint, deprecated field), the docs edits carry it — evidence would be a capture that is an error response Claude didn't expect. My read: both, roughly evenly, and both are cheap once the flow sketch names the boundaries.
+
+## Resolution Log
+
+- **Implementer tool grant** (severity: Suggestion; angle: iterate)
+  - Confidence: 100
+  - Resolution: Fixed (scope)
+  - Detail: user said "I don't really want to restrict anything"; the `tools` field is dropped from all 13 agents so each inherits every tool, which covers the planned WebFetch/WebSearch grant. Skills keep `allowed-tools`: per the Claude Code docs it pre-approves the listed tools for the invoking turn and restricts nothing.
+- **Boundaries as a separate implementer step** (severity: Suggestion; angle: iterate)
+  - Confidence: 85
+  - Resolution: Fixed (framing)
+  - Detail: folded into step 2 as "Boundaries, then TDD" rather than inserted as its own step; the audit log still names the skill, and no cross-references needed renumbering.

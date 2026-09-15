@@ -28,9 +28,10 @@ Per Claude Code's unified skills/commands architecture, every skill is also a sl
 | **verification-before-completion** | Auto-activates when about to claim work is complete or passing |
 | **receiving-code-review** | Auto-activates when receiving code review or red-team feedback |
 | **frontend-design** | Auto-activates when building web components, pages, or applications |
+| **observe-before-model** | Auto-activates when code calls an external API, SDK, CLI, subprocess, file format, database, queue, or LLM, parses what comes back, or handles its errors |
 | **`/praxis:prototype <what>`** | Build the first working version fast but sound: understand (codebase + prior art via parallel subagents) → judicious tech choices in a decision record → confirm gate → thin end-to-end slice built to an extensible standard → independent verification → handoff. For MVPs, POCs, spikes, demos, timed tasks. Also auto-activates. |
-| **`/praxis:design <feature>`** | Architecture design: 4-dim shared exploration → competing architects → synthesis matrix → red-team fleet. Reads `plans/<slug>-ideation.md` if present. Writes `plans/<slug>.md`. |
-| **`/praxis:implement <task or plan>`** | Parallel work orchestration: decompose, spawn sub-agents in worktrees (each with TDD + review + simplify gates), then integrate with spec-reviewer + verification-before-completion. |
+| **`/praxis:design <feature>`** | Architecture design: flow sketch → 5-dim shared exploration → competing architects → synthesis matrix → red-team fleet → plan with Slice 0. Reads `plans/<slug>-ideation.md` if present. Writes `plans/<slug>.md`. |
+| **`/praxis:implement <task or plan>`** | Parallel work orchestration: Slice 0 first when the plan has one, then decompose, spawn sub-agents in worktrees (each observing its boundaries, then TDD + review + simplify gates), then integrate with spec-reviewer + verification-before-completion. |
 | **`/praxis:review [git-range]`** | Multi-wave code review by logical units: per-unit deep review with full reviewer fleet → cross-unit boundary review → verification pass on Critical findings. |
 | **`/praxis:document [scope]`** | Corpus-scale documentation work: parallel Diátaxis classification → assessment table + approval gate → per-kind writers → kind-purity review. Requires the [diataxis](https://github.com/moiri-gamboni/diataxis-skill) plugin. For a single doc edit, the diataxis skill alone suffices. |
 | **`/praxis:simplify [scope]`** | Simplification pass on recently modified code. |
@@ -42,7 +43,7 @@ Skills chain naturally: each suggests a next step based on context. The intended
 
 | Agent | What it does | Invoked by |
 |-------|---------|-------------|
-| **code-explorer** | Traces execution paths, maps architecture, documents dependencies. Dimensional invocation in `/praxis:design` Phase 1.2 (architectural fit / touchpoints / risks-deps / constraints). | `/praxis:design` Phase 1.2, `praxis:ideate`, manual |
+| **code-explorer** | Traces execution paths, maps architecture, documents dependencies. Dimensional invocation in `/praxis:design` Phase 1.2 (architectural fit / touchpoints / risks-deps / constraints / failure modes). | `/praxis:design` Phase 1.2, `praxis:ideate`, manual |
 | **code-architect** | Designs implementation blueprints. Dispatched in parallel with different philosophies (minimal / clean / pragmatic) from `/praxis:design` Phase 1.3. | `/praxis:design` Phase 1.3 |
 | **red-team** | Adversarially challenges design. Dispatched as a fleet in `/praxis:design` Phase 1.5 (architectural soundness / failure modes / operational / hidden complexity / scope-assumptions / conditional security / conditional doc-currency). Per-finding confidence scores + anti-complexity bias. | `/praxis:design` Phase 1.5 |
 | **plan-doc-reviewer** | Reads plan + ideation file, returns Approved or Issues. Independent second pair of eyes on plan completeness, spec alignment, buildability. Calibrated to flag only real implementation problems. | `/praxis:design` Phase 3 self-review |
@@ -60,19 +61,21 @@ Agents pin `model` + `effort` frontmatter to task shape: Fable for generative an
 
 ## Design
 
-**Ideation produces a file `/praxis:design` reads.** `praxis:ideate` covers problem-space exploration (whether to build, what already exists, build-vs-buy via prior-art search). It writes `plans/<slug>-ideation.md` with problem statement, prior art investigated, alternatives considered at concept level, and key constraints. `/praxis:design` reads this as foundational context, gating on its presence ("run ideate first or proceed without prior-art search?").
+**Ideation produces a file `/praxis:design` reads.** `praxis:ideate` covers problem-space exploration (whether to build, what already exists, build-vs-buy via prior-art search). It writes `plans/<slug>-ideation.md` with problem statement, prior art investigated, alternatives considered at concept level, and key constraints. `/praxis:design` reads this as foundational context; without it, design runs a bounded prior-art pass of its own rather than skipping the question.
 
-**Two-axis design space in `/praxis:design`.** Phase 1.2 dispatches 4 `praxis:code-explorer` agents along evaluation **dimensions** (architectural fit, touchpoints, risks/dependencies, constraints) — exploration topics. Phase 1.3 dispatches 2-3 `praxis:code-architect` agents along **approaches** (minimal-changes, clean, pragmatic) — strategic stances. Phase 1.4 synthesis builds a matrix (dimensions × approaches), classifies decisions as Sensitivity Points (one-dimension impact) or Tradeoff Points (multi-dimension opposing), produces one merged plan with structured Alternatives Considered.
+**Flow first, then two axes, in `/praxis:design`.** Phase 1.1.5 writes the flow sketch — stages, boundaries, and where each boundary's shape is known from (`codebase`, `docs`, `capture`, `assumed`) — before any exploration; greenfield work designs against the sketch alone. Phase 1.2 dispatches 5 `praxis:code-explorer` agents along evaluation **dimensions** (architectural fit, touchpoints, risks/dependencies, constraints, failure modes) — exploration topics. Phase 1.3 dispatches 2-3 `praxis:code-architect` agents along **approaches** (minimal-changes, clean, pragmatic) — strategic stances. Phase 1.4 synthesis builds a matrix (dimensions × approaches), classifies decisions as Sensitivity Points (one-dimension impact) or Tradeoff Points (multi-dimension opposing), produces one merged plan with structured Alternatives Considered.
 
 **Adversarial review fleet.** Phase 1.5 dispatches `praxis:red-team` agents in parallel along attack angles (architectural soundness, failure modes, operational concerns, hidden complexity, scope/assumptions; conditional security; conditional documentation currency with web-tool verification of named libraries). Per-finding confidence scores. Optional verification pass on Critical findings. Resolution Log enforces explicit Fixed/Rejected/Deferred per finding — silent acceptance not allowed.
 
-**Trim pass.** After Phase 3 self-review, a `praxis:trimmer` agent runs a dedicated subtraction pass over the plan: every task, guard, knob, field, and test either traces to a fixed outcome (or real external constraint) or becomes a cut-proposal, adjudicated into the Resolution Log. The same agent runs in `/praxis:implement` Phase 4 against the merged diff — the cheapest place to cut machinery is before it exists; the second cheapest is before it ships.
+**Trim pass.** After Phase 3 self-review, a `praxis:trimmer` agent runs a dedicated subtraction pass over the plan: every task, guard, knob, field, and test either traces to a fixed outcome (or real external constraint) or becomes a cut-proposal, adjudicated into the Resolution Log. Raw request/response capture at an external boundary is never a cut: its reader is the next debugging session, and the named-reader test applies to derived instrumentation only. The same agent runs in `/praxis:implement` Phase 4 against the merged diff — the cheapest place to cut machinery is before it exists; the second cheapest is before it ships.
 
 **Plan-doc reviewer.** After the trim pass, `praxis:plan-doc-reviewer` reads the plan + ideation file independently and returns Approved or Issues. Calibrated to only flag real implementation problems.
 
+**Observe before model.** Code that depends on a shape outside the codebase is written from an observed instance of it. The `praxis:observe-before-model` skill has the writer fetch the vendor's current docs, make one real call and keep its raw capture as the test fixture, log raw request and response at the boundary permanently, and let reachable failures propagate — a catch block needs a named recovery that beats crashing. Plans make Task 1 a Slice 0 through every unobserved boundary so interface contracts are pinned from captures rather than guesses; `/praxis:implement` runs it alone before parallel dispatch; the implementer, `/praxis:iterate`, `/praxis:prototype`, TDD, and debugging load the skill at the boundary.
+
 **Hybrid file-writing.** Explorer and architect agents write detailed outputs to `plans/<slug>/.workspace/exploration/<dimension>.md` and `plans/<slug>/.workspace/architects/<approach>.md`, returning summary + path. Coordinator context stays light.
 
-**Parallel implementation.** `/praxis:implement` decomposes work into independent units, spawns workers in isolated worktrees (each using TDD + review + simplify + verification gates). Workers write structured logs to `<workspace>/workers/<unit>.md`. Team lead merges incrementally, runs cross-cutting `/praxis:review` + trim pass + `/praxis:simplify` + `praxis:spec-reviewer` against the plan + `praxis:verification-before-completion`, and sweeps worker worktrees and branches at the end.
+**Parallel implementation.** `/praxis:implement` runs the plan's Slice 0 alone when there is one and pins the integration contract from its captures, then decomposes the rest into independent units and spawns workers in isolated worktrees (each observing its boundaries, then TDD + review + simplify + verification gates). Workers write structured logs to `<workspace>/workers/<unit>.md`. Team lead merges incrementally, runs cross-cutting `/praxis:review` + trim pass + `/praxis:simplify` + `praxis:spec-reviewer` against the plan + `praxis:verification-before-completion`, and sweeps worker worktrees and branches at the end.
 
 **Multi-wave code review.** `/praxis:review` identifies logical code-path units (not files), dispatches the full reviewer fleet per unit (scaled to complexity), runs a cross-unit boundary review, then a verification pass that re-runs each Critical finding through a fresh second agent. Confirmed/Disputed labels; never auto-drop disputed findings.
 
@@ -86,7 +89,7 @@ Agents pin `model` + `effort` frontmatter to task shape: Fable for generative an
 
 1. Conversational ideation (ideate skill activates) — produces `plans/<slug>-ideation.md`
 2. `/praxis:design` reads ideation, runs shared exploration + architect approaches + red-team fleet, writes `plans/<slug>.md`
-3. `/praxis:implement plans/<slug>.md` spawns sub-agents in worktrees: each does TDD + review + simplify + verification + commit + push + log
+3. `/praxis:implement plans/<slug>.md` runs Slice 0 first, then spawns sub-agents in worktrees: each observes its boundaries, then TDD + review + simplify + verification + commit + push + log
 4. Coordinator merges incrementally, then cross-cutting `/praxis:review` + `/praxis:simplify` + `praxis:spec-reviewer` against plan + `praxis:verification-before-completion`, opens PR
 5. PR feedback iteration via manual edits pushed to the PR branch
 
@@ -98,7 +101,7 @@ Agents pin `model` + `effort` frontmatter to task shape: Fable for generative an
 
 ### Iterating on existing work
 
-1. `/praxis:iterate` (or it auto-activates on follow-up work): clarify everything unclear, then one item at a time — bugs through systematic-debugging + TDD, small features through TDD, scope changes amend the plan first
+1. `/praxis:iterate` (or it auto-activates on follow-up work): clarify everything unclear, then one item at a time — boundary-touching items through observe-before-model first, bugs through systematic-debugging + TDD, small features through TDD, scope changes amend the plan first
 2. Decisions land in the plan's Resolution Log; solo sessions get a minimal `plans/<slug>.md` on the first recorded decision
 3. Batch wrap: review scoped to the batch and sized to its risk
 

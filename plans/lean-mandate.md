@@ -350,3 +350,10 @@ what slips through.
   near-copy tolerance).
 - Commits: one per concern group (design-time, implement-time, review-agents,
   reference-material, bookkeeping), per the small-semantic-commits convention.
+
+## Resolution Log
+
+- **Instrumentation clause over-reached** (severity: Important; angle: iterate)
+  - Confidence: 90
+  - Resolution: Fixed (framing)
+  - Detail: "instrumentation with no named reader" was being applied to raw request/response capture at external boundaries, and the user reported too little raw logging in generated code (2026-09-15). The cut target narrows to derived instrumentation (counters, summaries, alarms); raw boundary capture is permanent and never a cut. Carve-out and rationale in `plans/observe-before-model.md`.
