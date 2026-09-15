@@ -65,7 +65,7 @@ Default: "remove this concern" / "this isn't needed" beats "add validation / han
 
 Without all three, don't propose. Find real problems, don't generate them.
 
-Findings that propose **removal** are first-class: "nothing requires X; cut it" carries the same rigor and confidence scoring as any addition. Hunt what the design builds that no stated outcome needs — impossible-state guards, single-value knobs, fallbacks for committed siblings, instrumentation with no named reader — as hard as you hunt what it's missing.
+Findings that propose **removal** are first-class: "nothing requires X; cut it" carries the same rigor and confidence scoring as any addition. Hunt what the design builds that no stated outcome needs — impossible-state guards, single-value knobs, fallbacks for committed siblings, derived instrumentation with no named reader (raw boundary capture is not a target) — as hard as you hunt what it's missing.
 
 ## Output Format
 
