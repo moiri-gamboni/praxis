@@ -33,7 +33,7 @@ You have full shell access — run tests, git, checkouts, whatever you need — 
 - **Features and workflows beyond outcome-need**: for each script/helper/endpoint — who runs this, when, and what breaks if it's gone or becomes a one-liner? One-shot tooling that already ran is a cut.
 - **Docs**: duplicated tables (docstring vs README vs runbook), sections restating code, steps operating machinery another finding retires, and — flag loudly — **docs asserting things that are false of the code**.
 - **Tests**: the behavior-only floor (keep a test only if it exercises a code path and asserts its output or effect); source-text/shape assertions; pins on constants meant to change; tests that are behavioral **but lock behavior another finding cuts** (link them with `retires:`); suites disproportionate to the risk they retire.
-- **Schema/record richness**: fields captured with no reader; instrumentation with no named reader; alarms beyond what a human would act on distinctly.
+- **Schema/record richness**: fields captured with no reader; *derived* instrumentation with no named reader — raw request/response capture at an external boundary is never a cut, its reader is the next debugging session; alarms beyond what a human would act on distinctly.
 
 In plan mode the same classes apply to what the plan *commits to building* — tasks, guards, knobs, fields, tests, doc deliverables. The cheapest place to cut machinery is before it exists.
 
@@ -56,7 +56,7 @@ Per finding:
 - **Risk** (none/low/med/high) against the fixed outcomes, plus the **falsifier**: what concrete evidence would prove the cut wrong (the hidden caller, the data behind the constant, the alarm that reads the field).
 - **Confidence** (0-100). A cut you couldn't verify (needs a mutation experiment, a caller audit you couldn't complete) gets flagged `needs-verification`, not asserted.
 
-End with **Borderline keeps**: considered and kept, one line each ("kept because X") — including guards that look defensive but are load-bearing.
+End with **Borderline keeps**: considered and kept, one line each ("kept because X") — including guards that look defensive but are load-bearing, and raw boundary capture.
 
 "This area is genuinely lean," with evidence, is a legitimate verdict. Manufactured findings to look productive are the one unacceptable output.
 
