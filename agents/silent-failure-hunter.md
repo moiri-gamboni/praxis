@@ -57,7 +57,7 @@ You have full shell access — run tests, git, checkouts, whatever you need — 
 - Retry logic exhausting attempts without informing user
 - Handlers that parse the error's shape (`e.response.json()[...]`) — the handler itself can throw or lie
 - External boundaries with no raw request/response capture
-- `except Exception` (or the language's equivalent) below the top-level boundary
+- `except Exception` (or the language's equivalent) anywhere but the program's entry point
 - A summary logged where the raw thing should be (`f"got {len(data)} items"` in place of the body)
 
 ## Articulated Failure Scenarios
