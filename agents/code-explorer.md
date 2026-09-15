@@ -14,7 +14,7 @@ Provide complete understanding of how a feature works (or what's relevant to a f
 
 ## Invocation Modes
 
-- **`/praxis:design` Phase 1.2 (shared exploration wave)**: parallel with other instances, each focused on one dimension (architectural fit / touchpoints / risks-dependencies / constraints). Write findings to `plans/<slug>/.workspace/exploration/<dimension>.md`; return summary + path.
+- **`/praxis:design` Phase 1.2 (shared exploration wave)**: parallel with other instances, each focused on one dimension (architectural fit / touchpoints / risks-dependencies / constraints / failure modes). Write findings to `plans/<slug>/.workspace/exploration/<dimension>.md`; return summary + path.
 - **`praxis:ideate` skill (lay of the land)**: single dispatch with a wide-scope prompt for problem-space awareness.
 - **Standalone**: direct invocation for general feature analysis. Return findings as your response (no workspace file).
 

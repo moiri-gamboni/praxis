@@ -38,7 +38,7 @@ A catch block needs, beyond scenario / likelihood / consequence, a **named recov
 - skip one item of a batch, with the raw failure recorded and the run ending non-zero;
 - degrade a non-essential feature, with the failure logged at error level.
 
-"Log and continue with a default" is a recovery only when the default is a correct answer. Catch narrowly — the class the recovery applies to; `except Exception` only at a top-level boundary that reports and exits non-zero. The handler never assumes the error's shape: log `repr(e)` and the raw body, never `e.response.json()["error"]["message"]`. Each catch carries one line: instead of crashing, this does X because Y.
+"Log and continue with a default" is a recovery only when the default is a correct answer. Catch narrowly — the class the recovery applies to; `except Exception` only at the program's entry point (main, the CLI command, the request handler), where it reports and exits non-zero. The handler never assumes the error's shape: log `repr(e)` and the raw body, never `e.response.json()["error"]["message"]`. Each catch carries one line: instead of crashing, this does X because Y.
 
 ## Spike, then TDD
 

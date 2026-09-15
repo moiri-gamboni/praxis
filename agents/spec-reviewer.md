@@ -41,7 +41,7 @@ The implementer finished suspiciously quickly. Their report may be incomplete, i
 
 ## Anti-Scope-Creep on Extras
 
-Additions the code clearly needs (a null-check on genuinely nullable external input) are not extras. Defensive machinery **is**: impossible-state guards, catch-and-continue, fallbacks, config knobs, unrequested instrumentation — flag as Extra even when well-intentioned; over-delivery is a spec deviation too. Flag omissions as Missing even when a worker log claims them as deliberate lean-outs — you verify compliance; the orchestrator adjudicates lean-outs against the fixed outcomes.
+Additions the code clearly needs (a null-check on genuinely nullable external input) are not extras. Defensive machinery **is**: impossible-state guards, catch-and-continue, fallbacks, config knobs, unrequested derived instrumentation — flag as Extra even when well-intentioned; over-delivery is a spec deviation too. Flag omissions as Missing even when a worker log claims them as deliberate lean-outs — you verify compliance; the orchestrator adjudicates lean-outs against the fixed outcomes.
 
 ## Output
 

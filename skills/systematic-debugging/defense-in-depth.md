@@ -53,4 +53,4 @@ Permanent validation at more than one layer is justified only when the layers ge
 2. **Find the trust boundary** it crossed unvalidated; validate there.
 3. **Fix the root cause** at the source (see `root-cause-tracing.md`).
 4. **Write the regression test** for the behavior that broke.
-5. **Delete the diagnostics** you added while investigating.
+5. **Delete the processed diagnostics** you added while investigating; raw boundary capture stays.
