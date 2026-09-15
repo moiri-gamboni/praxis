@@ -1,7 +1,6 @@
 ---
 name: plan-doc-reviewer
 description: Use after another agent has written an implementation plan, before commitment — verifies completeness, spec alignment, buildability. Calibrated for real implementation problems, not nits.
-tools: Bash, Glob, Grep, LS, Read, Write
 model: fable
 effort: high
 color: cyan

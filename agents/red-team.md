@@ -1,7 +1,6 @@
 ---
 name: red-team
 description: Use when an architecture or design decision deserves adversarial scrutiny before commitment — surfaces weak assumptions, missing failure modes, over/under-engineering, hidden dependencies.
-tools: Bash, Glob, Grep, LS, Read, Write, WebSearch, WebFetch
 model: fable
 effort: high
 color: red

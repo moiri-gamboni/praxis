@@ -49,14 +49,14 @@ Skills chain naturally: each suggests a next step based on context. The intended
 | **code-reviewer** | Reviews code against project guidelines and plans, with confidence scoring (>= 80 threshold) and anti-complexity bias on proposed fixes. | `/praxis:review` Wave 1, Wave 2 cross-unit |
 | **spec-reviewer** | Verifies implementation matches a specification (which can be a `/praxis:design` plan file). Skeptical, independent reading. | `/praxis:implement` Phase 4 (when plan file present), `/praxis:review` Wave 1, manual |
 | **code-simplifier** | Simplifies code while preserving functionality. Direct-modify in `/praxis:simplify` standalone, advisory in `/praxis:review`. | `/praxis:simplify`, `/praxis:review` Wave 1, `/praxis:implement` workers + Phase 4 |
-| **implementer** | Single-unit worker for `/praxis:implement`. Bakes the worker procedure (skill loop, push, log, audit) into its system prompt so compliance is structural. Does not further delegate. | `/praxis:implement` Phase 2, manual single-unit builds |
+| **implementer** | Single-unit worker for `/praxis:implement`. Bakes the worker procedure (skill loop, push, log, audit) into its system prompt so compliance is structural. Delegates only to `praxis:code-reviewer`. | `/praxis:implement` Phase 2, manual single-unit builds |
 | **trimmer** | Dedicated subtraction pass: proposes cuts (machinery no fixed outcome requires) as findings with outcome-traces, counted costs, risk + falsifier, and L1 (cut under current plan) / L2 (leaner plan justifiable) levels. Advisory only. | `/praxis:design` Phase 3 trim pass, `/praxis:implement` Phase 4, manual |
 | **comment-analyzer** | Checks comment accuracy and long-term maintainability. Anti-complexity: removing bad comments preferred over adding obvious ones. | `/praxis:review` Wave 1 |
 | **test-analyzer** | Reviews test coverage quality, prioritizing behavioral coverage. Each proposed test must articulate failure scenario + likelihood + consequence. | `/praxis:review` Wave 1 |
 | **silent-failure-hunter** | Finds swallowed errors and inadequate error handling. Each finding must articulate the actual failure mode, not abstract concern. | `/praxis:review` Wave 1 |
 | **type-analyzer** | Evaluates type design: encapsulation, invariants, enforcement. Each improvement must articulate specific bug class prevented vs cost. | `/praxis:review` Wave 1, Wave 2 cross-unit |
 
-Agents pin `model` + `effort` frontmatter to task shape: Fable for generative and judgment-heavy roles (architects, implementer, trimmer, code-reviewer, red-team), Sonnet for scoped single-dimension analysis (explorer, spec/test/type/comment analyzers). Reviewer agents use a per-finding confidence threshold (>= 80) and reject fabricating findings to look thorough.
+Agents pin `model` + `effort` frontmatter to task shape: Fable for generative and judgment-heavy roles (architects, implementer, trimmer, code-reviewer, red-team), Sonnet for scoped single-dimension analysis (explorer, spec/test/type/comment analyzers). No agent pins `tools`; each inherits every tool available to subagents. Reviewer agents use a per-finding confidence threshold (>= 80) and reject fabricating findings to look thorough.
 
 ## Design
 
