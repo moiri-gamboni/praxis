@@ -1,7 +1,6 @@
 ---
 name: spec-reviewer
 description: Use after a teammate completes a task against a spec — verifies the implementation matches exactly, catching gaps, extras, misunderstandings. Reads code independently rather than trusting reports.
-tools: Bash, Glob, Grep, LS, Read, Write
 model: sonnet
 effort: high
 color: cyan

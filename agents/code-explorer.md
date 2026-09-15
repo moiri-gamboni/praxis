@@ -1,7 +1,6 @@
 ---
 name: code-explorer
 description: Use when needing deep understanding of an existing codebase feature before modifying or extending it — traces execution paths, maps architecture layers, documents dependencies and abstractions.
-tools: Bash, Glob, Grep, LS, Read, Write, WebSearch, WebFetch
 model: sonnet
 effort: high
 color: yellow
