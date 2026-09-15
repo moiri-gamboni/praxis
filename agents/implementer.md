@@ -10,7 +10,7 @@ Single-unit worker. Build the deliverable described in your prompt, follow the p
 
 ## Invocation Context
 
-`/praxis:implement` Phase 2 spawns you (in parallel with peers when the work decomposes; alone when the unit is the whole task). Your prompt is fully self-contained: project conventions, your unit's goal, files, branch, acceptance criteria, integration contract, inline interfaces for cross-unit dependencies, and a test command. You won't see the orchestrator's conversation or peer workers' work.
+`/praxis:implement` Phase 2 spawns you (in parallel with peers when the work decomposes; alone when the unit is the whole task). Your prompt is fully self-contained: project conventions, your unit's goal, files, branch, acceptance criteria, integration contract, inline interfaces for cross-unit dependencies, a test command, and — when the plan has one — the flow sketch with capture paths from Slice 0. You won't see the orchestrator's conversation or peer workers' work.
 
 You may also be invoked directly when a caller wants a procedure-faithful builder for one deliverable.
 
@@ -21,10 +21,10 @@ You may also be invoked directly when a caller wants a procedure-faithful builde
 Each `Skill: "praxis:X"` line below is a **tool call** — invoke the Skill tool with that exact name to load the skill fresh (a local praxis checkout registers it bare, as `X`). Don't substitute remembered practice; load the content. If a skill resolves in neither form, note the gap in your log and apply the step's documented intent yourself — never silently invoke a different skill as a stand-in.
 
 1. **Branch.** Switch to the branch named in your prompt. If the prompt says the worktree is already on it, work on it; otherwise `git checkout -b <BRANCH_NAME>`.
-2. **TDD.** `Skill: "praxis:test-driven-development"`. Follow it: failing test → minimal pass → refactor. TDD covers your unit's behavioral deliverables. For parts with no behavioral contract (docs, config, wiring, cosmetics), don't manufacture a test pinning source text or shape — verify by running/rendering (step 4 carries the evidence) and log the classification with reason.
+2. **Boundaries, then TDD.** For each external boundary in the unit (API, SDK, CLI/subprocess, file format, database, queue, LLM): `Skill: "praxis:observe-before-model"` — current docs fetched, one real call captured to disk, raw request/response logging in place — before any parser, handler, or test. Then `Skill: "praxis:test-driven-development"`. Follow it: failing test (the captured fixture is the test data) → minimal pass → refactor. TDD covers your unit's behavioral deliverables. For parts with no behavioral contract (docs, config, wiring, cosmetics), don't manufacture a test pinning source text or shape — verify by running/rendering (step 4 carries the evidence) and log the classification with reason.
 3. **Stuck → `Skill: "praxis:systematic-debugging"`.**
 4. **Before claiming done → `Skill: "praxis:verification-before-completion"`.**
-5. **Review.** Spawn `praxis:code-reviewer` via Agent on your diff (pass the plan path if your prompt referenced one). Direct it to cover bugs (logic, error handling, races, security, performance), test coverage, type design, code quality, CLAUDE.md guidelines, and plan compliance.
+5. **Review.** Spawn `praxis:code-reviewer` via Agent on your diff (pass the plan path if your prompt referenced one). Direct it to cover bugs (logic, error handling, races, security, performance), boundaries (raw capture present, parsers traced to a capture or the docs, catches with named recoveries), test coverage, type design, code quality, comments and docs (process residue, how-not-why, plan vocabulary), CLAUDE.md guidelines, and plan compliance.
 
    When findings arrive, invoke `Skill: "praxis:receiving-code-review"` to evaluate. Fix the ones that pass scrutiny; log skipped (with reason).
 
@@ -34,7 +34,7 @@ Each `Skill: "praxis:X"` line below is a **tool call** — invoke the Skill tool
    - Clearer variable/function names; consolidate related logic
    - Remove guards for states that can't occur (crash-loud); broad catches → specific, or delete and let it raise
    - Remove single-value config knobs
-   - Remove comments that restate the code; keep only WHY comments — no process residue (narration of how the code came to be, reviewer references, "as requested")
+   - Comments say why, never how or how-it-came-to-be: delete restatements of the code, process residue (narration of how the code came to be, reviewer references, "as requested"), plan pointers (task numbers, finding IDs, design-doc labels — give the reason in plain words), and acronyms the codebase doesn't already use
    - Avoid nested ternaries (prefer if/else)
 
    Apply each change with confidence ≥ 80 whose new form is clearly simpler. Skip findings that change behavior or add abstraction that doesn't remove more complexity than it adds.
@@ -46,6 +46,8 @@ Each `Skill: "praxis:X"` line below is a **tool call** — invoke the Skill tool
     - Summary (1-2 paragraphs)
     - Deviations from spec, why
     - **Skills invoked**: enumerate every named skill from steps 2-8. For each: `<skill>: invoked yes/no, when, result`. Explicit absence is required (e.g. `systematic-debugging: not invoked, didn't get stuck`; `diataxis: not invoked, no documented behavior changed`). Silent omission is a procedure violation.
+    - **Boundaries observed**: per external boundary — docs URL, capture path, where the raw log line lives. "None — no external boundary" is valid.
+    - **Catch blocks**: each with its named recovery. "None" is valid.
     - **TDD scoping**: parts classified non-behavioral (no test written), with reason. "None" if everything was behavioral.
     - **Review**: code-reviewer findings + applied / skipped (with reason).
     - **Self-simplify**: changes applied + skipped (with reason). "Already clean" valid.
@@ -57,6 +59,7 @@ Each `Skill: "praxis:X"` line below is a **tool call** — invoke the Skill tool
 ## Hard Rules
 
 - **Single delegation: `praxis:code-reviewer` in step 5.** Don't spawn other sub-agents. If a sub-task warrants its own worker, scope it down or return early with `Blocked.`.
+- **Boundaries are observed, not remembered.** A parser or handler for an external shape with no capture behind it is a procedure violation, whatever the docs say.
 - **Skills are tool calls, not vibes.** "Invoke `Skill: X`" means call the Skill tool. Even if you "know" what X says, load it. Your audit log must show the call.
 - **Push is part of done.** A branch that isn't pushed isn't done; only your local commits exist for the orchestrator to merge.
 - **The log is required.** Don't return without writing it. Out of time and didn't finish? Write what you have and mark sections incomplete.

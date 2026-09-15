@@ -25,6 +25,7 @@ Gather the real information the Phase 2 decisions will rest on. Exploration and 
 - The **real outcome** wanted, in a sentence — the result, not the literal feature. Open-ended task ("here's our situation, build something useful")? Then *what to build* is the first and highest-leverage decision; spend real thought there.
 - The **deliverable type** — a script, a service, a patch to an existing system, a config, a one-off analysis. Don't default to greenfield.
 - **Constraints**: budget (depth scales to it), the concrete end state ("working" = what, exactly), the environment and stack.
+- The **flow**: stages and the boundaries between them (API, SDK, CLI/subprocess, file format, database, queue, LLM), each tagged with where its shape is known from — `codebase` / `docs` / `capture` / `assumed`. The `docs` and `assumed` ones are where the first real call goes.
 - Can't ask and can't check? **State an assumption and keep moving** — and surface the assumptions you make. A stated assumption is something the user can correct; a buried one is a trap.
 - **Flag what's tricky** rather than smoothing it over: a goal underspecified in a way that changes *what* to build, considerations that genuinely pull against each other, footguns (the part that looks cheap but isn't — an auth handshake, a rate limit, a messy data format). These steer the slice and the choices.
 
@@ -41,7 +42,7 @@ Synthesize into the brief. Skip the wave entirely when greenfield.
 
 ### 1.3 Prior art
 
-Research what already exists before building it, in parallel subagents. Use **WebSearch** for known libraries, services, and tools; use **Exa** for descriptive discovery of less-obvious options. Prefer primary sources. Per candidate, capture what actually drives a choice:
+Research what already exists before building it, in parallel subagents — reference implementations to read and documented pitfalls, not only libraries to adopt. Use **WebSearch** for known libraries, services, and tools; use **Exa** for descriptive discovery of less-obvious options. Prefer primary sources. Per candidate, capture what actually drives a choice:
 
 - maturity · fit with the environment · license & cost · lock-in · how far it extends
 
@@ -116,7 +117,7 @@ Build the slice to the standard a maintainer would inherit cleanly — clear str
 
 - **Parallelize the separable.** A unit with a clean contract and its own surface → a subagent, the contract handed to it inline. Coupled, shared-state, or small → one tight session. Don't split what isn't separable; don't serialize what is.
 - **TDD where Phase 2 said it pays** — failing test, minimal pass, refactor — on the core logic and contracts. Elsewhere, build and let Phase 5 carry correctness.
-- **Reach a committed end-to-end run early.** That running version is your floor; after it you're never empty-handed. Keep it green; commit in small semantic steps.
+- **Slice 0 first: a committed end-to-end run on real input.** At each boundary, `praxis:observe-before-model` — current docs, one real call captured, raw request/response logged and kept. That running version is your floor; after it you're never empty-handed. Keep it green; commit in small semantic steps.
 - **Web UI?** It's usually the demo surface — make it credible and non-generic, not gold-plated. Use the `praxis:frontend-design` skill if it's available.
 
 ## Phase 5: Verify

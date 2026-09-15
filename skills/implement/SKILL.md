@@ -28,6 +28,7 @@ Research before routing — the single-vs-parallel call needs codebase context, 
    **Workspace root**: plan file at `plans/<slug>.md` → workspace at `plans/<slug>/.workspace/`. Otherwise derive a kebab-case slug from the task. Worker logs: `<workspace>/workers/<unit>.md`.
 
 2. **Route based on what you found.**
+   - **Slice 0 first**: the plan's Task 1 is Slice 0, or (no plan) the task crosses a boundary whose shape nobody has observed. Dispatch it alone as one `praxis:implementer` (worktree) before decomposing; write the batch plan's integration contract from its captures; then route the widening units below. Every boundary already `codebase` → skip this.
    - **Parallel**: 2+ units, each with its own test surface, all buildable from a pinned contract. Continue with steps 3-5.
    - **Single agent**: no separable contract-able parts. Cases: wide-but-shallow refactors (rename, type change), structural reorganization, single dense file, whole-system invariant changes, or too small to orchestrate. Skip to Phase 2; spawn one `praxis:implementer` (`subagent_type: "praxis:implementer"`, `isolation: "worktree"`) with the Phase 2 prompt.
 
@@ -52,11 +53,13 @@ Launch all workers in parallel: a single message with multiple `Agent` tool call
 The `praxis:implementer` agent owns the worker procedure (skill loop, push, log, audit). Your dispatch prompt provides only the unit specifics — it must be **fully self-contained** (workers can't see your conversation or peer workers):
 
 - Project language, framework, test runner, conventions
+- The flow sketch, its boundary list with shape sources, and the capture paths from Slice 0
+- The plan path as an **absolute path**, with whether `plans/` is tracked — a gitignored plans directory isn't in the worker's worktree
 - Unit's goal, deliverable, files, branch (`batch/<batch-name>/<unit-name>`), acceptance criteria
 - The plan's fixed outcomes + epistemic status (outcomes, acceptance criteria, and integration contract binding; internal machinery right-sizeable with a logged deviation)
 - Test command (the implementer's procedure runs this for the full-suite step)
 - Worker log path: `<WORKSPACE>/workers/<UNIT_NAME>.md`
-- Integration contract (interfaces, naming, types other units expect)
+- Integration contract (interfaces, naming, types other units expect), pinned from Slice 0's captures where the plan marked them provisional
 - Inline interface definitions for any cross-unit dependency the worker can't see in its own files
 
 ## Phase 3: Process Returns, Merge
