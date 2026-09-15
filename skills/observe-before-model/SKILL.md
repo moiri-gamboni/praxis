@@ -10,7 +10,7 @@ Code that depends on the shape of something outside this codebase is written fro
 ## Before the parser
 
 1. **Read the official docs for this exact call** — endpoint, parameters, response schema, error shapes, pagination, limits. Official means the vendor's current reference, fetched now (WebFetch); not memory, not a tutorial. "The library is already in the codebase" counts only if *this call* already is.
-2. **Make one real call.** Capture the raw result to a file under the project's fixtures or scratch directory, unedited. Redact credentials in the captured request; nothing else.
+2. **Make one real call** — unless the codebase already makes this exact call and a capture on disk or its raw log shows the shape. Capture the raw result to a file under the project's fixtures or scratch directory, unedited. Redact credentials in the captured request; nothing else.
 3. **Write the code against the capture.** The capture is the test fixture.
 4. **Don't read a field you haven't seen** in a capture or the docs.
 5. **Widen by observation.** The error response, the empty result, the pagination edge, the rate limit — each captured once before it is handled.

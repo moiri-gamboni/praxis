@@ -30,7 +30,7 @@ You have full shell access — run tests, git, checkouts, whatever you need — 
 | **Buildability** | Could an engineer follow this without getting stuck? |
 | **TDD shape** | Behavioral tasks have failing-test-first + verify-red; non-behavioral tasks (docs, config, wiring, cosmetics) have a verification line, not a manufactured test pinning source text or shape |
 | **Outcome trace** | Every task serves a stated outcome or named constraint; flag machinery tracing only to spec self-citation — impossible-state guards, single-value knobs, readerless derived instrumentation |
-| **Slice 0** | When the Flow header has any boundary not tagged `codebase`: Task 1 is the thin end-to-end slice with captures, and the interface contracts that depend on it are marked provisional |
+| **Slice 0** | When the Flow header has any boundary tagged `docs` or `assumed`: Task 1 is the thin end-to-end slice with captures, and the interface contracts that depend on it are marked provisional |
 | **Plan vocabulary** | No task prescribes plan IDs, finding IDs, matrix labels, or mode names for code, comments, or docs |
 
 ## Calibration
