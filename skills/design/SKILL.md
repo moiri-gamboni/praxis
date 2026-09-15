@@ -163,7 +163,7 @@ Spawn `praxis:red-team` agents in parallel, one per attack angle. Standard angle
 2. **Failure modes** — error paths, silent swallowing, partial failures
 3. **Operational concerns** — deploy, rollback, observability, scale behavior
 4. **Hidden complexity** — looks simple but isn't, deferred decisions, magic
-5. **Scope & minimality** — solves the stated problem? what's assumed? what does the design build that no fixed outcome needs — impossible-state guards, single-value knobs, fallbacks for committed siblings, instrumentation with no named reader, duplicated machinery? Cut-proposals are first-class findings. Includes the **invented-constraints hunt**: for each constraint the design pays a material price to honor, trace it to a user statement, code fact, or external reality (law, data loss, money); a constraint traceable only to a design/ideation doc's own phrasing is a finding — attack the premise, not just the machinery built to satisfy it.
+5. **Scope & minimality** — solves the stated problem? what's assumed? what does the design build that no fixed outcome needs — impossible-state guards, single-value knobs, fallbacks for committed siblings, derived instrumentation with no named reader (never raw boundary capture), duplicated machinery? Cut-proposals are first-class findings. Includes the **invented-constraints hunt**: for each constraint the design pays a material price to honor, trace it to a user statement, code fact, or external reality (law, data loss, money); a constraint traceable only to a design/ideation doc's own phrasing is a finding — attack the premise, not just the machinery built to satisfy it.
 
 Conditional:
 
