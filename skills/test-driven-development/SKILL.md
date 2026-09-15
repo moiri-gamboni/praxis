@@ -97,6 +97,7 @@ Vague name, tests mock not code
 - One behavior
 - Clear name
 - Real code (no mocks unless unavoidable)
+- Real data: a fixture for an external shape is a capture, never invented
 
 ### Verify RED - Watch It Fail
 
@@ -176,6 +177,7 @@ After green only:
 - Remove duplication
 - Improve names
 - Extract helpers
+- Comments: why only, in the domain's words — no process residue, no plan pointers
 
 Keep tests green. Don't add behavior.
 
@@ -207,7 +209,7 @@ When writing or changing any test, read `writing-good-tests.md` in this skill's 
 | "Already manually tested" | Manual testing is ad-hoc: no record of what you covered, no way to re-run it when the code changes, easy to forget cases under pressure. "Worked when I tried it" is not comprehensive. Automated tests run the same way every time. |
 | "Deleting X hours is wasteful" | Sunk cost fallacy — that time is already spent either way. The real choice: rewrite with TDD (high confidence) vs. keep it and bolt tests on after (low confidence, likely bugs). Keeping code you can't trust is the waste. |
 | "Keep as reference, write tests first" | You'll adapt it. That's testing after. Delete means delete. |
-| "Need to explore first" | Fine. Throw away exploration, start with TDD. |
+| "Need to explore first" | Yes — when a boundary's shape is unobserved, spike it via `praxis:observe-before-model`. Throw away the spike's code; keep its capture as the fixture. Then TDD. |
 | "Test hard = design unclear" | Listen to test. Hard to test = hard to use. |
 | "TDD will slow me down" | TDD IS the pragmatic path: catches bugs before commit, prevents regressions, lets you refactor without fear. "Pragmatic" shortcuts mean debugging in production — slower, not faster. |
 | "Manual test faster" | Manual doesn't prove edge cases. You'll re-test every change. |

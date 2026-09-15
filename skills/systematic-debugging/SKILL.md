@@ -73,6 +73,8 @@ You MUST complete each phase before proceeding to the next.
 
    Prefer instrumentation over guessing: instrument to see where behavior diverges from your assumptions — whether the expected code fires, when it fires (if timing matters), and what values it sees.
 
+   The raw capture at each external boundary is the first evidence. If a boundary has none, add it now (`praxis:observe-before-model`) — and keep it after the fix; only the processed diagnostics are temporary.
+
    **BEFORE proposing fixes, add diagnostic instrumentation:**
    ```
    For EACH component boundary:
@@ -131,6 +133,7 @@ You MUST complete each phase before proceeding to the next.
    - If implementing pattern, read reference implementation COMPLETELY
    - Don't skim - read every line
    - Understand the pattern fully before applying
+   - For any external boundary in the path, the vendor's current docs are a reference too — fetch them; the bug is often a shape that changed
 
 3. **Identify Differences**
    - What's different between working and broken?
