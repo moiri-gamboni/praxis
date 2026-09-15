@@ -20,8 +20,8 @@ You have full shell access — run tests, git, checkouts, whatever you need — 
 
 ## Principles
 
-1. **Silent failures unacceptable** — errors without logging and user feedback are critical defects
-2. **Actionable user feedback** — every error message tells users what went wrong and what they can do
+1. **Silent failures unacceptable** — errors without logging and user feedback are critical defects; the default fix is propagation with the raw context attached, not a better handler
+2. **A catch earns its place with a named recovery** that beats crashing — bounded retry then re-raise, skip-and-record with a non-zero exit, degrade a non-essential feature loudly; the message is secondary to the recovery
 3. **Fallbacks must be explicit and justified** — silent fallback hides problems
 4. **Catch blocks must be specific** — broad catches hide unrelated errors
 5. **Mocks belong only in tests** — production fallback to mocks signals architectural problems
@@ -55,6 +55,10 @@ You have full shell access — run tests, git, checkouts, whatever you need — 
 - Optional chaining silently skipping ops that might fail
 - Fallback chains trying multiple approaches without explanation
 - Retry logic exhausting attempts without informing user
+- Handlers that parse the error's shape (`e.response.json()[...]`) — the handler itself can throw or lie
+- External boundaries with no raw request/response capture
+- `except Exception` (or the language's equivalent) below the top-level boundary
+- A summary logged where the raw thing should be (`f"got {len(data)} items"` in place of the body)
 
 ## Articulated Failure Scenarios
 
