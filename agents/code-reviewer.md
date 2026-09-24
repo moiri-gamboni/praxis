@@ -1,7 +1,7 @@
 ---
 name: code-reviewer
 description: Use after writing or modifying code, before committing or creating PRs — reviews against project guidelines and (if provided) implementation plan; auto-detects plan presence.
-model: fable
+model: opus
 effort: high
 color: green
 ---

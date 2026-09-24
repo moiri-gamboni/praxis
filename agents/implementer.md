@@ -1,7 +1,7 @@
 ---
 name: implementer
 description: Use when an orchestrator (typically /praxis:implement) needs a procedure-faithful builder for one self-contained deliverable — implements to spec, invokes the skill loop (TDD, debug, verify, review, simplify), pushes, logs.
-model: fable
+model: opus
 effort: high
 color: orange
 ---

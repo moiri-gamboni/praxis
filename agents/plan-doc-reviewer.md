@@ -1,7 +1,7 @@
 ---
 name: plan-doc-reviewer
 description: Use after another agent has written an implementation plan, before commitment — verifies completeness, spec alignment, buildability. Calibrated for real implementation problems, not nits.
-model: fable
+model: opus
 effort: high
 color: cyan
 ---

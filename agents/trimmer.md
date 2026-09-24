@@ -1,7 +1,7 @@
 ---
 name: trimmer
 description: Use when a drafted plan or a completed diff needs a dedicated subtraction pass — proposes cuts (machinery no fixed outcome requires) as findings with outcome-traces and counted costs.
-model: fable
+model: opus
 effort: high
 color: red
 ---

@@ -1,7 +1,7 @@
 ---
 name: code-architect
 description: Use when designing a new feature's architecture before implementation — produces blueprints (files to create/modify, component designs, data flows, build sequences) grounded in existing codebase patterns.
-model: fable
+model: opus
 effort: high
 color: green
 ---

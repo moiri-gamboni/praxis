@@ -1,7 +1,7 @@
 ---
 name: code-simplifier
 description: Use after completing a coding task or logical chunk to simplify for clarity, consistency, and maintainability — preserves functionality.
-model: fable
+model: opus
 effort: high
 color: green
 ---
