@@ -62,4 +62,6 @@ Record only what a future session would otherwise re-litigate: decisions with ra
 
 Check the batch against the done-lines from above on real input, not only tests. Then review scaled to the batch's risk: trivial → verification evidence suffices; error handling or fallbacks touched → one `praxis:silent-failure-hunter` via Agent on the batch diff; comments or docs added or changed → one `praxis:comment-analyzer` via Agent on the batch diff, whatever the size; multi-file or risky → `Skill: "praxis:review"` scoped to the batch range — in its Re-Review mode when the batch answers prior review findings.
 
+A delegated build (a `praxis:implementer` or any other agent wrote the code) doesn't move the Wrap: this session runs it on the delegate's diff before the work lands (a PR opened or updated, a merge, a push to a shared branch). The delegate's own review pass and any CI review check are inputs to it, never substitutes.
+
 Land where the work lives: open PR → push to its branch. Otherwise: "Commits are local; push when ready."
