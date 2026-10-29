@@ -21,11 +21,13 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Agent, Task, Skill, AskUserQuestio
 
 **Reachable failures propagate; boundaries capture raw.** A failure that can happen still raises by default, raw request, response and input attached; a catch also needs a named recovery that beats crashing. Raw boundary capture is permanent, never a cut target; the named-reader test applies to *derived* instrumentation. Rules: `praxis:observe-before-model`.
 
+**Where it stops.** Design stops for the user at 1.2.8 (end the turn there; the reply, or silence on the next turn, confirms) and at 1.2.7 for the user's yes. Every other presentation is inline and the run continues.
+
 ## Phase 1: Architecture
 
 ### 1.1 Validate Input + Read Ideation
 
-Require a feature description; ask if missing. Read `plans/<slug>-ideation.md` if present. If absent, run a bounded prior-art pass (one subagent via Agent, WebSearch + Exa: canonical implementations, reference repos, documented pitfalls, libraries to adopt), reported in the 1.2.5 synthesis; don't offer to skip it. An existing `plans/<slug>.md` from `/praxis:iterate` (fixed outcomes, tagged constraints, Resolution Log): carry its sticky rejections and `[user]` constraints forward; the new plan supersedes the file, never the user's recorded decisions.
+Require a feature description; ask if missing. Fix the kebab-case `<slug>` now (an existing `plans/*-ideation.md` for this feature supplies it; otherwise derive it from the description, the user can override); every `plans/<slug>…` path below uses it. Read `plans/<slug>-ideation.md` if present. If absent, or its Prior Art Investigated section is empty, run a bounded prior-art pass (one subagent via Agent, WebSearch + Exa: canonical implementations, reference repos, documented pitfalls, libraries to adopt), reported in the 1.2.5 synthesis; don't offer to skip it. An existing `plans/<slug>.md` from `/praxis:iterate` (fixed outcomes, tagged constraints, Resolution Log): carry its sticky rejections and `[user]` constraints forward; the new plan supersedes the file, never the user's recorded decisions.
 
 ### 1.1.5 Flow Sketch
 
@@ -48,7 +50,7 @@ Materially new context from dialogue (a constraint outside scope, an unexamined 
 Before architect dispatch, restate to the user:
 
 1. **Goal + fixed outcomes**: intent, scope, the fixed outcomes (results the user asked for, not mechanisms) and the dominant failure mode; invite correction. Everything else is means, chosen lean. For each `docs` or `assumed` boundary, name the observation that will pin it.
-2. **Constraint audit**: each constraint the architecture bends around, tagged `[user]` (quote), `[fact]` (cite) or `[assumed]`. **Batch-confirm the `[assumed]` ones now** (a word each, against an architect and a red-team round spent on a wrong one; state, don't re-ask, picks the user handed over); anything not traceable to the user's words or a cited fact is `[assumed]`.
+2. **Constraint audit**: each constraint the architecture bends around, tagged `[user]` (quote), `[fact]` (cite) or `[assumed]`. **Batch-confirm the `[assumed]` ones now** (a word each, against an architect and a red-team round spent on a wrong one; state, don't re-ask, picks the user handed over); anything not traceable to the user's words or a cited fact is `[assumed]`. The audit becomes the plan's Key Constraints.
 3. **Change appetite** (only if 1.2.5 flags in-pattern gaps): stay in-pattern, or is infrastructure in scope?
 
 Silence = confirmation.
@@ -75,13 +77,13 @@ Coordinator-level, no agents:
 
 Spawn `praxis:red-team` agents in parallel, one per angle: **architectural soundness** (abstraction violations, hidden coupling, pattern fit); **failure modes** (error paths, silent swallowing, partial failures); **operational** (deploy, rollback, observability, scale); **hidden complexity** (deferred decisions, magic); **scope & minimality**: what does it build that no fixed outcome needs (impossible-state guards, single-value knobs, fallbacks for committed siblings, readerless derived instrumentation, duplication; never raw capture)? Cut-proposals are first-class findings, and this angle hunts **invented constraints**: one the design pays for that traces to no user statement, code fact or external reality is a finding against the premise. Conditionally: **security & abuse** (user input, auth, data exposure, privilege boundaries, external integrations) and **documentation currency** (any `docs`/`assumed` boundary or named third-party API: check each with WebSearch/WebFetch (exists, usage current, not deprecated), given the boundary list).
 
-Findings carry confidence (0-100 + justification). Dedupe across angles (overlap strengthens evidence); rank Critical / Important / Suggestion. A finding reintroducing scope the Resolution Log marks "Rejected (by user direction; sticky)" under a new framing is Rejected, citing the user's direction. Optionally a second red-team agent reproduces each Critical: **confirmed** or **disputed** (disputed stays; the user decides).
+Findings carry confidence (0-100 + justification). Dedupe across angles (overlap strengthens evidence); rank Critical / Important / Suggestion. A finding reintroducing scope the Resolution Log marks "Rejected (by user direction; sticky)" under a new framing is Rejected, citing the user's direction. A Critical on a high-stakes decision, or one whose fix is costly, is reproduced by a second red-team agent given only the claim: **confirmed** or **disputed** (disputed stays; the user decides).
 
 ### 1.6 Decision + Final Validation
 
 Present the merged plan, matrix and findings, each with a severity and a separate resolution (the funnel of counts is the point): **Fixed (code | doc | framing | scope)** with change and cost; **Deferred** with why and revisit trigger; **Rejected** with evidence. Fixed-by-adding-machinery needs the three-part articulation, else it's Rejected or Deferred; Rejected by analysis is healthy. A finding that only names a narrow add the architects missed is applied, not a new decision point.
 
-**Traceability check**: for every failure mode from 1.2, "User does X. Today: Y. After plan: Z." Any not reaching a closed gap or explicit deferral goes back to architects or red-team. Iterate until a final fleet run is clean.
+**Traceability check**: for every failure mode from 1.2, "User does X. Today: Y. After plan: Z." Any not reaching a closed gap or explicit deferral goes back to architects or red-team. Re-run the fleet on the revised plan until it reports no Critical or Important finding the Resolution Log hasn't already resolved, at most twice; surface what remains to the user.
 
 ## Phase 2: Test Design
 
@@ -97,44 +99,11 @@ Present the strategy. **Behavior-only**: a test asserts a code path's output or 
 
 ## Phase 3: Implementation Plan
 
-Write `plans/<slug>.md` (propose a kebab-case slug, or ask) and no source files.
+Write `plans/<slug>.md` (the 1.1 slug) and no source files. Read `${CLAUDE_SKILL_DIR}/plan-format.md` before writing the plan: it holds the Plan Header, Key Constraints, Decision Record (with the Resolution Log entry format) and task templates.
 
 **The reader** is new to this codebase and design, writes idiomatic code given the exact interface and test, and chooses reasonably wherever the plan leaves room. The plan records what they can't know: your decisions (files, signatures, the design's values, the tests proving each task).
 
 **Epistemic status**: fixed outcomes, acceptance criteria and integration contracts bind. The rest is current best operationalization: implementers right-size internal machinery against crash-loud and log each deviation; nothing silently dropped or gold-plated.
-
-### Plan Header
-
-```markdown
-# [Feature] Implementation Plan
-
-**Goal:** [One sentence]
-**Fixed outcomes:** [From 1.2.8; everything else is means]
-**Flow:** [1.1.5 sketch, boundaries tagged codebase | docs | capture | assumed]
-**Architecture:** [2-3 sentences]
-**Failure mode targeted:** [from 1.2]
-**Tech Stack:** [Key technologies]
-```
-
-### Decision Record
-
-Canonical source for Present for Approval:
-
-- **Chosen approach**: what won and why, one paragraph.
-- **Scope**: **Already implemented** (skip if empty), **Actually new**, **Departures from brief** (drops and additions: `brief asked X → plan delivers Y → why`), **Left out (deliberately)**, skip if empty: machinery considered and not built, each with the trigger that would justify it.
-- **Per-decision matrix**: `| Dimension (stakes) | Decides | M | P | C | Pick (conf). Rationale |`
-- **Worth your input**: Net statements for medium-or-lower-confidence, material-stakes decisions; skip if none.
-- **Architect approaches** (a paragraph each, chosen one marked), **Alternatives Considered**, **Synthesis shape** (label + coupling paragraph).
-- **Resolution Log**, one entry per finding from 1.5 and the trim pass:
-  ```
-  - **<finding title>** (severity: Critical | Important | Suggestion; angle: <attack angle>)
-    - Confidence: <0-100>
-    - Resolution: Fixed (code | doc | framing | scope) | Deferred | Rejected (by analysis | by user direction; sticky)
-    - Detail: <what was done; for "by user direction" quote the user's actual words>
-    - Cost (if Fixed code): <LoC / complexity / perf>
-    - Revisit trigger (if Deferred): <signal>
-  ```
-  Every finding gets a logged resolution; sticky rejections are never re-litigated, reframed or not. A re-run treats entries `/praxis:iterate` appended later (angle: iterate) as record, not corruption.
 
 ### Task Structure
 
@@ -142,29 +111,9 @@ A task is the smallest unit carrying its own test cycle and worth a fresh review
 
 **Task 1 is Slice 0** whenever any boundary is `docs` or `assumed`: the thinnest end-to-end path through every boundary with one real input, raw capture committed at each. Its acceptance criterion is the captures plus one real output checked against the fixed outcome, never a unit test against an invented response. Contracts later tasks build to come from its captures, marked `provisional until Slice 0`; `/praxis:implement` runs Slice 0 alone and pins them before dispatching the rest.
 
-````markdown
-### Task N: [Component]
-
-**Skills to activate:** `praxis:test-driven-development`, `praxis:verification-before-completion`
-**Files:** Create `exact/path/file.py` · Modify `exact/path/existing.py` · Test `tests/exact/path/test.py`
-**Interfaces** (only when other tasks depend on this one):
-- Consumes: [exact signatures from earlier tasks]
-- Produces: [exact names, parameter and return types later tasks rely on]
-
-**Acceptance criteria:** [behavior]: [expected outcome]
-
-- [ ] Write failing test `test_name`: [assertions, with the design's exact values]
-- [ ] Run `<test command>`; verify red
-- [ ] Implement `function(arg: Type) -> Result` in `exact/path/file.py`
-- [ ] Run `<test command>`; verify green
-- [ ] Commit
-````
-
-Non-behavioral tasks (docs, config, wiring, cosmetics) drop the TDD skill and swap the red-green steps for `- [ ] Verify: <command / render / check + expected result>`.
+Write each task in `plan-format.md`'s task template.
 
 For documentation deliverables specifically: list `diataxis:diataxis` under **Skills to activate** (ships as a separate plugin; the name-resolution rule applies — if it resolves in neither namespaced nor bare form, surface `/plugin marketplace add moiri-gamboni/diataxis-skill` as what's missing), and name the kind(s) the deliverable serves in the task title and acceptance criteria — "update the how-to for X", "extend the Y reference" — never a bare "update docs". Feature work almost always touches how-to guides and reference, sometimes explanation, almost never tutorials. The kind classification belongs in the plan; the form rules stay in the skill.
-
-Frontend features note in the header that `praxis:frontend-design` auto-activates.
 
 ### Quality Rules
 
