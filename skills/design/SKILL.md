@@ -37,7 +37,7 @@ Dispatch 5 `praxis:code-explorer` agents in parallel, one per dimension: **archi
 
 ### 1.2.5 Synthesize Shared Context
 
-Merge them into 1-2 pages: per-dimension highlights, deduped essential files (~15-20), cross-dimension findings, and a **failure-mode coverage table** (per mode: covered today? if not, what's needed).
+Merge into 1-2 pages: per-dimension highlights, deduped essential files (~15-20), cross-dimension findings, and a **failure-mode coverage table** (per mode: covered today? if not, what's needed).
 
 ### 1.2.7 Optional Second Wave
 
@@ -48,7 +48,7 @@ Materially new context from dialogue (a constraint outside scope, an unexamined 
 Before architect dispatch, restate to the user:
 
 1. **Goal + fixed outcomes**: intent, scope, the fixed outcomes (results the user asked for, not mechanisms) and the dominant failure mode; invite correction. Everything else is means, chosen lean. For each `docs` or `assumed` boundary, name the observation that will pin it.
-2. **Constraint audit**: each constraint the architecture bends around, tagged `[user]` (quote), `[fact]` (cite) or `[assumed]`. **Batch-confirm the `[assumed]` ones now** (a word each, against an architect and a red-team round spent on a wrong one); anything not traceable to the user's words or a cited fact is `[assumed]`.
+2. **Constraint audit**: each constraint the architecture bends around, tagged `[user]` (quote), `[fact]` (cite) or `[assumed]`. **Batch-confirm the `[assumed]` ones now** (a word each, against an architect and a red-team round spent on a wrong one; state, don't re-ask, picks the user handed over); anything not traceable to the user's words or a cited fact is `[assumed]`.
 3. **Change appetite** (only if 1.2.5 flags in-pattern gaps): stay in-pattern, or is infrastructure in scope?
 
 Silence = confirmation.
@@ -66,7 +66,7 @@ Each writes `plans/<slug>/.workspace/architects/<approach>.md` (patterns with `f
 Coordinator-level, no agents:
 
 1. **Per-decision matrix** over the decisions where architects diverged, cells `✓✓` / `✓` / `✗` relative within the row. Tag rows with **stakes** (high/med/low: cost of a wrong pick in feature impact, reversibility, visibility), **confidence** (high/med/low; one `✓✓` = clear, two = close call, all `✓` = doesn't matter) and **crux to flip**. Close calls and doesn't-matter rows take the leaner pick; the crux names what would justify the heavier one. High stakes + medium-or-lower confidence = user input matters. Sort by stakes (high first), then confidence (low first).
-2. **Coupling check**: picks that only make sense given another pick.
+2. **Coupling check**: picks only sensible given another.
 3. **Synthesis shape** (architects worked independently, so convergence isn't borrowing): **pick-per-dimension** (independent decisions; take the matrix winners), **base + borrow** (picks cluster on one architect), or **true hybrid** (orthogonal picks).
 4. **Net statement** per adjustment (base + borrow, hybrid) or per high-stakes medium-confidence deep dive (pick-per-dimension); drop any you can't fill: `### <decision>` with **In tension** (dim A ↔ dim B), **Architect positions** (M=…, P=…, C=…), **Net** (direction + specific reason), **Crux to flip**.
 5. **Alternatives Considered**, per non-chosen architect: package in 2-3 sentences, the matrix decisions it diverges on, why rejected (tied to those), bits salvaged.

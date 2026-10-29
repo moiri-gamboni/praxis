@@ -25,10 +25,10 @@ Research before routing — the single-vs-parallel call needs codebase context, 
 
 1. **Understand the task.** Read the argument and any referenced plan/architecture doc. Use Glob/Grep/subagents to survey codebase, patterns, conventions, test infrastructure.
 
-   **Workspace root**: plan file at `plans/<slug>.md` → workspace at `plans/<slug>/.workspace/`. Otherwise derive a kebab-case slug from the task. Worker logs: `<workspace>/workers/<unit>.md`. Ledger: `<workspace>/progress.md`. One ending in a `pr` line is a finished run: move it aside and start fresh. Any other is a run to resume from the ledger and the worker logs, never from recollection: a unit is merged only if the ledger says so, and a dispatched unit with a worker log is a return to process (Phase 3), not one to re-dispatch.
+   **Workspace root**: plan file at `plans/<slug>.md` → workspace at `plans/<slug>/.workspace/`. Otherwise derive a kebab-case slug from the task. Worker logs: `<workspace>/workers/<unit>.md`. Ledger: `<workspace>/progress.md`. One ending in a `pr` line is a finished run: move it and `workers/` aside and start fresh. Any other is a run to resume from the ledger and the worker logs, never from recollection: a unit is merged only if the ledger says so, and a dispatched unit with a worker log is a return to process (Phase 3), not one to re-dispatch.
 
-2. **Route based on what you found.**
-   - **Slice 0 first**: the plan's Task 1 is Slice 0, or (no plan) the task crosses a boundary whose shape nobody has observed. Dispatch it alone as one `praxis:implementer` (worktree) before decomposing; write the batch plan's integration contract from its captures; then route the widening units below. No boundary tagged `docs` or `assumed` → skip this.
+2. **Route based on what you found.** Before the first dispatch on any route, create the integration branch `batch/<batch-name>-integration` from the base and start the ledger with `integration: <that branch>`.
+   - **Slice 0 first**: the plan's Task 1 is Slice 0, or (no plan) the task crosses a boundary whose shape nobody has observed. Dispatch it alone as one `praxis:implementer` (worktree) before decomposing and merge it into the integration branch; write the batch plan's integration contract from its captures; then route the widening units below. No boundary tagged `docs` or `assumed` → skip this.
    - **Parallel**: 2+ units, each with its own test surface, all buildable from a pinned contract. Continue with steps 3-5.
    - **Single agent**: no separable contract-able parts. Cases: wide-but-shallow refactors (rename, type change), structural reorganization, single dense file, whole-system invariant changes, or too small to orchestrate. Skip to Phase 2; spawn one `praxis:implementer` (`subagent_type: "praxis:implementer"`, `isolation: "worktree"`) with the Phase 2 prompt.
 
@@ -39,7 +39,7 @@ Research before routing — the single-vs-parallel call needs codebase context, 
 
    Two units modifying same file → merge them or define a strict contract (one owns the interface, the other consumes; document direction).
 
-4. **Write the batch plan to `<workspace>/batch-plan.md`.** Per unit: name, description, files, branch (`batch/<batch-name>/<unit-name>`), test command, dependencies. Create the integration branch `batch/<batch-name>-integration` from the base and start the ledger with `integration: <that branch>`. Plus:
+4. **Write the batch plan to `<workspace>/batch-plan.md`.** Per unit: name, description, files, branch (`batch/<batch-name>/<unit-name>`), test command, dependencies. Plus:
    - **Integration contract**: what must hold post-merge (interfaces, naming, config shape)
    - **Integration tests** to run after merge
    - **Risks**: what could go wrong, what to check on failure
@@ -58,7 +58,7 @@ The `praxis:implementer` agent owns the worker procedure (skill loop, push, log,
 - Unit's goal, deliverable, files, branch (`batch/<batch-name>/<unit-name>`), acceptance criteria
 - The plan's fixed outcomes + epistemic status (outcomes, acceptance criteria, and integration contract binding; internal machinery right-sizeable with a logged deviation)
 - Test command (the implementer's procedure runs this for the full-suite step)
-- Worker log path: `<WORKSPACE>/workers/<UNIT_NAME>.md`
+- Worker log path, absolute: `<WORKSPACE>/workers/<UNIT_NAME>.md`
 - Integration contract (interfaces, naming, types other units expect), pinned from Slice 0's captures where the plan marked them provisional
 - Inline interface definitions for any cross-unit dependency the worker can't see in its own files
 
@@ -66,20 +66,20 @@ The `praxis:implementer` agent owns the worker procedure (skill loop, push, log,
 
 Workers run independently and return when done. Process each return as it arrives. If a worker returned blocked or failed, diagnose and rule: re-dispatch with more context, re-scope, drop the unit, or keep it partial.
 
-**Rulings, not stalls.** After dispatch you decide on the user's behalf: a blocked worker re-dispatched or re-scoped, a unit dropped or kept partial, a conflict the integration contract doesn't settle, a review finding, trim cut or spec gap declined. This holds inside the skills Phase 4 loads: their ask-the-user points become rulings. Log each in the ledger as `Ruling: <what> — <why> — <cost if wrong>`; Phase 5 lists every one. Stop for the user only before leaving a fixed outcome undelivered or partial, or before something irreversible, security-sensitive, or reaching beyond the batch's branches and PR.
+**Rulings, not stalls.** After dispatch you decide on the user's behalf: a blocked worker re-dispatched or re-scoped, a unit dropped or kept partial when no fixed outcome rides on it, a conflict the integration contract doesn't settle, a review finding, trim cut or spec gap declined. This holds inside the skills Phase 4 loads: their ask-the-user points become rulings. Log each in the ledger as `Ruling: <what> — <why> — <cost if wrong>`; Phase 5 lists every one. Stop for the user only before leaving a fixed outcome undelivered or partial, or before something irreversible, security-sensitive, or reaching beyond the batch's branches and PR.
 
 **Context economy.** Yours is the only context that spans the batch; compacting mid-orchestration loses whatever the ledger doesn't hold. Spend it on coordination, not code: read worker logs, not merged diffs (Phase 4's reviewers and trimmer read the code themselves), and don't re-derive what a worker already reported. The fix split, for every phase: a few obvious lines → fix inline; anything more → an agent. For a unit-scoped fix, send the finding back to the owning worker via SendMessage — it still holds the unit's context, so it writes the fix, commits, and pushes, and you re-merge (its tree predates peers' merges; fine for unit-scoped work). For cross-unit fixes, or once workers are swept, dispatch a fresh `praxis:implementer` (worktree, fix branch, self-contained brief listing the findings) and merge its branch like any unit.
 
 On worker done:
 
 1. Merge their branch into the integration branch; append `merged <unit> (<branch>, <merge-sha>)` to the ledger
-2. Run tests post-merge. Resolve conflicts per the integration contract
+2. Run tests post-merge; a failure the base already has is reported in the PR's test results as pre-existing, not fixed. Resolve conflicts per the integration contract
 3. **Keep the worktree + local branch** — the worker stays resumable for fixes; cleanup is one sweep at the end of Phase 4.
 4. **Surface inline**: pull deviations, integration concerns, and follow-ups from the worker log into your update.
 
 ## Phase 4: Cross-Cutting Quality
 
-After all units merged (append `phase4 step <n> done` to the ledger as each step finishes):
+After every unit is merged or ruled on (append `phase4 step <n> done` to the ledger as each step finishes):
 
 1. Invoke `Skill: "praxis:review"` with args `all` — catch cross-unit inconsistencies (naming, patterns, interface mismatches, duplication). Before fixing, invoke `Skill: "praxis:receiving-code-review"`.
 2. **Trim pass**: dispatch `praxis:trimmer` (diff mode) on the integration branch's full diff, with the plan's fixed outcomes (or the task's stated outcomes when there's no plan), test command, and report path `<workspace>/trim.md`. Adjudicate via `Skill: "praxis:receiving-code-review"`: apply an L1 cut only when its outcome-trace and falsifier hold up — for guard removals, verify unreachability (validated one frame up, type-guaranteed, or caller-audited) before deleting. L2 findings (the plan clause itself questioned) are never auto-applied; they go to the user in the PR. Each applied cut is its own commit (revivable via `git revert`); re-run tests after cuts.

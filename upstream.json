@@ -17,7 +17,8 @@
     },
     "code-review": {
       "repo": "anthropics/claude-plugins-official",
-      "path": "plugins/code-review"
+      "path": "plugins/code-review",
+      "last_analyzed": "f8c5e7a1dcb71b10cb74586224b5401f3de5db28"
     },
     "commit-commands": {
       "repo": "anthropics/claude-plugins-official",
@@ -300,5 +301,5 @@
       "adaptation": "new"
     }
   ],
-  "last_analyzed_upstream_commit": "c9d845e839c98dca72932b93d7479857c14767ef"
+  "last_analyzed_upstream_commit": "daf1614ae9a05dc18e77572b022ddd2451d1606c"
 }

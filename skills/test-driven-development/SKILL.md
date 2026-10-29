@@ -164,7 +164,7 @@ npm test path/to/test.test.ts
 
 Confirm:
 - Test passes
-- Before calling the change done, the project's whole suite passes: run its test command (`pytest`, `npm test`, `cargo test`), not just your file, even when the task named one
+- Before calling the change done, the project's whole suite shows no failure your change caused: run its test command (`pytest`, `npm test`, `cargo test`), not just your file, even when the task named one
 - Output pristine (no errors, warnings)
 
 **Test fails?** Fix code, not test.

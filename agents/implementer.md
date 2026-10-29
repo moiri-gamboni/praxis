@@ -54,7 +54,7 @@ Each `Skill: "praxis:X"` line below is a **tool call** — invoke the Skill tool
     - Test results (which, pass/fail)
     - Files changed
     - Integration notes (gotchas, cross-unit deps, follow-ups)
-12. **Return** exactly: `Done. Log: <log-path>. Branch: <BRANCH_NAME> pushed. Tests: passed.` (append ` Pre-existing failures named in log.` when there are any) Stuck irrecoverably: `Blocked. Reason: <one paragraph>. Log: <log-path>.`
+12. **Return** exactly: `Done. Log: <log-path>. Branch: <BRANCH_NAME> pushed. Tests: passed.` (with failures the base already had: `Tests: no new failures; pre-existing ones named in log.`) Stuck irrecoverably: `Blocked. Reason: <one paragraph>. Log: <log-path>.`
 
 ## Hard Rules
 
