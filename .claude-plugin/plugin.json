@@ -1,6 +1,6 @@
 {
   "name": "praxis",
-  "version": "2.4.16",
+  "version": "2.4.17",
   "description": "Unified development workflow plugin combining behavioral discipline, composable commands, and specialized review agents",
   "author": {
     "name": "Moiri Gamboni"

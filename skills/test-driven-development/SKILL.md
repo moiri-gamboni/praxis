@@ -30,7 +30,7 @@ Write the test first. Watch it fail. Write minimal code to pass.
 
 A scoped build under `praxis:prototype` applies TDD where its Phase 2 decided it pays.
 
-**Worker context:** with no human to ask (an implementer or other subagent), every "ask your human partner" in this skill means: record the question as unresolved in your log and return Blocked.
+**Worker context:** with no human to ask (an implementer or other subagent), every "ask your human partner" in this skill means: record the question as unresolved in your log and continue, or return Blocked.
 
 Thinking "skip TDD just this once"? Stop. That's rationalization. The question is never whether testing is worth the effort (it is); it's whether a behavioral contract exists to test.
 
@@ -238,7 +238,7 @@ When writing or changing any test, read `writing-good-tests.md` in this skill's 
 - Can't explain why test failed
 - Test asserts source text or code shape (manufactured red)
 
-**These mean the test is wrong, not the code: fix it, or delete it if there is no behavior to name (The Gate). Keep the code.**
+**These mean the test is wrong, not the code: fix it, or delete it if there is no behavior to name (The Gate). Keep the code, unless you wrote it in this task before its test: then the list above applies.**
 
 ## Example: Bug Fix
 

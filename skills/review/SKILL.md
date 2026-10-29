@@ -22,7 +22,7 @@ Read the full diff for context.
 
 ## Re-Review Mode
 
-Trigger: a prior `reviews/<timestamp>/` holds findings for this work, or the caller says re-review. A re-run after a fix round is **scoped, not fresh**: take the fix diff as the range, verdict each prior finding (addressed / not addressed / superseded) and review only that diff for new breakage, then present the verdicts and any new findings in Step 7's format. The full review already happened; re-running it from scratch re-litigates settled findings and invites fabricated new ones. Skip Steps 2-6.
+Trigger: the caller says re-review, or the range is a fix round answering findings a prior `reviews/<timestamp>/` holds. An earlier review folder alone doesn't trigger it, and an explicit range in Step 1 still sets the scope. A re-run after a fix round is **scoped, not fresh**: take the fix diff as the range, verdict each prior finding (addressed / not addressed / superseded) and review only that diff for new breakage, then present the verdicts and any new findings in Step 7's format. The full review already happened; re-running it from scratch re-litigates settled findings and invites fabricated new ones. Skip Steps 2-6.
 
 Otherwise continue with Step 2.
 

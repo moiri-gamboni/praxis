@@ -28,7 +28,7 @@ Research before routing — the single-vs-parallel call needs codebase context, 
    **Workspace root**: plan file at `plans/<slug>.md` → workspace at `plans/<slug>/.workspace/`. Otherwise derive a kebab-case slug from the task. Worker logs: `<workspace>/workers/<unit>.md`. Ledger: `<workspace>/progress.md`, one line per event, in these formats: `integration: <branch> from <base>`, `dispatched <unit> (<agent id>, <branch>)`, `merged <unit> (<branch>, <merge-sha>)`, `phase4 step <n> done`, `Ruling: <what> — <why> — <cost if wrong>`, `pr <url>`. One ending in a `pr` line is a finished run: move it and `workers/` aside and start fresh. Any other is a run to resume from the ledger and the worker logs, never from recollection: a unit is merged only if the ledger says so, and a dispatched unit with a worker log is a return to process (Phase 3), not one to re-dispatch.
 
 2. **Route based on what you found.** Before the first dispatch on any route, create the integration branch `batch/<batch-name>-integration` (the batch name is the workspace slug) from the base and start the ledger with its `integration:` line.
-   - **Slice 0 first**: the plan's Task 1 is Slice 0, or (no plan) the task crosses a boundary whose shape nobody has observed. Dispatch it alone as one `praxis:implementer` (worktree) before decomposing and merge it into the integration branch; write the batch plan's integration contract from its captures; then route the widening units below. No boundary tagged `docs` or `assumed` → skip this.
+   - **Slice 0 first**: the plan's Task 1 is Slice 0, or (no plan) the task crosses a boundary whose shape nobody has observed. Dispatch it alone as one `praxis:implementer` (worktree) before decomposing and merge it into the integration branch; write the batch plan's integration contract from its captures; then route the widening units below. No boundary tagged `docs` or `assumed` → skip this. Slice 0 and the single-agent route get an E2E recipe too (step 4's rule).
    - **Parallel**: 2+ units, each with its own test surface, all buildable from a pinned contract. Continue with steps 3-5.
    - **Single agent**: no separable contract-able parts. Cases: wide-but-shallow refactors (rename, type change), structural reorganization, single dense file, whole-system invariant changes, or too small to orchestrate. Skip to Phase 2; spawn one `praxis:implementer` (`subagent_type: "praxis:implementer"`, `isolation: "worktree"`) with the Phase 2 prompt.
 
@@ -56,6 +56,7 @@ The `praxis:implementer` agent owns the worker procedure (skill loop, commit, lo
 - Project language, framework, test runner, conventions
 - The flow sketch, its boundary list with shape sources, and the capture paths from Slice 0
 - The plan path as an **absolute path**, with whether `plans/` is tracked — a gitignored plans directory isn't in the worker's worktree
+- Base: the integration branch (a local ref every worktree sees; a worktree otherwise starts from the default branch and misses Slice 0 and earlier merges)
 - Unit's goal, deliverable, files, branch (`batch/<batch-name>/<unit-name>`), acceptance criteria, and the skills the plan lists under **Skills to activate** for its tasks
 - The plan's fixed outcomes + epistemic status (outcomes, acceptance criteria, and integration contract binding; internal machinery right-sizeable with a logged deviation)
 - Test command (the implementer's procedure runs this for the full-suite step)
@@ -90,8 +91,9 @@ After every unit is merged or ruled on (append a `phase4 step <n> done` line as 
 5. **Plan-completion check** (if plan file present): spawn `praxis:spec-reviewer` via Agent with plan as spec. Address gaps; those matching a worker-logged lean-out, a non-behavioral classification, or an applied trim cut are adjudicated against the fixed outcomes — not auto-restored.
 6. Resolve conflicting doc edits from workers
 7. Fix remaining issues — routed per Phase 3's context economy — and re-run tests
-8. **Invoke `Skill: "praxis:verification-before-completion"`** on the final state, before the PR and the sweep; any change after it means running it again.
-9. **Sweep worker worktrees + local branches**: `git worktree remove <path>` then `git branch -d <branch>` for each, once every capture path in the worker's log is on the integration branch (removal deletes gitignored files without asking). A capture missing, or either command refusing (uncommitted or unmerged work) → keep that worktree and branch and list them in the final message; never `--force` or `-D`.
+8. **Check nothing is left unmerged**: for each worker branch, `git log --oneline <integration>..<branch>`; commits on a unit not ruled dropped (a fix a resumed worker committed) are merged now and step 7 re-runs.
+9. **Invoke `Skill: "praxis:verification-before-completion"`** on the final state, before the PR and the sweep; any change after it means running it again.
+10. **Sweep worker worktrees + local branches**: `git worktree remove <path>` then `git branch -d <branch>` for each, once every capture path in the worker's log is on the integration branch (removal deletes gitignored files without asking). A capture missing, or either command refusing (uncommitted or unmerged work) → keep that worktree and branch and list them in the final message; never `--force` or `-D`.
 
 ## Phase 5: Final PR
 

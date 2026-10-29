@@ -50,7 +50,7 @@ Skills chain naturally: each suggests a next step based on context. The intended
 | **code-reviewer** | Reviews code against project guidelines and plans, with confidence scoring (>= 80 threshold) and anti-complexity bias on proposed fixes. | `/praxis:review` Wave 1, Wave 2 cross-unit |
 | **spec-reviewer** | Verifies implementation matches a specification (which can be a `/praxis:design` plan file). Skeptical, independent reading. | `/praxis:implement` Phase 4 (when plan file present), `/praxis:review` Wave 1, manual |
 | **code-simplifier** | Simplifies code while preserving functionality. Direct-modify in `/praxis:simplify` standalone, advisory in `/praxis:review`. | `/praxis:simplify`, `/praxis:review` Wave 1, `/praxis:implement` workers + Phase 4 |
-| **implementer** | Single-unit worker for `/praxis:implement`. Bakes the worker procedure (skill loop, push, log, audit) into its system prompt so compliance is structural. Delegates only to `praxis:code-reviewer`. | `/praxis:implement` Phase 2, manual single-unit builds |
+| **implementer** | Single-unit worker for `/praxis:implement`. Bakes the worker procedure (skill loop, commit, log, audit) into its system prompt so compliance is structural. Delegates only to `praxis:code-reviewer`. | `/praxis:implement` Phase 2, manual single-unit builds |
 | **trimmer** | Dedicated subtraction pass: proposes cuts (machinery no fixed outcome requires) as findings with outcome-traces, counted costs, risk + falsifier, and L1 (cut under current plan) / L2 (leaner plan justifiable) levels. Advisory only. | `/praxis:design` Phase 3 trim pass, `/praxis:implement` Phase 4, manual |
 | **comment-analyzer** | Checks comment accuracy and long-term maintainability. Anti-complexity: removing bad comments preferred over adding obvious ones. | `/praxis:review` Wave 1 |
 | **test-analyzer** | Reviews test coverage quality, prioritizing behavioral coverage. Each proposed test must articulate failure scenario + likelihood + consequence. | `/praxis:review` Wave 1 |
@@ -89,7 +89,7 @@ Agents pin `model` + `effort` frontmatter to task shape: Opus for generative and
 
 1. Conversational ideation (ideate skill activates) — produces `plans/<slug>-ideation.md`
 2. `/praxis:design` reads ideation, runs shared exploration + architect approaches + red-team fleet, writes `plans/<slug>.md`
-3. `/praxis:implement plans/<slug>.md` runs Slice 0 first, then spawns sub-agents in worktrees: each observes its boundaries, then TDD + review + simplify + verification + commit + push + log
+3. `/praxis:implement plans/<slug>.md` runs Slice 0 first, then spawns sub-agents in worktrees: each observes its boundaries, then TDD + review + simplify + verification + commit + log (workers never push; the orchestrator pushes the integration branch for the PR)
 4. Coordinator merges incrementally, then cross-cutting `/praxis:review` + `/praxis:simplify` + `praxis:spec-reviewer` against plan + `praxis:verification-before-completion`, opens PR
 5. PR feedback iteration via manual edits pushed to the PR branch
 
@@ -132,4 +132,4 @@ The `upstream` branch stores verbatim copies of the source plugins. `upstream.js
 
 AGPL-3.0. See [LICENSE](LICENSE) and [NOTICE](NOTICE) for details.
 
-Incorporates MIT-licensed material from [superpowers](https://github.com/obra/superpowers) by Jesse Vincent. Components from Anthropic's [claude-plugins-official](https://github.com/anthropics/claude-plugins-official): frontend-design, feature-dev and pr-review-toolkit are Apache-2.0 licensed. 
+Incorporates MIT-licensed material from [superpowers](https://github.com/obra/superpowers) by Jesse Vincent. Components from Anthropic's [claude-plugins-official](https://github.com/anthropics/claude-plugins-official): frontend-design, feature-dev and pr-review-toolkit are Apache-2.0 licensed. `skills/review/security.md` adapts the MIT-licensed [claude-code-security-review](https://github.com/anthropics/claude-code-security-review). 
