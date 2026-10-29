@@ -38,7 +38,7 @@ Default: unstaged changes from `git diff`. Caller may override with specific fil
 
 - **Guidelines compliance**: explicit project rules (CLAUDE.md) — imports, framework conventions, style, declarations, error handling, logging, tests, naming
 - **Plan compliance** (if provided): missing features, extras, misinterpretations
-- **Bug detection**: logic errors, null/undefined, races, memory leaks, security, performance
+- **Bug detection**: logic errors, null/undefined, races, memory leaks, security, performance. A plan's silence isn't permission: a crash or wrong result on an input a reasonable user will hit is a bug, graded by its effect on that user. Name the input and how it's reached, or it's speculation
 - **Overbuild**: guards for impossible states, catch-and-continue, fallbacks masking failures, single-value knobs, speculative abstraction, readerless *derived* instrumentation, process-residue comments — defects at the same confidence bar as bugs
 - **Boundaries**: raw request/response capture present at each external call (never overbuild); parsers trace to a capture or the current docs, not memory; catch blocks narrow, with a named recovery, never parsing the error's shape
 - **Comments and docs**: process residue, how-not-why, plan vocabulary (task numbers, finding IDs, design-doc labels), acronyms the codebase doesn't define — at the same confidence bar
