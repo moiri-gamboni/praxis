@@ -13,7 +13,7 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Agent, Task, Skill, AskUserQuestio
 
 ## Working Principle
 
-**Fixed outcomes vs variable means.** The features/results the user asked for are fixed; all machinery delivering them is variable. Design the minimum that delivers them competently; the floor is real: tests for reachable behavior, surfaced errors for reachable failures, the seams extension needs.
+**Fixed outcomes vs variable means.** The features/results the user asked for are fixed; all machinery delivering them is variable. Design the minimum that delivers them competently (sensible performance included); the floor is real: tests for reachable behavior, surfaced errors for reachable failures, the seams extension needs.
 
 **Code is a liability.** Every guard, knob, fallback, abstraction, instrument and test carries permanent cost. A requirement tracing only to "the spec/design doc says so" is challengeable; one tracing to a fixed outcome or a real external constraint (law, data loss, PII, money) is not.
 
@@ -41,14 +41,14 @@ Merge them into 1-2 pages: per-dimension highlights, deduped essential files (~1
 
 ### 1.2.7 Optional Second Wave
 
-Materially new context from dialogue (a constraint outside scope, an unexamined system) → propose one focused re-exploration, naming the deviations and focus; run it only on the user's yes.
+Materially new context from dialogue (a constraint outside scope, an unexamined system) → propose at most one focused re-exploration, naming the deviations and focus; run it only on the user's yes.
 
 ### 1.2.8 Goal Restatement
 
 Before architect dispatch, restate to the user:
 
 1. **Goal + fixed outcomes**: intent, scope, the fixed outcomes (results the user asked for, not mechanisms) and the dominant failure mode; invite correction. Everything else is means, chosen lean. For each `docs` or `assumed` boundary, name the observation that will pin it.
-2. **Constraint audit**: each constraint the architecture bends around, tagged `[user]` (quote), `[fact]` (cite) or `[assumed]`. **Batch-confirm the `[assumed]` ones now** (a word each, against two review rounds spent on a wrong one); anything not traceable to the user's words or a cited fact is `[assumed]`.
+2. **Constraint audit**: each constraint the architecture bends around, tagged `[user]` (quote), `[fact]` (cite) or `[assumed]`. **Batch-confirm the `[assumed]` ones now** (a word each, against an architect and a red-team round spent on a wrong one); anything not traceable to the user's words or a cited fact is `[assumed]`.
 3. **Change appetite** (only if 1.2.5 flags in-pattern gaps): stay in-pattern, or is infrastructure in scope?
 
 Silence = confirmation.
@@ -65,21 +65,21 @@ Each writes `plans/<slug>/.workspace/architects/<approach>.md` (patterns with `f
 
 Coordinator-level, no agents:
 
-1. **Per-decision matrix** over the decisions where architects diverged, cells `✓✓` / `✓` / `✗` relative within the row. Tag rows with **stakes** (cost of a wrong pick: feature impact, reversibility, visibility), **confidence** (one `✓✓` = clear, two = close call, all `✓` = doesn't matter) and **crux to flip**. Close calls and doesn't-matter rows take the leaner pick; the crux names what would justify the heavier one. High stakes + medium-or-lower confidence = user input matters. Sort by stakes, then confidence ascending.
-2. **Coupling check**: cross-decision dependencies (one pick only making sense given another).
-3. **Synthesis shape** (independent work; convergence ≠ borrowing): **pick-per-dimension**, **base + borrow** (picks cluster on one architect), or **true hybrid** (orthogonal picks).
-4. **Net statement** per adjustment, or per high-stakes medium-confidence deep dive; drop any you can't fill: `### <decision>` with **In tension** (dim A ↔ dim B), **Architect positions** (M=…, P=…, C=…), **Net** (direction + specific reason), **Crux to flip**.
+1. **Per-decision matrix** over the decisions where architects diverged, cells `✓✓` / `✓` / `✗` relative within the row. Tag rows with **stakes** (high/med/low: cost of a wrong pick in feature impact, reversibility, visibility), **confidence** (high/med/low; one `✓✓` = clear, two = close call, all `✓` = doesn't matter) and **crux to flip**. Close calls and doesn't-matter rows take the leaner pick; the crux names what would justify the heavier one. High stakes + medium-or-lower confidence = user input matters. Sort by stakes (high first), then confidence (low first).
+2. **Coupling check**: picks that only make sense given another pick.
+3. **Synthesis shape** (architects worked independently, so convergence isn't borrowing): **pick-per-dimension** (independent decisions; take the matrix winners), **base + borrow** (picks cluster on one architect), or **true hybrid** (orthogonal picks).
+4. **Net statement** per adjustment (base + borrow, hybrid) or per high-stakes medium-confidence deep dive (pick-per-dimension); drop any you can't fill: `### <decision>` with **In tension** (dim A ↔ dim B), **Architect positions** (M=…, P=…, C=…), **Net** (direction + specific reason), **Crux to flip**.
 5. **Alternatives Considered**, per non-chosen architect: package in 2-3 sentences, the matrix decisions it diverges on, why rejected (tied to those), bits salvaged.
 
 ### 1.5 Red-Team Fleet
 
-Spawn `praxis:red-team` agents in parallel, one per angle: **architectural soundness** (abstraction violations, hidden coupling, pattern fit); **failure modes** (error paths, silent swallowing, partial failures); **operational** (deploy, rollback, observability, scale); **hidden complexity** (deferred decisions, magic); **scope & minimality**: what does it build that no fixed outcome needs (impossible-state guards, single-value knobs, fallbacks for committed siblings, readerless derived instrumentation, duplication; never raw capture)? Cut-proposals are first-class findings, and it hunts **invented constraints**: one the design pays for that traces to no user statement, code fact or external reality is a finding against the premise. Conditionally: **security & abuse** (user input, auth, data exposure, privilege boundaries, external integrations) and **documentation currency** (any `docs`/`assumed` boundary or named third-party API: verify with WebSearch/WebFetch that each exists, usage matches current docs, nothing is deprecated; pass it the boundary list).
+Spawn `praxis:red-team` agents in parallel, one per angle: **architectural soundness** (abstraction violations, hidden coupling, pattern fit); **failure modes** (error paths, silent swallowing, partial failures); **operational** (deploy, rollback, observability, scale); **hidden complexity** (deferred decisions, magic); **scope & minimality**: what does it build that no fixed outcome needs (impossible-state guards, single-value knobs, fallbacks for committed siblings, readerless derived instrumentation, duplication; never raw capture)? Cut-proposals are first-class findings, and this angle hunts **invented constraints**: one the design pays for that traces to no user statement, code fact or external reality is a finding against the premise. Conditionally: **security & abuse** (user input, auth, data exposure, privilege boundaries, external integrations) and **documentation currency** (any `docs`/`assumed` boundary or named third-party API: check each with WebSearch/WebFetch (exists, usage current, not deprecated), given the boundary list).
 
 Findings carry confidence (0-100 + justification). Dedupe across angles (overlap strengthens evidence); rank Critical / Important / Suggestion. A finding reintroducing scope the Resolution Log marks "Rejected (by user direction; sticky)" under a new framing is Rejected, citing the user's direction. Optionally a second red-team agent reproduces each Critical: **confirmed** or **disputed** (disputed stays; the user decides).
 
 ### 1.6 Decision + Final Validation
 
-Present the merged plan, matrix and findings, each with a severity and a separate resolution (the funnel, "1 Critical Fixed, 3 Important Deferred", is the point): **Fixed (code | doc | framing | scope)** with change and cost; **Deferred** with why and revisit trigger; **Rejected** with evidence. Fixed-by-adding-machinery needs the three-part articulation, else it's Rejected or Deferred; Rejected by analysis is healthy. A finding that only names a narrow add the architects missed is applied, not a new decision point.
+Present the merged plan, matrix and findings, each with a severity and a separate resolution (the funnel of counts is the point): **Fixed (code | doc | framing | scope)** with change and cost; **Deferred** with why and revisit trigger; **Rejected** with evidence. Fixed-by-adding-machinery needs the three-part articulation, else it's Rejected or Deferred; Rejected by analysis is healthy. A finding that only names a narrow add the architects missed is applied, not a new decision point.
 
 **Traceability check**: for every failure mode from 1.2, "User does X. Today: Y. After plan: Z." Any not reaching a closed gap or explicit deferral goes back to architects or red-team. Iterate until a final fleet run is clean.
 
@@ -93,15 +93,15 @@ Invoke `Skill: "praxis:test-driven-development"`. For the chosen architecture:
 4. Integration tests across components
 5. Specs for `docs`/`assumed` boundaries stay provisional until Slice 0's capture replaces the invented fixture; never mock a response nobody has seen
 
-**Behavior-only**: a test asserts a code path's output or effect, in volume proportional to the risk retired, never locking implementation shape or constants meant to change. These tests become the acceptance criteria.
+Present the strategy. **Behavior-only**: a test asserts a code path's output or effect, in volume proportional to the risk retired, never locking implementation shape or constants meant to change. These tests become the acceptance criteria.
 
 ## Phase 3: Implementation Plan
 
-Write `plans/<slug>.md` (propose a kebab-case slug, or ask) and no other file.
+Write `plans/<slug>.md` (propose a kebab-case slug, or ask) and no source files.
 
-**The reader** hasn't seen this codebase or design, writes idiomatic code given the exact interface and test, and makes a reasonable choice wherever the plan leaves one open. The plan records what they can't know: your decisions (files, signatures, the design's values, the tests proving each task).
+**The reader** is new to this codebase and design, writes idiomatic code given the exact interface and test, and chooses reasonably wherever the plan leaves room. The plan records what they can't know: your decisions (files, signatures, the design's values, the tests proving each task).
 
-**Epistemic status**: fixed outcomes, acceptance criteria and integration contracts bind. The rest is current best operationalization: implementers right-size internal machinery against crash-loud and log each deviation, never silently dropped or gold-plated.
+**Epistemic status**: fixed outcomes, acceptance criteria and integration contracts bind. The rest is current best operationalization: implementers right-size internal machinery against crash-loud and log each deviation; nothing silently dropped or gold-plated.
 
 ### Plan Header
 
@@ -121,7 +121,7 @@ Write `plans/<slug>.md` (propose a kebab-case slug, or ask) and no other file.
 Canonical source for Present for Approval:
 
 - **Chosen approach**: what won and why, one paragraph.
-- **Scope**: **Already implemented** (skip if empty), **Actually new**, **Departures from brief**, drops and additions (`brief asked X → plan delivers Y → why`), **Left out (deliberately)**: machinery considered and not built, each with the trigger that would justify it.
+- **Scope**: **Already implemented** (skip if empty), **Actually new**, **Departures from brief**, drops and additions (`brief asked X → plan delivers Y → why`), **Left out (deliberately)**, skip if empty: machinery considered and not built, each with the trigger that would justify it.
 - **Per-decision matrix**: `| Dimension (stakes) | Decides | M | P | C | Pick (conf). Rationale |`
 - **Worth your input**: Net statements for medium-or-lower-confidence, material-stakes decisions; skip if none.
 - **Architect approaches** (a paragraph each, chosen one marked), **Alternatives Considered**, **Synthesis shape** (label + coupling paragraph).
@@ -134,7 +134,7 @@ Canonical source for Present for Approval:
     - Cost (if Fixed code): <LoC / complexity / perf>
     - Revisit trigger (if Deferred): <signal>
   ```
-  Every finding gets a logged resolution; sticky rejections are never re-litigated, reframed or not. Entries `/praxis:iterate` appends later (angle: iterate) are record.
+  Every finding gets a logged resolution; sticky rejections are never re-litigated, reframed or not. A re-run treats entries `/praxis:iterate` appended later (angle: iterate) as record, not corruption.
 
 ### Task Structure
 
@@ -147,9 +147,10 @@ A task is the smallest unit carrying its own test cycle and worth a fresh review
 
 **Skills to activate:** `praxis:test-driven-development`, `praxis:verification-before-completion`
 **Files:** Create `exact/path/file.py` · Modify `exact/path/existing.py` · Test `tests/exact/path/test.py`
-**Interfaces** (when other tasks depend on this one):
+**Interfaces** (only when other tasks depend on this one):
 - Consumes: [exact signatures from earlier tasks]
 - Produces: [exact names, parameter and return types later tasks rely on]
+
 **Acceptance criteria:** [behavior]: [expected outcome]
 
 - [ ] Write failing test `test_name`: [assertions, with the design's exact values]
@@ -167,17 +168,17 @@ Frontend features note in the header that `praxis:frontend-design` auto-activate
 
 ### Quality Rules
 
-**A step is done when the implementer can write exactly one reasonable thing from it**: unambiguous, not complete. A test step gives the test's name and assertions with the design's exact values; a code step the signature, file and pinned values, with a body only for an algorithm those don't determine or exact copy the design fixes; a verification step the command and its passing output; a reference to another task goes through its Interfaces block. A plan longer than the code it describes has written the code; lines that decide nothing ("TBD", "handle edge cases", "similar to Task N", an undefined type) are the opposite failure.
+**A step is done when the implementer can write exactly one reasonable thing from it**: unambiguous, not complete. A test step gives the test's name and assertions with the design's exact values; a code step the signature, file and pinned values, with a body only for an algorithm those don't determine or exact user-facing text the design fixes; a verification step the command and its passing output; a reference to another task goes through its Interfaces block. Lines that decide nothing ("TBD", "handle edge cases", "similar to Task N", an undefined type) are the opposite failure to transcribing code.
 
 **Plan vocabulary stays in the plan**: task numbers, finding IDs, matrix dimensions, mode labels and architect names never reach code, comments, commit messages or docs, which say the reason in the domain's words.
 
 ### Self-Review
 
-After writing, check and fix inline: (1) every requirement maps to a task; (2) every step meets the Quality Rules, with no gap and no transcript; (3) names match across tasks; (4) each task touches ≤2-3 files; (5) no requirement reads two ways; (6) reverse outcome trace: every task, guard, knob, field and test serves a fixed outcome or named external constraint, else cut it or move it to Left out; (7) Slice 0 captures every `docs`/`assumed` boundary before any task parses it; (8) code blocks dominating the plan → swap bodies for signatures and assertions.
+After writing, check and fix inline: (1) every requirement maps to a task; (2) every step meets the Quality Rules: no gap, and no body the signature and tests already determine; (3) names match across tasks; (4) each task touches ≤2-3 files; (5) no requirement reads two ways; (6) reverse outcome trace: every task, guard, knob, field and test serves a fixed outcome or named external constraint, else cut it or move it to Left out; (7) Slice 0 captures every `docs`/`assumed` boundary before any task parses it; (8) code blocks dominating the plan → swap bodies for signatures and assertions.
 
 ### Trim Pass
 
-Check 6 is your own reverse trace; this is the independent one. Dispatch `praxis:trimmer` via Agent (plan mode) with the plan path, fixed outcomes, ideation file if any, and report path `plans/<slug>/.workspace/trim.md`. Its cut-proposals, L1 (same delivery with less) and L2 (a plan clause not earning its cost), carry outcome-trace, cost, falsifier and confidence. Log each (angle: trim): **L1 accepted** → edit the plan, unbuilt machinery to Left out with its re-add trigger; **L2** → judge against the fixed outcomes, material ones to Worth your input; **Rejected** → cite the outcome or constraint served (three-part articulation for defensive code).
+The independent counterpart of check 6: dispatch `praxis:trimmer` via Agent (plan mode) with the plan path, fixed outcomes, ideation file if any, and report path `plans/<slug>/.workspace/trim.md`. Its cut-proposals, L1 (same delivery with less) and L2 (a plan clause not earning its cost), carry outcome-trace, cost, falsifier and confidence. Log each (angle: trim): **L1 accepted** → edit the plan, unbuilt machinery to Left out with its re-add trigger; **L2** → judge against the fixed outcomes, material ones to Worth your input; **Rejected** → cite the outcome or constraint served (three-part articulation for defensive code).
 
 ### Plan-Document Review
 
@@ -185,4 +186,4 @@ Only after the trim pass's cuts are applied (beside the trimmer it would verdict
 
 ### Present for Approval
 
-Render the Decision Record inline: what and why (Goal, failure mode, Architecture; 3-5 intent-level sentences), scope, matrix, worth your input, architect approaches (after the matrix, which defines the dimensions), synthesis shape, then the Resolution Log ordered **Deferred → Rejected → Fixed** (Fixed by severity, Critical in full, the rest collapsed). End with the plan path and `/praxis:implement`. No code blocks, file lists, task numbers or walkthroughs.
+Render the Decision Record inline in its order, opening with what and why (Goal, failure mode, Architecture; 3-5 intent-level sentences) and ordering the Resolution Log **Deferred → Rejected → Fixed** (Fixed by severity, Critical in full, the rest collapsed). End with the plan path and `/praxis:implement`. No code blocks, file lists, task numbers or walkthroughs.
