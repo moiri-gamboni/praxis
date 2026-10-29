@@ -179,7 +179,31 @@
       "adaptation": "moderate"
     },
     {
+      "praxis": "skills/review/security.md",
+      "upstream": [
+        {
+          "plugin": "claude-code",
+          "path": "security-review.md"
+        }
+      ],
+      "adaptation": "near-copy"
+    },
+    {
       "praxis": "skills/design/SKILL.md",
+      "upstream": [
+        {
+          "plugin": "feature-dev",
+          "path": "commands/feature-dev.md"
+        },
+        {
+          "plugin": "superpowers",
+          "path": "skills/writing-plans/SKILL.md"
+        }
+      ],
+      "adaptation": "significant"
+    },
+    {
+      "praxis": "skills/design/plan-format.md",
       "upstream": [
         {
           "plugin": "feature-dev",
@@ -205,7 +229,7 @@
           "path": "batch.md"
         }
       ],
-      "adaptation": "new"
+      "adaptation": "significant"
     },
     {
       "praxis": "skills/prototype/SKILL.md",

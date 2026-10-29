@@ -145,7 +145,9 @@ Adaptation levels:
 
 Also look for entirely NEW files upstream that don't map to any existing praxis file. These could be new skills, agents, or commands worth adding.
 
-The \"claude-code\" source is not a plugin: \"claude-code/<skill>.md\" holds the prompt of a Claude Code built-in skill, extracted from the compiled binary (its \"last_analyzed\" is a Claude Code version, not a commit). Embedded markdown skills are verbatim; for the rest, only the string/template literals of the prompt code survive, in source order, with \"\${_}\" standing for an interpolation that is not a plain constant. A file that disappears means the built-in skill was removed from Claude Code.
+The \"claude-code\" source is not a plugin: \"claude-code/<skill>.md\" holds the prompt of a Claude Code built-in skill, extracted from the compiled binary (its \"last_analyzed\" is a Claude Code version, not a commit). Skills shipped as markdown files are verbatim. The others are heuristic: only the string/template literals of the prompt code are recovered, in source order, with \"\${_}\" standing for an interpolation that is not a plain constant, and routing code and short strings are not captured. A large change in such a file may be an extraction artifact rather than a prompt change, so say so when you suspect it. A file leaves \"claude-code/\" only when someone removes the skill from the \"skills\" list in upstream.json; the sync fails when a listed skill is missing from the binary.
+
+Upstream files that no mapping below lists (for example the \"claude-security\" plugin, and claude-code's simplify.md and workflow-authoring.md) are tracked for comparison only, which takes precedence over the instruction about new upstream files: report notable changes in them in your summary, but do not propose adding them to praxis wholesale.
 
 Sources that changed: $SOURCES_CHANGED
 

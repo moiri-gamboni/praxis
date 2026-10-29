@@ -3,17 +3,23 @@
 
 Usage: python3 -I scripts/extract-builtin-skills.py BINARY OUTDIR SKILL...
 
-Writes OUTDIR/<skill>.md for each named skill. A skill the binary no longer
-contains prints a warning and gets no file; any other failure (missing binary,
-unparseable bundle) raises and exits non-zero.
+Writes OUTDIR/<skill>.md for each named skill. A skill the extractor cannot
+find, whether Claude Code dropped it or changed how it is registered, writes no
+file: the others are written, then the run exits non-zero naming the missing
+ones (a real removal is a hand edit of the skills list). A skill registered but
+yielding no prompt text, and any other failure (missing binary, unparseable
+bundle, undecodable module), raises.
 
 The Linux binary is a Bun standalone executable: a module graph (the app's JS
 chunks plus embedded files, some zstd-compressed) sits in the .bun section,
-located through a trailer at the end of that section. Two kinds of skill:
+located through a trailer at the end of that section. A module is decoded by
+the encoding byte of its record (1 latin-1, 2 UTF-16LE; .zst is decompressed,
+then UTF-8), strictly. Two kinds of skill:
 
 * Embedded markdown skills ship as SKILL-*.md files. They are found by the
-  `name:` in their frontmatter, and any supporting files listed in the
-  SKILL_FILES map of their loader module are appended. The text is verbatim.
+  `name:` in their frontmatter, or through a registration that loads a bundled
+  SKILL_MD (the loader module is followed to the file). The supporting files
+  of the loader's SKILL_FILES map are appended. The text is verbatim.
 * Inline skills have their prompt in the JS as string/template literals. The
   skill is found by its registration, a `fn({name:<literal or constant>,...})`
   call. The prompt is the set of "prompt-bearing" units (a top-level function,
@@ -42,6 +48,8 @@ import sys
 
 TRAILER = b"\n---- Bun! ----\n"
 MODULE_SIZE = 52          # bytes per module record in the Bun module table
+ENCODING_OFFSET = 48      # the record's encoding byte: 0 binary, 1 latin-1, 2 UTF-16LE
+TEXT_CODECS = {1: "latin-1", 2: "utf-16-le"}
 PROMPT_MIN = 80           # a unit with a literal this long is prompt-bearing
 LITERAL_MIN = 30          # shortest literal worth emitting
 NON_PROMPT_HOPS = 2       # non-prompt-bearing units allowed in a row between prompt-bearing ones
@@ -71,30 +79,38 @@ class Bundle:
         base = ti - 32 - byte_count
         if mod_len % MODULE_SIZE:
             raise RuntimeError(f"{path}: module table length {mod_len} is not a multiple of {MODULE_SIZE}")
-        self.mods = {}
+        self.mods = {}  # name -> (offset, length, encoding byte)
         for i in range(mod_len // MODULE_SIZE):
-            name_off, name_len, off, length = struct.unpack_from("<IIII", self.m, base + mod_off + i * MODULE_SIZE)
+            record = base + mod_off + i * MODULE_SIZE
+            name_off, name_len, off, length = struct.unpack_from("<IIII", self.m, record)
             name = self.m[base + name_off:base + name_off + name_len].decode()
-            self.mods[name] = (base + off, length)
+            self.mods[name] = (base + off, length, self.m[record + ENCODING_OFFSET])
         if not self.mods or not all(n.startswith("/$bunfs/") for n in self.mods):
             raise RuntimeError(f"{path}: module table does not look like a Bun module graph")
         self.texts = {}
         self.chunks = {}
 
-    def raw(self, name):
-        off, length = self.mods[name]
-        return self.m[off:off + length]
+    def is_chunk(self, name):
+        """A JS chunk we can read as text (a few .js modules are zstd-compressed binaries)."""
+        return name.endswith(".js") and self.mods[name][2] in TEXT_CODECS
 
     def contains(self, name, needle):
-        off, length = self.mods[name]
-        return self.m.find(needle, off, off + length) >= 0
+        """Whether the ASCII string `needle` occurs in the stored bytes of the text module `name`."""
+        off, length, encoding = self.mods[name]
+        return self.m.find(needle.encode(TEXT_CODECS[encoding]), off, off + length) >= 0
 
     def text(self, name):
         if name not in self.texts:
-            data = self.raw(name)
+            off, length, encoding = self.mods[name]
+            data = self.m[off:off + length]
             if name.endswith(".zst"):
                 data = subprocess.run(["zstd", "-dc"], input=data, capture_output=True, check=True).stdout
-            self.texts[name] = data.decode("utf-8", "replace")
+                codec = "utf-8"
+            elif encoding in TEXT_CODECS:
+                codec = TEXT_CODECS[encoding]
+            else:
+                raise RuntimeError(f"{name}: module encoding {encoding} is not text")
+            self.texts[name] = data.decode(codec)
         return self.texts[name]
 
     def chunk(self, name):
@@ -157,7 +173,9 @@ def tokens(s, i, end):
     """Yield (kind, start, end), kind in id, num, str, tpl, re, dot (property access), p. Skips whitespace and comments."""
     prev = None
     while i < end:
-        t = TOK.match(s, i).group(0)
+        m = TOK.match(s, i)
+        assert m, "TOK ends in `.`, which matches any character"
+        t = m.group(0)
         a = i
         i += len(t)
         c = t[0]
@@ -222,7 +240,7 @@ class Decl:
     """Top-level declaration: index of its unit and, for `var x=init`, the span of the init."""
     def __init__(self, unit, init=None):
         self.unit = unit
-        self.init = init
+        self.init: tuple[int, int] | None = init
 
 
 def split_units(s):
@@ -350,6 +368,12 @@ class Chunk:
     def decls(self):
         return self.parse()[1]
 
+    def init_span(self, ident):
+        d = self.decls.get(ident)
+        if not d or not d.init:
+            raise RuntimeError(f"{self.name}: `{ident}` is not declared with an initialiser")
+        return d.init
+
     def unit_at(self, pos):
         return bisect.bisect_right([a for a, _ in self.units], pos) - 1
 
@@ -413,7 +437,7 @@ SIMPLE_ESCAPES = {"n": "\n", "t": "\t", "r": "\r", "b": "\b", "f": "\f", "v": "\
 
 
 def cook(raw):
-    def one(m):
+    def one(m: re.Match[str]) -> str:
         g = m.group(1)
         if g[0] == "u" and len(g) > 1:
             return chr(int(g[2:-1] if g[1] == "{" else g[1:], 16))
@@ -509,41 +533,98 @@ def frontmatter_name(text):
     return m.group(1).strip("'\"") if m else None
 
 
-def embedded_skill(bundle, skill):
-    """Text of the embedded markdown skill named `skill` with its supporting files, or None."""
-    found = []
-    for name in bundle.mods:
-        if name.endswith((".md", ".md.zst")):
-            if frontmatter_name(bundle.text(name)) == skill:
-                found.append(name)
-    if not found:
-        return None
-    parts = []
-    for name in found:
-        parts.append(bundle.text(name).rstrip("\n"))
-        for rel, path in supporting_files(bundle, name):
-            parts.append(f"<!-- ===== FILE: {rel} ===== -->\n" + bundle.text(path).rstrip("\n"))
-    return "\n\n".join(parts) + "\n"
+def loaded_file(bundle, chunk, a, b, depth=0):
+    """Module name of the embedded file loaded by the expression chunk.s[a:b]: a string path, an alias
+    of one, or a call on one. A path ending in .js is a wrapper module exporting the file as `default`."""
+    s = chunk.s
+    for kind, x, y in tokens(s, a, b):
+        if kind == "str" and s.startswith("/$bunfs/", x + 1):
+            path = s[x + 1:y - 1]
+            if not path.endswith(".js"):
+                return path
+            wrapper = bundle.chunk(path)
+            return loaded_file(bundle, wrapper, *wrapper.init_span(wrapper.exports["default"]), depth=depth + 1)
+    if depth < 8:
+        for ident in reversed(identifiers(s, a, b)):
+            d = chunk.decls.get(ident)
+            if d and d.init:
+                return loaded_file(bundle, chunk, *d.init, depth=depth + 1)
+    raise RuntimeError(f"{chunk.name}: cannot tell which embedded file `{s[a:b]}` loads")
 
 
-def supporting_files(bundle, skill_path):
-    """[(relative path, module name)] from the SKILL_FILES map of the module that loads skill_path."""
-    needle = skill_path.encode()
+def object_entries(s, a, b):
+    """[(key, value start, value end)] for the entries of the object literal s[a:b]."""
+    out = []
+    depth = 0
+    key = start = None
+    for kind, x, y in tokens(s, a, b):
+        if kind == "p":
+            c = s[x]
+            if c in "([{":
+                depth += 1
+            elif c in ")]}" or (c == "," and depth == 1):
+                depth -= c != ","
+                if depth <= 1 and key is not None:
+                    out.append((key, start, x))
+                    key = start = None
+            elif c == ":" and depth == 1 and key is not None and start is None:
+                start = y
+        elif depth == 1 and key is None and kind in ("str", "id"):
+            key = s[x + 1:y - 1] if kind == "str" else s[x:y]
+    return out
+
+
+def skill_files(bundle, loader):
+    """(SKILL.md module, [(relative path, module)]) from a loader chunk exporting SKILL_MD and maybe SKILL_FILES."""
+    md = loaded_file(bundle, loader, *loader.init_span(loader.exports["SKILL_MD"]))
+    files = []
+    if "SKILL_FILES" in loader.exports:
+        entries = object_entries(loader.s, *loader.init_span(loader.exports["SKILL_FILES"]))
+        files = [(rel, loaded_file(bundle, loader, x, y)) for rel, x, y in entries]
+    return md, files
+
+
+def embedded_loads(bundle, skill):
+    """[(md module, supporting files)] of the embedded markdown skills whose frontmatter names `skill`."""
     out = []
     for name in bundle.mods:
-        if not name.endswith(".js") or not bundle.contains(name, needle) or not bundle.contains(name, b"SKILL_MD"):
-            continue
-        s = bundle.text(name)
-        exported = {exp: local for text in EXPORT_RE.findall(s) for local, exp in specifiers(text)}
-        local = exported.get("SKILL_FILES")
-        if not local:
-            continue
-        loads = dict(re.findall(r'(?:var|,)\s*([\w$]+)=[\w$]+\("(/\$bunfs/root/[^"]+)"\)', s))
-        m = re.search(r"(?:var|,)\s*" + re.escape(local) + r"=\{([^}]*)\}", s)
-        if not m:
-            raise RuntimeError(f"{name}: exports SKILL_FILES but its map was not found")
-        out += [(rel, loads[var]) for rel, var in re.findall(r'"([^"]+)":([\w$]+)', m.group(1))]
+        if name.endswith((".md", ".md.zst")) and frontmatter_name(bundle.text(name)) == skill:
+            files = []
+            for n in bundle.mods:
+                if bundle.is_chunk(n) and bundle.contains(n, name) and bundle.contains(n, "SKILL_MD"):
+                    md, more = skill_files(bundle, bundle.chunk(n))
+                    if md == name:
+                        files += more
+            out.append((name, files))
     return out
+
+
+def registered_loads(bundle, skill, roots):
+    """[(md module, supporting files)] when a registration of `skill` loads a bundled SKILL_MD, itself or in a
+    unit it calls; [] when it does not. Raises if it does but the loader cannot be followed."""
+    scanned = []
+    for chunk, i in roots:
+        scanned.append(chunk.s[slice(*chunk.units[i])])
+        for ident in chunk.refs(i):
+            hit = lookup(bundle, chunk, ident)
+            if hit:
+                scanned.append(hit[0].s[slice(*hit[0].units[hit[1].unit])])
+    if not any("SKILL_MD" in text for text in scanned):
+        return []
+    loaders = {m for text in scanned for m in re.findall(r'import\("(/\$bunfs/root/[^"]+\.js)"\)', text)
+               if m in bundle.mods and "SKILL_MD" in bundle.chunk(m).exports}
+    if not loaders:
+        raise RuntimeError(f"{skill}: its registration loads a bundled SKILL_MD but no loader module was found")
+    return [skill_files(bundle, bundle.chunk(m)) for m in sorted(loaders)]
+
+
+def embedded_text(bundle, loads):
+    parts = []
+    for md, files in loads:
+        parts.append(bundle.text(md).rstrip("\n"))
+        for rel, path in files:
+            parts.append(f"<!-- ===== FILE: {rel} ===== -->\n" + bundle.text(path).rstrip("\n"))
+    return "\n\n".join(parts) + "\n"
 
 
 # --- Inline skills ------------------------------------------------------
@@ -551,11 +632,11 @@ def supporting_files(bundle, skill_path):
 def registrations(bundle, skill):
     """[(chunk, unit index)] of every `fn({name:<skill>,...})` registration. The name is a string
     literal or a constant; a constant is only resolved when its chunk contains the literal."""
-    literal = ('"' + skill + '"').encode()
-    named = {n for n in bundle.mods if n.endswith(".js") and bundle.contains(n, literal)}
+    literal = '"' + skill + '"'
+    named = {n for n in bundle.mods if bundle.is_chunk(n) and bundle.contains(n, literal)}
     hits = []
     for name in bundle.mods:
-        if not name.endswith(".js") or not bundle.contains(name, b"({name:"):
+        if not bundle.is_chunk(name) or not bundle.contains(name, "({name:"):
             continue
         chunk = bundle.chunk(name)
         for pos, ref in chunk.registrations:
@@ -597,10 +678,7 @@ def reachable(bundle, roots):
     return order
 
 
-def inline_skill(bundle, skill):
-    roots = registrations(bundle, skill)
-    if not roots:
-        return None
+def inline_text(bundle, skill, roots):
     order = reachable(bundle, roots)
     chunk_rank = {}
     for (cname, i), rank in order.items():
@@ -621,8 +699,20 @@ def inline_skill(bundle, skill):
             if len(text) >= LITERAL_MIN:
                 literals.append(text)
     if not literals:
-        return None
+        raise RuntimeError(f"{skill}: registered in {roots[0][0].name} but no prompt literal was reached")
     return INLINE_HEADER.format(skill) + "".join(f"\n<!-- literal -->\n{t}\n" for t in literals)
+
+
+def extract(bundle, skill):
+    """Text for `skill`, or None when the binary has no such skill."""
+    loads = embedded_loads(bundle, skill)
+    if loads:
+        return embedded_text(bundle, loads)
+    roots = registrations(bundle, skill)
+    if not roots:
+        return None
+    loads = registered_loads(bundle, skill, roots)
+    return embedded_text(bundle, loads) if loads else inline_text(bundle, skill, roots)
 
 
 def main(argv):
@@ -631,15 +721,18 @@ def main(argv):
     binary, outdir, skills = argv[1], argv[2], argv[3:]
     bundle = Bundle(binary)
     os.makedirs(outdir, exist_ok=True)
+    missing = []
     for skill in skills:
-        text = embedded_skill(bundle, skill)
+        text = extract(bundle, skill)
         if text is None:
-            text = inline_skill(bundle, skill)
-        if text is None:
-            print(f"warning: built-in skill '{skill}' not found in {binary}", file=sys.stderr)
+            missing.append(skill)
             continue
         with open(os.path.join(outdir, skill + ".md"), "w", encoding="utf-8") as f:
             f.write(text)
+    if missing:
+        sys.exit(f"error: built-in skill(s) not found in {binary}: {', '.join(missing)}\n"
+                 "If Claude Code dropped them, remove them from the skills list in upstream.json; "
+                 "otherwise the extractor no longer recognises how they are registered.")
 
 
 if __name__ == "__main__":
