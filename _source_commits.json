@@ -1,4 +1,6 @@
 {
+  "claude-code": "2.1.312",
+  "claude-security": "f8c5e7a1dcb71b10cb74586224b5401f3de5db28",
   "code-review": "f8c5e7a1dcb71b10cb74586224b5401f3de5db28",
   "commit-commands": "f8c5e7a1dcb71b10cb74586224b5401f3de5db28",
   "feature-dev": "f8c5e7a1dcb71b10cb74586224b5401f3de5db28",
