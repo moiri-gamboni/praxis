@@ -128,7 +128,7 @@ Every finding lands in your message (the user only sees what's here), once, in t
 [same structure, advisory]
 
 ## Not Worth Fixing (<count>)
-- **[reviewer]** [<severity>] <description> [file:line] — <the verifier's reason>
+- **[reviewer]** [<severity>] [confidence: <0-100>] <description> [file:line] — <the verifier's reason>
 
 ## Disputed (<count>)
 - **[reviewer]** [<severity>] [confidence: <0-100>]: <claim> [file:line]

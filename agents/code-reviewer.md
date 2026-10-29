@@ -73,7 +73,7 @@ State what you're reviewing and the mode.
 
 Per issue:
 - Clear description
-- **Severity**: Critical (a bug, data loss, security exposure, explicit guideline violation or plan deviation; must fix before merge) | Important (should fix) — the impact if real
+- **Severity**: Critical (a bug, data loss, a security or privacy exposure, or a deviation from the plan's fixed outcomes; must fix before merge; a broken process or style rule is Important at most) | Important (should fix) — the impact if real
 - **Confidence**: NN — one-line justification (`below the bar` after the number when under 80)
 - File path + line number
 - Specific guideline / plan requirement / bug explanation

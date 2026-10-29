@@ -20,7 +20,7 @@ The dispatcher provides:
 
 **Re-review** (the fix diff plus the prior findings the fix round answered): verdict each one `Addressed` or `Not addressed` (it still reproduces), one line each (`- [prior reporter, conf] <title> (file:line) — Addressed|Not addressed: <evidence>`), then run the gap sweep over the fix diff only: callers, removed guards, and comments or docs the fix made stale. No cross-unit pass.
 
-Judge against the files as they are now: if the branch moved after the sweeps, the current state governs, and a finding already fixed is `Disputed` with the commit that fixed it.
+Judge against the files as they are now: if the branch moved after the sweeps, the current state governs, and a finding already fixed is `Disputed` with the commit that fixed it (in Re-review mode it is simply `Addressed`).
 
 You have full shell access — run tests, git, checkouts, whatever you need — but never edit the code: you report findings, you don't fix them. Reproduce by running when a command can settle it, not only by reading. Reports can be wrong, quoted line numbers included.
 
