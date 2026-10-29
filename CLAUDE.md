@@ -45,7 +45,7 @@ scripts/analyze-upstream.sh --auto
 scripts/sync-upstream.sh
 ```
 
-The `upstream` branch stores verbatim copies. Synced commit hashes are recorded per-source in `_source_commits.json` on that branch.
+The `upstream` branch stores verbatim copies. Synced commit hashes are recorded per-source in `_source_commits.json` on that branch. The last reviewed sync is `last_analyzed_upstream_commit` in `upstream.json` (per source: `sources.<name>.last_analyzed`); update both after every review, scripted or by hand.
 
 ### Adding a New Upstream Plugin
 

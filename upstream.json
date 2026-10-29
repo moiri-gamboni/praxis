@@ -2,23 +2,28 @@
   "sources": {
     "superpowers": {
       "repo": "obra/superpowers",
-      "path": "."
+      "path": ".",
+      "last_analyzed": "2ce8aa15d05bd57213e6f746f953aafb7ded7a8b"
     },
     "feature-dev": {
       "repo": "anthropics/claude-plugins-official",
-      "path": "plugins/feature-dev"
+      "path": "plugins/feature-dev",
+      "last_analyzed": "f8c5e7a1dcb71b10cb74586224b5401f3de5db28"
     },
     "pr-review-toolkit": {
       "repo": "anthropics/claude-plugins-official",
-      "path": "plugins/pr-review-toolkit"
+      "path": "plugins/pr-review-toolkit",
+      "last_analyzed": "f8c5e7a1dcb71b10cb74586224b5401f3de5db28"
     },
     "commit-commands": {
       "repo": "anthropics/claude-plugins-official",
-      "path": "plugins/commit-commands"
+      "path": "plugins/commit-commands",
+      "last_analyzed": "f8c5e7a1dcb71b10cb74586224b5401f3de5db28"
     },
     "frontend-design": {
       "repo": "anthropics/claude-plugins-official",
-      "path": "plugins/frontend-design"
+      "path": "plugins/frontend-design",
+      "last_analyzed": "f8c5e7a1dcb71b10cb74586224b5401f3de5db28"
     }
   },
   "mappings": [
@@ -290,5 +295,6 @@
       "upstream": [],
       "adaptation": "new"
     }
-  ]
+  ],
+  "last_analyzed_upstream_commit": "c9d845e839c98dca72932b93d7479857c14767ef"
 }
