@@ -98,7 +98,7 @@ After all units merged:
 6. **Invoke `Skill: "praxis:verification-before-completion"`** before PR.
 7. Resolve conflicting doc edits from workers
 8. Fix remaining issues — routed per Phase 3's context economy — and re-run tests
-9. **Sweep worker worktrees + local branches**: `git worktree remove <path>` then `git branch -d <branch>` for each. Remotes stay for audit; sweep them once the PR merges.
+9. **Sweep worker worktrees + local branches**: `git worktree remove <path>` then `git branch -d <branch>` for each. Refused (uncommitted files, often boundary captures) → keep that worktree and report its `git status`; never `--force`. Remotes stay for audit; sweep them once the PR merges.
 
 ## Phase 5: Final PR
 
