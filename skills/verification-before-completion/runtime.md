@@ -20,9 +20,9 @@ The surface is where a user — human or programmatic — meets the change. That
 |---|---|---|
 | CLI / TUI | terminal | type the command, capture stdout, stderr, exit code, or the pane |
 | Server / API | socket | send the request, capture the full response (status, headers, body) |
-| GUI | pixels | drive it in a headless browser or under xvfb, screenshot |
+| GUI | pixels | drive it in a headless browser or under xvfb, taking selectors from the rendered page (accessibility snapshot or DOM), never from source; wait on the element you inspect, not on network idle; screenshot, with the console and failed requests |
 | Library | package boundary | sample code through the public export — `import pkg`, not `import ./src/...` |
-| Prompt / agent config / skill | the agent | run the agent on a task that exercises the change, capture its behavior |
+| Prompt / agent config / skill | the agent | run the agent on a task that exercises the change, and again without it (the old version, or none): a result both runs share shows nothing; read the transcripts, not just the final outputs |
 | CI workflow | Actions | dispatch it, read the run |
 
 For a UI change, the states and accessibility checks to drive are in `skills/frontend-design/fundamentals.md`.
@@ -86,7 +86,7 @@ These aren't a checklist — pick the ones the change points at. A probe that fi
 
 ## Capture
 
-Stdout, response bodies, screenshots, pane dumps — raw and unedited. Captured output is evidence; your memory isn't. Something unexpected? Don't route around it — capture it, note it, decide whether it's the change or the environment. Unrelated breakage is a finding, not noise. A run that crosses an external boundary for the first time also yields the capture `praxis:observe-before-model` asks for: keep it.
+Stdout, response bodies, screenshots with the browser console beside them, pane dumps — raw and unedited. Captured output is evidence; your memory isn't. Something unexpected? Don't route around it — capture it, note it, decide whether it's the change or the environment. Unrelated breakage is a finding, not noise. A run that crosses an external boundary for the first time also yields the capture `praxis:observe-before-model` asks for: keep it.
 
 **Evidence has to reach the reader.** A file path is evidence only if the reader can open it; otherwise keep what matters inline — pane captures and response bodies travel in the report.
 
