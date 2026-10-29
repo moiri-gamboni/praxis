@@ -63,13 +63,13 @@ A source tracked only for comparison (nothing derives from it yet) needs step 1 
 
 ## Versioning
 
-The patch version in `plugin.json` and `marketplace.json` is auto-bumped by a pre-commit git hook. Claude Code uses the version string to detect plugin updates; without a bump, new content won't reach users.
+The patch version in `plugin.json` is auto-bumped by a pre-commit git hook (a local `.git/hooks/pre-commit`, not tracked; a fresh clone bumps by hand). `marketplace.json` carries no version: Claude Code reads `plugin.json`'s, and setting both is what its docs warn against. Claude Code uses the version string to detect plugin updates; without a bump, new content won't reach users.
 
 Bump MAJOR or MINOR manually when appropriate:
 - **MINOR**: new skills, commands, or agents; significant behavior changes to existing ones
 - **MAJOR**: breaking changes (renamed/removed skills or commands, changed trigger conditions)
 
-When bumping manually, update both `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json`. The hook will still increment patch on top of whatever you set.
+When bumping manually, edit `.claude-plugin/plugin.json`. The hook will still increment patch on top of whatever you set.
 
 ## License
 
