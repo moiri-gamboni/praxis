@@ -10,6 +10,8 @@ Build the first working version of something real — fast, but as a base worth 
 
 **Task:** "$ARGUMENTS"
 
+**Name resolution:** `praxis:`-prefixed skill and agent names are the plugin registrations; a local checkout registers them bare. If a referenced skill or agent resolves in neither form, tell the user what's missing instead of silently substituting a different one.
+
 ## Working principle
 
 Deliberate about what lasts, ruthless about scope. Spend judgment on the choices that are expensive to reverse — stack, data model, the seams between parts — and defer everything that isn't the core: features, edge cases, polish. Minimal tech debt by construction, not by later cleanup. Lean on parallel subagents for exploration and for separable building, so the main thread stays on decisions and its context stays clean.
@@ -90,6 +92,8 @@ The **minimal end-to-end path** that runs and also seats future work — the rig
 - **Test** where correctness is non-obvious or a contract others build on — test-first when writing the test clarifies that contract before the code, which is often faster.
 - **Skip** glue, scaffolding, and anything a single run verifies — lean on Phase 5 instead.
 
+These test calls override `praxis:test-driven-development`'s default for prototype-scoped code.
+
 ### Output: Decision record
 
 The Choices table + the slice + the test calls. Seeds the handoff's "decisions + tradeoffs".
@@ -118,7 +122,7 @@ Build the slice to the standard a maintainer would inherit cleanly — clear str
 - **Parallelize the separable.** A unit with a clean contract and its own surface → a subagent, the contract handed to it inline. Coupled, shared-state, or small → one tight session. Don't split what isn't separable; don't serialize what is.
 - **TDD where Phase 2 said it pays** — failing test, minimal pass, refactor — on the core logic and contracts. Elsewhere, build and let Phase 5 carry correctness.
 - **Slice 0 first: a committed end-to-end run on real input.** At each `docs` or `assumed` boundary, `praxis:observe-before-model` — current docs, one real call captured, raw request/response logged and kept. That running version is your floor; after it you're never empty-handed. Keep it green; commit in small semantic steps.
-- **Web UI?** It's usually the demo surface — make it credible and non-generic, not gold-plated. Use the `praxis:frontend-design` skill if it's available.
+- **Web UI?** It's usually the demo surface — make it credible and non-generic, not gold-plated. Load `Skill: "praxis:frontend-design"`.
 
 ## Phase 5: Verify
 
@@ -127,6 +131,8 @@ Trust evidence, not the agent's own say-so about code it just wrote. Run it, sho
 - Deterministic logic → an input whose correct answer you fixed independently (from the spec, or worked by hand), shown matching.
 - Non-deterministic or model output → spot-check against explicit criteria, validate shape and ranges, flag low-confidence cases for a human.
 - Data → reconcile against the source of truth, not the pipeline's report of itself.
+
+Invoke `Skill: "praxis:verification-before-completion"` before claiming the slice works; where and how to run it is in `${CLAUDE_SKILL_DIR}/../verification-before-completion/runtime.md`.
 
 Two traps that make checks lie:
 
@@ -138,7 +144,7 @@ Leave no junk behind from runs against live resources. Report what you checked, 
 ## Phase 6: Iterate or wrap
 
 - **Budget left** → the next slice with the most `impact × confidence ÷ time`, built to the same standard — not gold-plating a finished core.
-- **Handoff** — the doc that makes this a base someone can build on:
+- **Handoff** — the doc that makes this a base someone can build on, written to `plans/<slug>-handoff.md` (kebab-case slug from the task):
 
 ```
 - What it is + how to run — one-line command; input committed; a sample of real output

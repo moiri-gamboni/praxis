@@ -23,7 +23,7 @@ Stops at: file paths, function signatures, integration points, implementation st
 
 Build light awareness of the relevant area:
 
-- Dispatch one `praxis:code-explorer` agent at start: "Lay of the land in [area]? Patterns, what's already built that might relate, what would a feature here need to fit with?"
+- When there is a codebase, dispatch one `praxis:code-explorer` agent at start: "Lay of the land in [area]? Patterns, what's already built that might relate, what would a feature here need to fit with?"
 - Inline lookups (Read, Grep, Glob) when user proposes specifics
 - Don't go deep — that's `/praxis:design`. You're checking fit, not designing
 
@@ -36,12 +36,13 @@ For non-trivial features, look for existing solutions before assuming custom is 
 - Web search for libraries, services, canonical implementations (Exa for descriptive discovery; WebSearch for known entities)
 - Evaluate: maturity, fit with codebase, license, operational cost
 - Report in the ideation doc: what was considered, what was rejected, why
+- Search skipped as trivial: leave the Prior Art Investigated section empty, so `/praxis:design` runs its own pass
 
 Default leans build-vs-buy in favor of buy unless there's clear reason to build.
 
 ## Conversation Shape
 
-**Understand first.** Check CLAUDE.md, recent commits, area files. Ask only for what code/context can't answer and, unless the reason is obvious, say what the answer would change. One question at a time when answers compound; batch only when questions are genuinely independent. Ask in plain text — don't use `AskUserQuestion`; ideation needs open-ended dialogue, not constrained choices.
+**Understand first.** Check CLAUDE.md, recent commits, area files. Ask only for what code/context can't answer (priorities, external constraints, preferences) and, unless the reason is obvious, say what the answer would change. One question at a time when answers compound; batch only when questions are genuinely independent. Ask in plain text — don't use `AskUserQuestion`; ideation needs open-ended dialogue, not constrained choices.
 
 **Find out which build choices they own.** Early on, ask which choices about how it gets made (platform, language, libraries, medium) they want to make and which they hand to you. A pick you make for them goes under Key Constraints Surfaced tagged `[assumed]`, never as a `[user]` decision; when they handed it to you, quote that ("you pick") so design states it instead of re-asking.
 
@@ -62,8 +63,6 @@ Default leans build-vs-buy in favor of buy unless there's clear reason to build.
 Don't soften, don't hedge, don't ask to verify what you can determine. Multiple observations: group by category (codebase / framing / prior art), lead with highest impact, no count cap.
 
 **Hedges don't survive compression — preserve them explicitly.** A user musing ("probably not, but worth thinking about", "not sure", "maybe") is an **Open Question**, never a constraint. Writing a hedge into the doc in binding language is how invented contracts are born: each later phase inherits the closed form, builds machinery to satisfy it, and nobody re-derives it because nothing marks whose constraint it was. Tag every constraint's provenance in the doc (see template) and quote the user's actual words for `[user]` items.
-
-Ask only for what you genuinely can't determine: priorities, external constraints, preferences.
 
 **Explore alternatives.** 2-3 high-level approaches with tradeoffs. Lead with recommendation + reasoning. Don't settle on the first workable idea.
 
@@ -105,4 +104,4 @@ Slug: kebab-case, descriptive. Propose; user can override.
 
 ## After Approval
 
-Suggest `/praxis:design`. It reads the ideation file and skips prior-art search (already done).
+Suggest `/praxis:design`. It reads the ideation file and skips its prior-art search when the Prior Art Investigated section is non-empty.

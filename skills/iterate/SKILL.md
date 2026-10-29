@@ -17,7 +17,7 @@ Work through small changes to existing work: one item at a time, each routed to 
 Detect what exists for the work area:
 
 - Plan file `plans/<slug>.md` (from `/praxis:design`, or a minimal one left by a prior iterate session) and ideation file `plans/<slug>-ideation.md`
-- Prototype handoff doc, if the work came through `/praxis:prototype`
+- Prototype handoff doc (`plans/<slug>-handoff.md`), if the work came through `/praxis:prototype`
 - Open PR (`gh pr view`), integration branch
 
 Artifacts present → changes land on their branch and the artifact-effects table applies to the existing files. Nothing present → solo mode: same table, file created lazily (below).
@@ -38,8 +38,11 @@ Any item that touches an external boundary (API, SDK, CLI/subprocess, file forma
 
 - **Bug / regression / test failure** → `Skill: "praxis:systematic-debugging"` (root cause before any fix; its 3-failed-fixes rule escalates here to a `/praxis:design` conversation, not fix #4), then `Skill: "praxis:test-driven-development"` (failing test reproducing the bug).
 - **Small new behavior** → `Skill: "praxis:test-driven-development"`. If the "small" feature turns out to need contract decisions across components, stop: that's `/praxis:design` (or `/praxis:implement` if already designed).
-- **Scope change** → amend the artifacts first (table below), then implement via the lane the change lands in. A user-initiated change needs no confirmation; stop only when it collides with a prior `[user]` decision or sticky rejection — surface the collision in one line and let the user pick.
+- **Non-behavioral item** (docs, config, rename, cleanup) → no new test (the TDD gate: a test pinning source text or shape isn't behavior); the existing suite stays green; verify by running or rendering it.
+- **Scope change** → amend the artifacts first (table below), then implement via the matching route above. A user-initiated change needs no confirmation; stop only when it collides with a prior `[user]` decision or sticky rejection — surface the collision in one line and let the user pick.
 - **Goal clarification** → record it: a constraint with a provenance tag, or an `[assumed]` → `[user]` upgrade quoting their words. No code unless something now contradicts the clarified goal.
+
+Per-item verification means the item's tests and the typecheck; the Wrap is where the real-input run happens.
 
 Per item, before its commit: `Skill: "praxis:verification-before-completion"`. Delete the processed diagnostics added while investigating (prints of intermediate state), or demote the essential piece into the regression test; the raw capture at a boundary stays. Documented behavior changed → `Skill: "diataxis:diataxis"` (bare: `diataxis`; separate plugin — if it resolves in neither form, surface `/plugin marketplace add moiri-gamboni/diataxis-skill`), classify the kind(s) touched, update those docs.
 
@@ -49,18 +52,18 @@ Record only what a future session would otherwise re-litigate: decisions with ra
 
 | Item outcome | Effect |
 |---|---|
-| Fix that fired through trimmed/leaned-out machinery or a Rejected/Deferred finding | Falsifier evidence logged against that Resolution Log entry (angle: iterate) |
+| A bug whose cause is machinery the plan trimmed or leaned out, or a Rejected/Deferred item | Falsifier evidence logged against that Resolution Log entry (angle: iterate) |
 | Fix with no decision content | Commit only — nothing recorded |
 | Design decision made along the way | Resolution Log entry (angle: iterate); new deliverable → Scope "Actually new" line |
 | Scope change | **Fixed outcomes** amended, dated; check whether the new scope unsticks prior sticky rejections — the user contradicting their earlier self is the one legitimate unsticking event |
 | Constraint / clarification | Key Constraints entry with provenance tag (`[user]` quoting their words / `[fact]` citing / `[assumed]`) |
-| Prototype handoff exists | Keep its "Decisions + tradeoffs", "Solid vs provisional", and "next" sections current |
+| Prototype handoff exists | Keep its "Decisions + tradeoffs", "Solid vs provisional", and "Assumptions, limits, next" sections current |
 
-**Lazy file (solo mode).** On the first entry-worthy event — not before — create `plans/<slug>.md` with only the sections other workflows consume, in their exact formats: Plan Header (Goal + Fixed outcomes), Key Constraints (provenance-tagged, per `praxis:ideate`'s template), Resolution Log (per `/praxis:design`'s entry format). No matrix, no tasks, no architect sections — those coordinate a pipeline that didn't run. A session with no entry-worthy events creates nothing; that is the correct outcome, not a gap.
+**Lazy file (solo mode).** On the first entry-worthy event — not before — create `plans/<slug>.md` with only the sections other workflows consume, in the formats of `${CLAUDE_SKILL_DIR}/../design/plan-format.md` (read it; don't invoke `/praxis:design`): Plan Header (Goal + Fixed outcomes), Key Constraints (provenance-tagged), Resolution Log. No matrix, no tasks, no architect sections — those coordinate a pipeline that didn't run. A session with no entry-worthy events creates nothing; that is the correct outcome, not a gap.
 
 ## Wrap (after the batch, not per item)
 
-Check the batch against the done-lines from above on real input, not only tests (how: `praxis:verification-before-completion`'s `runtime.md`). Then review scaled to the batch's risk: trivial → verification evidence suffices; error handling or fallbacks touched → one `praxis:silent-failure-hunter` via Agent on the batch diff; comments or docs added or changed → one `praxis:comment-analyzer` via Agent on the batch diff, whatever the size; multi-file or risky → `Skill: "praxis:review"` scoped to the batch range — in its Re-Review mode when the batch answers prior review findings.
+Check the batch against the done-lines from above on real input, not only tests (how: `${CLAUDE_SKILL_DIR}/../verification-before-completion/runtime.md`). Then review scaled to the batch's risk: trivial → verification evidence suffices; error handling or fallbacks touched → one `praxis:silent-failure-hunter` via Agent on the batch diff; comments or docs added or changed → one `praxis:comment-analyzer` via Agent on the batch diff, whatever the size; multi-file or risky → `Skill: "praxis:review"` scoped to the batch range — in its Re-Review mode when the batch answers prior review findings.
 
 A delegated build (a `praxis:implementer` or any other agent wrote the code) doesn't move the Wrap: this session runs it on the delegate's diff before the work lands (a PR opened or updated, a merge, a push to a shared branch). The delegate's own review pass and any CI review check are inputs to it, never substitutes.
 

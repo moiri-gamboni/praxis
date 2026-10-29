@@ -2,7 +2,7 @@
 name: document
 description: Use when a documentation corpus needs systematic work — auditing existing docs against reader needs, restructuring a docs tree, or producing the documentation set for a feature or product. Not for a single small doc edit.
 argument-hint: "[docs path, feature, or git range]"
-allowed-tools: Bash(git*), Read, Write, Edit, Glob, Grep, Agent, Task, Skill, AskUserQuestion
+allowed-tools: Bash(git mv:*), Bash(git rm:*), Bash(git diff:*), Bash(git log:*), Bash(git status:*), Read, Write, Edit, Glob, Grep, Agent, Task, Skill, AskUserQuestion
 ---
 
 # Document
@@ -22,6 +22,7 @@ A single document, or a couple of small edits → no orchestration: load `Skill:
 - Argument wins: a docs path, a feature name, or a git range whose diff names the docs to work on.
 - Otherwise discover: `README*`, `docs/**`, root-level `*.md`, site sources. Present the inventory (path, rough size, one-line guess of what each is); confirm scope when ambiguous.
 - Capture the product context every later brief needs: what the project is and who its practitioners are, in a paragraph.
+- **No docs exist** for the feature or product (empty inventory): skip Step 2's per-page dispatch, keeping its load of `diataxis:diataxis`. Dispatch one `praxis:code-explorer` via Agent on the feature (what it does, who uses it, its entry points) to return the questions a practitioner would ask. From those, propose a set of documents and the kind each serves, entering Step 3's table as new pages (current kind: none; gaps: those questions). Step 4's writers take the explorer's findings as source material.
 
 ## Step 2: Classify (Parallel)
 
