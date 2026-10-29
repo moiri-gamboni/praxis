@@ -7,8 +7,15 @@
 # Records per-source commit hashes in _source_commits.json on the upstream
 # branch so analyze-upstream.sh can track what changed per source.
 #
+# A source with "builtin": true in upstream.json is not a GitHub repo: it lists
+# Claude Code built-in "skills" whose prompts live inside the installed claude
+# binary. They are extracted (scripts/extract-builtin-skills.py) from the newest
+# version in $CLAUDE_VERSIONS_DIR (default ~/.local/share/claude/versions) into
+# <source>/<skill>.md, and the version string is recorded where other sources
+# record a commit hash.
+#
 # Usage: scripts/sync-upstream.sh
-# Requires: jq
+# Requires: jq, python3, zstd (for built-in sources)
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -20,7 +27,8 @@ if ! command -v jq &>/dev/null; then
 fi
 
 # --- Read sources from upstream.json ---
-readarray -t PLUGINS < <(jq -r '.sources | to_entries[] | "\(.key) \(.value.repo) \(.value.path)"' "$UPSTREAM_JSON")
+readarray -t PLUGINS < <(jq -r '.sources | to_entries[] | select(.value.builtin | not) | "\(.key) \(.value.repo) \(.value.path)"' "$UPSTREAM_JSON")
+readarray -t BUILTINS < <(jq -r '.sources | to_entries[] | select(.value.builtin) | .key' "$UPSTREAM_JSON")
 
 # --- Ensure upstream branch exists (prefer remote, fallback to create) ---
 cd "$REPO_ROOT"
@@ -86,6 +94,22 @@ for entry in "${PLUGINS[@]}"; do
 
   # Remove .git directories from copies
   find "$WORK_DIR/$plugin" -name ".git" -type d -exec rm -rf {} + 2>/dev/null || true
+done
+
+# --- Extract built-in skill prompts from the installed Claude Code binary ---
+VERSIONS_DIR="${CLAUDE_VERSIONS_DIR:-$HOME/.local/share/claude/versions}"
+for builtin_name in "${BUILTINS[@]}"; do
+  version=$(ls "$VERSIONS_DIR" | grep -E '^[0-9]+(\.[0-9]+)+$' | sort -V | tail -1 || true)
+  if [ -z "$version" ]; then
+    echo "Error: no Claude Code version found in $VERSIONS_DIR" >&2
+    exit 1
+  fi
+  readarray -t skills < <(jq -r --arg s "$builtin_name" '.sources[$s].skills[]' "$UPSTREAM_JSON")
+
+  echo "Extracting $builtin_name $version (${#skills[@]} skills)..."
+  rm -rf "${WORK_DIR:?}/$builtin_name"
+  python3 -I "$REPO_ROOT/scripts/extract-builtin-skills.py" "$VERSIONS_DIR/$version" "$WORK_DIR/$builtin_name" "${skills[@]}"
+  SOURCE_COMMITS[$builtin_name]=$version
 done
 
 # --- Write per-source commit hashes ---

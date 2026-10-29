@@ -145,6 +145,8 @@ Adaptation levels:
 
 Also look for entirely NEW files upstream that don't map to any existing praxis file. These could be new skills, agents, or commands worth adding.
 
+The \"claude-code\" source is not a plugin: \"claude-code/<skill>.md\" holds the prompt of a Claude Code built-in skill, extracted from the compiled binary (its \"last_analyzed\" is a Claude Code version, not a commit). Embedded markdown skills are verbatim; for the rest, only the string/template literals of the prompt code survive, in source order, with \"\${_}\" standing for an interpolation that is not a plain constant. A file that disappears means the built-in skill was removed from Claude Code.
+
 Sources that changed: $SOURCES_CHANGED
 
 ## Provenance Mapping

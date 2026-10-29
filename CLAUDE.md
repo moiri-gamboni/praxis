@@ -47,6 +47,8 @@ scripts/sync-upstream.sh
 
 The `upstream` branch stores verbatim copies. Synced commit hashes are recorded per-source in `_source_commits.json` on that branch. The last reviewed sync is `last_analyzed_upstream_commit` in `upstream.json` (per source: `sources.<name>.last_analyzed`); update both after every review, scripted or by hand.
 
+The `claude-code` source (`"builtin": true`) is not a GitHub repo: it tracks the prompts of Claude Code built-in skills, which are compiled into the installed binary. The sync runs `scripts/extract-builtin-skills.py` (needs `zstd`) on the newest version under `~/.local/share/claude/versions` (override with `CLAUDE_VERSIONS_DIR`), writes one normalised `claude-code/<skill>.md` per name in the source's `skills` list, and records the version string where other sources record a commit hash. To watch another built-in skill, add its name to that list: markdown-embedded skills are found by their frontmatter `name`, prompts that live in JS string literals by their registered name. A listed skill the binary no longer has gets a warning and its file drops out of the next sync, which shows up as a deletion in the diff.
+
 ### Adding a New Upstream Plugin
 
 When incorporating a new source plugin into praxis:

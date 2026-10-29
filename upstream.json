@@ -29,6 +29,22 @@
       "repo": "anthropics/claude-plugins-official",
       "path": "plugins/frontend-design",
       "last_analyzed": "f8c5e7a1dcb71b10cb74586224b5401f3de5db28"
+    },
+    "claude-security": {
+      "repo": "anthropics/claude-plugins-official",
+      "path": "plugins/claude-security"
+    },
+    "claude-code": {
+      "builtin": true,
+      "skills": [
+        "code-review",
+        "simplify",
+        "verify",
+        "batch",
+        "artifact-design",
+        "workflow-authoring",
+        "security-review"
+      ]
     }
   },
   "mappings": [
@@ -103,6 +119,16 @@
       "adaptation": "near-copy"
     },
     {
+      "praxis": "skills/verification-before-completion/runtime.md",
+      "upstream": [
+        {
+          "plugin": "claude-code",
+          "path": "verify.md"
+        }
+      ],
+      "adaptation": "moderate"
+    },
+    {
       "praxis": "skills/receiving-code-review/SKILL.md",
       "upstream": [
         {
@@ -120,7 +146,17 @@
           "path": "skills/frontend-design/SKILL.md"
         }
       ],
-      "adaptation": "near-copy"
+      "adaptation": "moderate"
+    },
+    {
+      "praxis": "skills/frontend-design/fundamentals.md",
+      "upstream": [
+        {
+          "plugin": "claude-code",
+          "path": "artifact-design.md"
+        }
+      ],
+      "adaptation": "moderate"
     },
     {
       "praxis": "skills/ideate/SKILL.md",
@@ -163,7 +199,12 @@
     },
     {
       "praxis": "skills/implement/SKILL.md",
-      "upstream": [],
+      "upstream": [
+        {
+          "plugin": "claude-code",
+          "path": "batch.md"
+        }
+      ],
       "adaptation": "new"
     },
     {
@@ -201,6 +242,10 @@
         {
           "plugin": "superpowers",
           "path": "skills/requesting-code-review/code-reviewer.md"
+        },
+        {
+          "plugin": "claude-code",
+          "path": "code-review.md"
         }
       ],
       "adaptation": "significant"

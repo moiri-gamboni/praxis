@@ -126,7 +126,7 @@ scripts/analyze-upstream.sh --auto
 scripts/sync-upstream.sh
 ```
 
-The `upstream` branch stores verbatim copies of the source plugins. `upstream.json` maps each praxis file to its source(s) with adaptation level and tracks per-source commit hashes for incremental analysis.
+The `upstream` branch stores verbatim copies of the source plugins. `upstream.json` maps each praxis file to its source(s) with adaptation level and tracks per-source commit hashes for incremental analysis. Prompts of Claude Code's built-in skills, which exist only inside the installed binary, are tracked the same way: a `builtin` source in `upstream.json` lists the skills to watch, the sync extracts them from the newest installed Claude Code (`scripts/extract-builtin-skills.py`) into `claude-code/<skill>.md`, and the Claude Code version takes the place of a commit hash.
 
 ## License
 
