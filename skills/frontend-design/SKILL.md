@@ -1,6 +1,6 @@
 ---
 name: frontend-design
-description: Use when building or restyling web UI: pages, components, dashboards, internal tools, apps, or HTML documents
+description: Use when building or restyling web UI (pages, components, dashboards, internal tools, apps, or HTML documents)
 ---
 
 # Frontend Design
