@@ -16,7 +16,7 @@ Multi-wave review by logical code-path units (not files): per-unit deep review �
 ## Step 1: Determine Scope
 
 1. Git range argument provided → that range (`git diff <range>`).
-2. Otherwise, the union of the branch's unpushed commits and the working tree: `git diff @{upstream}...HEAD` (an open PR, `gh pr view`, supplies its `base...head` instead; no upstream and no PR → `git diff $(git merge-base origin/HEAD HEAD)...HEAD`), plus `git diff HEAD` when there are uncommitted changes. Either half alone misses the other: a dirty tree hides committed work, and a clean branch with no PR otherwise has no scope.
+2. Otherwise, the union of the branch's unpushed commits and the working tree: `git diff @{upstream}...HEAD` (an open PR, `gh pr view`, supplies its `base...head` instead; no upstream and no PR → from the merge base with the default branch (`origin/HEAD`; if that ref is missing, `main` or `master`)), plus `git diff HEAD` and the untracked files (`git ls-files --others --exclude-standard`) when the tree is dirty. Either half alone misses the other: a dirty tree hides committed work, and a clean branch with no PR otherwise has no scope.
 
 Read the full diff for context.
 
@@ -87,7 +87,7 @@ Each reviewer writes detailed findings to `reviews/<timestamp>/<unit>/<reviewer>
 | comment-analyzer | — | Critical Issues | Improvement Opportunities, Recommended Removals |
 | type-analyzer | — | a concern that is a bug | other Concerns, Recommended Improvements |
 | code-simplifier | — | — | every change |
-| security reviewer | High | Medium | — |
+| security reviewer | High | Medium | Low |
 
 comment-analyzer's "Critical Issues" are misleading comments, not broken behavior, so they don't block merge. test-analyzer reports criticality, not confidence: carry it as `criticality N/10` in the confidence slot. A security finding's confidence is its filter score × 10 (Wave 3).
 

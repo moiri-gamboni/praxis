@@ -92,8 +92,9 @@ FOR each finding:
      fallback, option or layer):
        it needs a scenario, a likelihood and a consequence if unhandled
        BEFORE it is implemented
-  3. IF it is not self-evidently right:
-       decline it with a one-line reason
+  3. IF step 1 could not establish it from the code:
+       decline it with a one-line reason (a finding verified real is
+       fixed, however unobvious)
 ```
 
 ## YAGNI Check for "Professional" Features

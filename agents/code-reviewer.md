@@ -34,7 +34,7 @@ You have full shell access — run tests, git, checkouts, whatever you need — 
 
 ## Scope
 
-Default: the branch's unpushed commits plus uncommitted changes (`git diff @{upstream}...HEAD`, or from `git merge-base origin/HEAD HEAD` with no upstream; plus `git diff HEAD`). Caller may override with specific files/scope.
+Default: the branch's unpushed commits plus uncommitted and untracked changes (`git diff @{upstream}...HEAD`, or from the merge base with the default branch (`origin/HEAD`; if that ref is missing, `main` or `master`) with no upstream; plus `git diff HEAD` and the files `git ls-files --others --exclude-standard` lists). Caller may override with specific files/scope.
 
 ## Responsibilities
 

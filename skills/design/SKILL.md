@@ -21,7 +21,7 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Agent, Task, Skill, AskUserQuestio
 
 **Reachable failures propagate; boundaries capture raw.** A failure that can happen still raises by default, raw request, response and input attached; a catch also needs a named recovery that beats crashing. Raw boundary capture is permanent, never a cut target; the named-reader test applies to *derived* instrumentation. Rules: `praxis:observe-before-model`.
 
-**Where it stops.** Design stops for the user at 1.2.8 (end the turn there; the reply, or silence on the next turn, confirms) and at 1.2.7 for the user's yes. Every other presentation is inline and the run continues.
+**Where it stops.** Design stops for the user at 1.2.8 (end the turn there; the reply, or silence on the next turn, confirms) and at 1.2.7 for the user's yes, and at 1.6 when a disputed Critical remains (the user decides it before Phase 2). Every other presentation is inline and the run continues.
 
 ## Phase 1: Architecture
 

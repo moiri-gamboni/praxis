@@ -42,7 +42,7 @@ Any item that touches an external boundary (API, SDK, CLI/subprocess, file forma
 - **Scope change** → amend the artifacts first (table below), then implement via the matching route above. A user-initiated change needs no confirmation; stop only when it collides with a prior `[user]` decision or sticky rejection — surface the collision in one line and let the user pick.
 - **Goal clarification** → record it: a constraint with a provenance tag, or an `[assumed]` → `[user]` upgrade quoting their words. No code unless something now contradicts the clarified goal.
 
-Per-item verification means the item's tests and the typecheck; the Wrap is where the real-input run happens.
+Per item, `praxis:verification-before-completion` gates on the item's tests and the typecheck; its end-to-end row is met once for the whole batch, at the Wrap.
 
 Per item, before its commit: `Skill: "praxis:verification-before-completion"`. Delete the processed diagnostics added while investigating (prints of intermediate state), or demote the essential piece into the regression test; the raw capture at a boundary stays. Documented behavior changed → `Skill: "diataxis:diataxis"` (bare: `diataxis`; separate plugin — if it resolves in neither form, surface `/plugin marketplace add moiri-gamboni/diataxis-skill`), classify the kind(s) touched, update those docs.
 
