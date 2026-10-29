@@ -272,13 +272,8 @@
     },
     {
       "praxis": "agents/plan-doc-reviewer.md",
-      "upstream": [
-        {
-          "plugin": "superpowers",
-          "path": "skills/writing-plans/plan-document-reviewer-prompt.md"
-        }
-      ],
-      "adaptation": "moderate"
+      "upstream": [],
+      "adaptation": "new"
     },
     {
       "praxis": "skills/document/SKILL.md",
