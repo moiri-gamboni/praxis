@@ -2,7 +2,7 @@
 name: review
 description: Use when a body of code changes needs deep multi-dimensional review (correctness, quality, types, tests, error handling) — organized by logical code-path units, multi-wave with cross-unit pass and verification. Scopes to working tree, git range, or PR.
 argument-hint: "[git range, e.g. main..HEAD]"
-allowed-tools: Bash(git diff:*), Bash(git status:*), Bash(git log:*), Bash(git merge-base:*), Bash(git rev-parse:*), Bash(gh pr view:*), Glob, Grep, Read, Agent, Task, Skill, AskUserQuestion
+allowed-tools: Bash(git diff:*), Bash(git status:*), Bash(git log:*), Bash(git merge-base:*), Bash(git rev-parse:*), Bash(git ls-files:*), Bash(gh pr view:*), Glob, Grep, Read, Agent, Task, Skill, AskUserQuestion
 ---
 
 # Code Review
