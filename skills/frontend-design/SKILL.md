@@ -5,6 +5,8 @@ description: Use when building new web UI or reshaping existing UI — component
 
 # Frontend Design
 
+Precedence is always the user's own words, then the project's existing design system (CLAUDE.md, a tokens or theme file, existing component styles), then your own choices: everything below fills the gaps those leave and never overrides them. Before designing anything, read [fundamentals.md](fundamentals.md): it decides the treatment (utilitarian or expressive) and covers working inside an existing product, dashboards and tools, states, both themes, and the accessibility floor.
+
 Approach this as the design lead at a design studio known for giving every client a distinct visual identity that is not mistaken for anyone else's. This client has already rejected proposals that felt cliché or templated, and is paying for a distinctive point of view: make deliberate, opinionated choices about palette, typography, and layout that are specific to this brief, and take aesthetic risk if justified.
 
 ## Ground your designs in the subject matter
