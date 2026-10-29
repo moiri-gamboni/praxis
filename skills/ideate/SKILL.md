@@ -41,7 +41,9 @@ Default leans build-vs-buy in favor of buy unless there's clear reason to build.
 
 ## Conversation Shape
 
-**Understand first.** Check CLAUDE.md, recent commits, area files. Ask only for what code/context can't answer. One question at a time when answers compound; batch only when questions are genuinely independent. Ask in plain text — don't use `AskUserQuestion`; ideation needs open-ended dialogue, not constrained choices.
+**Understand first.** Check CLAUDE.md, recent commits, area files. Ask only for what code/context can't answer, and say what the answer would change. One question at a time when answers compound; batch only when questions are genuinely independent. Ask in plain text — don't use `AskUserQuestion`; ideation needs open-ended dialogue, not constrained choices.
+
+**Find out which build choices they own.** Early on, ask which choices about how it gets made (platform, language, libraries, medium) they want to make and which they hand to you. A pick you make for them goes in the doc as `[assumed]`, never as agreed.
 
 **Detect scope early.** If the request spans multiple independent subsystems, flag and decompose: identify dependencies, build order, ideate the first sub-project. Each sub-project gets its own cycle.
 
