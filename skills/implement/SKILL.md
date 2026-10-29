@@ -27,7 +27,7 @@ Research before routing — the single-vs-parallel call needs codebase context, 
 
    **Workspace root**: plan file at `plans/<slug>.md` → workspace at `plans/<slug>/.workspace/`. Otherwise derive a kebab-case slug from the task. Worker logs: `<workspace>/workers/<unit>.md`. Ledger: `<workspace>/progress.md`. One ending in a `pr` line is a finished run: move it and `workers/` aside and start fresh. Any other is a run to resume from the ledger and the worker logs, never from recollection: a unit is merged only if the ledger says so, and a dispatched unit with a worker log is a return to process (Phase 3), not one to re-dispatch.
 
-2. **Route based on what you found.** Before the first dispatch on any route, create the integration branch `batch/<batch-name>-integration` from the base and start the ledger with `integration: <that branch>`.
+2. **Route based on what you found.** Before the first dispatch on any route, create the integration branch `batch/<batch-name>-integration` (the batch name is the workspace slug) from the base and start the ledger with `integration: <that branch>`.
    - **Slice 0 first**: the plan's Task 1 is Slice 0, or (no plan) the task crosses a boundary whose shape nobody has observed. Dispatch it alone as one `praxis:implementer` (worktree) before decomposing and merge it into the integration branch; write the batch plan's integration contract from its captures; then route the widening units below. No boundary tagged `docs` or `assumed` → skip this.
    - **Parallel**: 2+ units, each with its own test surface, all buildable from a pinned contract. Continue with steps 3-5.
    - **Single agent**: no separable contract-able parts. Cases: wide-but-shallow refactors (rename, type change), structural reorganization, single dense file, whole-system invariant changes, or too small to orchestrate. Skip to Phase 2; spawn one `praxis:implementer` (`subagent_type: "praxis:implementer"`, `isolation: "worktree"`) with the Phase 2 prompt.
@@ -42,6 +42,7 @@ Research before routing — the single-vs-parallel call needs codebase context, 
 4. **Write the batch plan to `<workspace>/batch-plan.md`.** Per unit: name, description, files, branch (`batch/<batch-name>/<unit-name>`), test command, dependencies. Plus:
    - **Integration contract**: what must hold post-merge (interfaces, naming, config shape)
    - **Integration tests** to run after merge
+   - **E2E recipe**: how a worker verifies its change works end-to-end, not just that unit tests pass: short concrete steps it can run alone, setup included (a browser-automation skill for a UI flow, a CLI or tmux driver, dev server + curl for an API, an existing e2e suite; surfaces per `praxis:verification-before-completion`'s `runtime.md`). None found → ask the user before dispatch, offering 2-3 concrete options; workers can't ask. Or record "skip e2e because …".
    - **Risks**: what could go wrong, what to check on failure
 
 5. **Surface decisions, then proceed.** Present the batch summary inline (units, integration contract, key risks) and continue to Phase 2 — the decomposition is orchestration machinery, and "approve this batch plan?" is not a real question; the user redirects on the next turn if the split is wrong. Block for input only on genuine tradeoffs surfaced during research: decisions where no option is clearly better and the pick materially changes what gets built — present each with the options, the tradeoff, and a recommendation, before any workers dispatch. Decisions a `/praxis:design` plan already adjudicated are settled; don't re-ask them.
@@ -58,6 +59,7 @@ The `praxis:implementer` agent owns the worker procedure (skill loop, push, log,
 - Unit's goal, deliverable, files, branch (`batch/<batch-name>/<unit-name>`), acceptance criteria
 - The plan's fixed outcomes + epistemic status (outcomes, acceptance criteria, and integration contract binding; internal machinery right-sizeable with a logged deviation)
 - Test command (the implementer's procedure runs this for the full-suite step)
+- The E2E recipe from the batch plan, or why e2e is skipped
 - Worker log path, absolute: `<WORKSPACE>/workers/<UNIT_NAME>.md`
 - Integration contract (interfaces, naming, types other units expect), pinned from Slice 0's captures where the plan marked them provisional
 - Inline interface definitions for any cross-unit dependency the worker can't see in its own files

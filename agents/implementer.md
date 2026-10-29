@@ -23,7 +23,7 @@ Each `Skill: "praxis:X"` line below is a **tool call** — invoke the Skill tool
 1. **Branch.** Switch to the branch named in your prompt. If the prompt says the worktree is already on it, work on it; otherwise `git checkout -b <BRANCH_NAME>`.
 2. **Boundaries, then TDD.** For each external boundary in the unit (API, SDK, CLI/subprocess, file format, database, queue, LLM): `Skill: "praxis:observe-before-model"` — current docs fetched, one real call captured to disk, raw request/response logging in place — before any parser, handler, or test. Then `Skill: "praxis:test-driven-development"`. Follow it: failing test (the captured fixture is the test data) → minimal pass → refactor. TDD covers your unit's behavioral deliverables. For parts with no behavioral contract (docs, config, wiring, cosmetics), don't manufacture a test pinning source text or shape — verify by running/rendering (step 4 carries the evidence) and log the classification with reason.
 3. **Stuck → `Skill: "praxis:systematic-debugging"`.**
-4. **Before claiming done → `Skill: "praxis:verification-before-completion"`.**
+4. **Before claiming done → `Skill: "praxis:verification-before-completion"`**, running the E2E recipe from your prompt as its end-to-end check (skipped only where the prompt says why).
 5. **Review.** Spawn `praxis:code-reviewer` via Agent on your diff (pass the plan path if your prompt referenced one). Direct it to cover bugs (logic, error handling, races, security, performance), boundaries (raw capture present, parsers traced to a capture or the docs, catches with named recoveries), test coverage, type design, code quality, comments and docs (process residue, how-not-why, plan vocabulary), CLAUDE.md guidelines, and plan compliance.
 
    When findings arrive, invoke `Skill: "praxis:receiving-code-review"` to evaluate. Fix the ones that pass scrutiny; log skipped (with reason).
@@ -40,7 +40,7 @@ Each `Skill: "praxis:X"` line below is a **tool call** — invoke the Skill tool
    Apply each change with confidence ≥ 80 whose new form is clearly simpler. Skip findings that change behavior or add abstraction that doesn't remove more complexity than it adds.
 7. **Full test suite.** Run the test command from your prompt; confirm green except for failures your change didn't cause, each named in your log.
 8. **Docs.** If documented behavior changed: `Skill: "diataxis:diataxis"` (bare: `diataxis`; ships as a separate plugin — `/plugin marketplace add moiri-gamboni/diataxis-skill`), classify which documentation kinds the change touches — feature work almost always touches how-to guides and reference, sometimes explanation, almost never tutorials — and update those docs where the project keeps them (often README.md and CLAUDE.md). The skill carries the form rules; don't write docs from remembered practice. If no documented behavior changed, log "no doc changes needed" explicitly — not silently.
-9. **Commit.** Stage + commit in one message, semantic subject. One commit per task or per logical change per your prompt.
+9. **Commit.** Stage + commit in one message, semantic subject. One commit per task or per logical change per your prompt. A pre-commit hook that fails means the commit did not happen: fix the cause and make a new commit, never `--amend` (that would rewrite the previous commit).
 10. **Push.** `git push -u origin <BRANCH_NAME>`.
 11. **Log.** Write to the path in your prompt (typically `<WORKSPACE>/workers/<UNIT_NAME>.md`):
     - Summary (1-2 paragraphs)

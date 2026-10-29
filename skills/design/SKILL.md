@@ -121,7 +121,7 @@ Write `plans/<slug>.md` (propose a kebab-case slug, or ask) and no source files.
 Canonical source for Present for Approval:
 
 - **Chosen approach**: what won and why, one paragraph.
-- **Scope**: **Already implemented** (skip if empty), **Actually new**, **Departures from brief**, drops and additions (`brief asked X → plan delivers Y → why`), **Left out (deliberately)**, skip if empty: machinery considered and not built, each with the trigger that would justify it.
+- **Scope**: **Already implemented** (skip if empty), **Actually new**, **Departures from brief** (drops and additions: `brief asked X → plan delivers Y → why`), **Left out (deliberately)**, skip if empty: machinery considered and not built, each with the trigger that would justify it.
 - **Per-decision matrix**: `| Dimension (stakes) | Decides | M | P | C | Pick (conf). Rationale |`
 - **Worth your input**: Net statements for medium-or-lower-confidence, material-stakes decisions; skip if none.
 - **Architect approaches** (a paragraph each, chosen one marked), **Alternatives Considered**, **Synthesis shape** (label + coupling paragraph).
