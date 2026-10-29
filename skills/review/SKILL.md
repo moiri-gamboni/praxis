@@ -16,7 +16,7 @@ Multi-wave review by logical code-path units (not files): per-unit deep review �
 ## Step 1: Determine Scope
 
 1. Git range argument provided → that range (`git diff <range>`).
-2. Otherwise, the union of the branch's unpushed commits and the working tree: `git diff @{upstream}...HEAD` (an open PR, `gh pr view`, supplies its `base...head` instead; no upstream and no PR → from the merge base with the default branch (`origin/HEAD`; if that ref is missing, `main` or `master`)), plus `git diff HEAD` and the untracked files (`git ls-files --others --exclude-standard`) when the tree is dirty. Either half alone misses the other: a dirty tree hides committed work, and a clean branch with no PR otherwise has no scope.
+2. Otherwise, the union of the branch's unpushed commits and the working tree: `git diff @{upstream}...HEAD` (an open PR, `gh pr view`, supplies its `base...head` instead; with no PR, when there is no upstream or that diff is empty because the branch is already pushed → from the merge base with the default branch (`origin/HEAD`; if that ref is missing, `main` or `master`)), plus `git diff HEAD` and the untracked files (`git ls-files --others --exclude-standard`) when the tree is dirty. Either half alone misses the other: a dirty tree hides committed work, and a clean branch with no PR otherwise has no scope.
 
 Read the full diff for context.
 

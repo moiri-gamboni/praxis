@@ -98,3 +98,14 @@ Files derived from these plugins:
   agents/test-analyzer.md, agents/silent-failure-hunter.md,
   agents/type-analyzer.md (pr-review-toolkit)
 
+-------------------------------------------------------------------------------
+
+Claude Code built-in skills (bundled with Claude Code, Anthropic)
+
+Files adapted from their prompts:
+  skills/verification-before-completion/runtime.md (verify)
+  skills/frontend-design/fundamentals.md (artifact-design)
+  skills/review/security.md (security-review; see claude-code-security-review above)
+  agents/code-reviewer.md (partial: three angles from code-review)
+  skills/implement/SKILL.md (partial: the e2e recipe from batch)
+

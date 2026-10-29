@@ -17,7 +17,7 @@ Run `praxis:code-simplifier` on recently modified code to improve clarity while 
 
 1. **Identify changed code.** `$ARGUMENTS` wins: a git range (`git diff <range>`) or a file list. Otherwise the first of these that is non-empty:
    - uncommitted changes: `git diff HEAD`, plus the untracked files from `git ls-files --others --exclude-standard` (read them; the diff omits them)
-   - with a clean tree, the branch's unpushed commits: `git diff @{upstream}...HEAD` (no upstream: from the merge base with the default branch (`origin/HEAD`; if that ref is missing, `main` or `master`))
+   - with a clean tree, the branch's unpushed commits: `git diff @{upstream}...HEAD` (no upstream, or nothing unpushed: from the merge base with the default branch (`origin/HEAD`; if that ref is missing, `main` or `master`))
 
 2. **Spawn `praxis:code-simplifier`** with `mode: direct (edit via Edit)`, the changed file list, the diff, and the instruction to focus only on recent changes.
 

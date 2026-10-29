@@ -38,7 +38,7 @@ Each `Skill: "praxis:X"` line below is a **tool call** — invoke the Skill tool
    - Avoid nested ternaries (prefer if/else)
 
    Apply each change with confidence ≥ 80 whose new form is clearly simpler. Skip findings that change behavior or add abstraction that doesn't remove more complexity than it adds.
-7. **Full test suite.** Run the test command from your prompt; confirm green except for failures your change didn't cause, each named in your log.
+7. **Full test suite.** Run the test command from your prompt; confirm green except for failures your change didn't cause, each named in your log. If steps 5-6 changed code, run the E2E recipe again: step 4's evidence predates those changes.
 8. **Docs.** If documented behavior changed: `Skill: "diataxis:diataxis"` (bare: `diataxis`; ships as a separate plugin — `/plugin marketplace add moiri-gamboni/diataxis-skill`), classify which documentation kinds the change touches — feature work almost always touches how-to guides and reference, sometimes explanation, almost never tutorials — and update those docs where the project keeps them (often README.md and CLAUDE.md). The skill carries the form rules; don't write docs from remembered practice. If no documented behavior changed, log "no doc changes needed" explicitly — not silently.
 9. **Commit.** Stage + commit in one message, semantic subject. One commit per task or per logical change per your prompt. A pre-commit hook that fails means the commit did not happen: fix the cause and make a new commit, never `--amend` (that would rewrite the previous commit).
 10. **Don't push.** Your branch stays local: the orchestrator reviews and merges it, and pushes only the integration branch, for the PR.

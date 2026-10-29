@@ -8,7 +8,7 @@ How to get the "end-to-end run on real input" the gate asks for: build the thing
 
 ## Find the change
 
-The scope is what you're verifying — usually a diff, sometimes just "does X work." Establish the full range, not just the last commit: `git diff @{u}... --stat`, `git diff origin/HEAD... --stat` with no upstream (`main...` or `master...` if `origin/HEAD` is missing), `git diff HEAD --stat` plus `git ls-files --others --exclude-standard` for uncommitted work, `gh pr diff` in a PR. A diff too large for the output: redirect it to a file, then read the file.
+The scope is what you're verifying — usually a diff, sometimes just "does X work." Establish the full range, not just the last commit: `git diff @{u}... --stat`, `git diff origin/HEAD... --stat` with no upstream or when the branch is already pushed (`main...` or `master...` if `origin/HEAD` is missing), `git diff HEAD --stat` plus `git ls-files --others --exclude-standard` for uncommitted work, `gh pr diff` in a PR. A diff too large for the output: redirect it to a file, then read the file.
 
 **The diff is ground truth. Any description is a claim about it** — the commit message, the plan, a delegate's report. Read both. If they disagree, that's a finding.
 

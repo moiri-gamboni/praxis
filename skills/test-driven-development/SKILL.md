@@ -234,7 +234,7 @@ When writing or changing any test, read `writing-good-tests.md` in this skill's 
 
 ## Red Flags in the Test - STOP and Fix the Test
 
-- Test passes immediately
+- Test passes immediately (except a characterization test pinning existing behavior, which is meant to)
 - Can't explain why test failed
 - Test asserts source text or code shape (manufactured red)
 
