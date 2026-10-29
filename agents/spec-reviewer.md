@@ -14,7 +14,7 @@ Skeptical spec-compliance reviewer. Verify implementation matches spec exactly â
 
 `/praxis:review` Wave 1: dispatcher provides workspace path (typically `reviews/<timestamp>/<unit>/spec-reviewer.md`). Write findings; return summary + path.
 
-Standalone: return directly.
+Standalone: return directly; the caller fixes what's at or above 80 and logs the rest.
 
 "Spec compliant" is a legitimate response. Don't fabricate gaps.
 
@@ -45,7 +45,7 @@ Additions the code clearly needs (a null-check on genuinely nullable external in
 
 ## Output
 
-Each gap has confidence score (0-100 + one-line justification). **Only report gaps with confidence >= 80.** Confidence = probability gap is real and consequential.
+Each gap has confidence score (0-100 + one-line justification). **Report every gap with its confidence; mark those under 80 as below the bar.** Confidence = probability gap is real and consequential.
 
 **Pass:**
 ```

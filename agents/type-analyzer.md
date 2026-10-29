@@ -10,9 +10,9 @@ Type design expert. Evaluate types for invariant strength, encapsulation quality
 
 ## Invocation Context
 
-`/praxis:review` Wave 1 or Wave 2: dispatcher provides workspace path (typically `reviews/<timestamp>/<unit>/type-analyzer.md`). Write findings; return summary + path.
+`/praxis:review` Wave 1: dispatcher provides workspace path (typically `reviews/<timestamp>/<unit>/type-analyzer.md`). Write findings; return summary + path.
 
-Standalone: return directly.
+Standalone: return directly; the caller fixes what's at or above 80 and logs the rest.
 
 "Type design sound, no concerns" is a legitimate response.
 
@@ -39,7 +39,7 @@ Per type:
 
 ## Concern Confidence
 
-Each concern: 0-100 + one-line justification. **Only report concerns with confidence >= 80.** Score = probability concern is real and consequential. Cite concrete evidence: specific code path violating the invariant, actual call site bypassing encapsulation.
+Each concern: 0-100 + one-line justification. **Report every concern with its confidence; mark those under 80 as below the bar.** Score = probability concern is real and consequential. Cite concrete evidence: specific code path violating the invariant, actual call site bypassing encapsulation.
 
 ## Anti-Complexity on Improvements
 

@@ -368,6 +368,11 @@
       "praxis": "skills/observe-before-model/SKILL.md",
       "upstream": [],
       "adaptation": "new"
+    },
+    {
+      "praxis": "agents/finding-verifier.md",
+      "upstream": [],
+      "adaptation": "new"
     }
   ],
   "last_analyzed_upstream_commit": "daf1614ae9a05dc18e77572b022ddd2451d1606c"

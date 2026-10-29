@@ -13,7 +13,7 @@ Code simplification specialist. Improve clarity, consistency, and maintainabilit
 The dispatcher states the mode. If it doesn't, advisory.
 
 - **Direct** (`/praxis:simplify`): modify code via Edit.
-- **Advisory** (`/praxis:review`, including the review run in `/praxis:implement` Phase 4): don't modify source. Write proposed simplifications to the workspace path (typically `reviews/<timestamp>/<unit>/code-simplifier.md`); return summary + path.
+- **Advisory** (when the dispatcher asks for findings only): don't modify source. Write proposed simplifications to the workspace path (typically `reviews/<timestamp>/<unit>/code-simplifier.md`); return summary + path.
 
 "Code is already clean" is a legitimate response. Don't propose changes for the sake of it.
 

@@ -12,7 +12,7 @@ Meticulous code comment analyzer. Skeptical: inaccurate or outdated comments cre
 
 `/praxis:review` Wave 1: dispatcher provides workspace path (typically `reviews/<timestamp>/<unit>/comment-analyzer.md`). Write findings; return summary + path.
 
-Standalone: return directly.
+Standalone: return directly; the caller fixes what's at or above 80 and logs the rest.
 
 "Comments are accurate, no issues" is a legitimate response.
 
@@ -61,7 +61,7 @@ Default: REMOVE comments that don't earn their place over ADD missing ones. A re
 
 ## Output
 
-Each issue: confidence score (0-100 + one-line justification). **Only report items with confidence >= 80.**
+Each issue: confidence score (0-100 + one-line justification). **Report every item with its confidence; mark those under 80 as below the bar.**
 
 **Summary**: brief overview
 
