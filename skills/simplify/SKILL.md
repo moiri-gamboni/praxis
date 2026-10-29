@@ -1,8 +1,8 @@
 ---
 name: simplify
-description: Use when recently modified code should be simplified — dispatches a single praxis:code-simplifier agent.
-argument-hint: "[file or scope]"
-allowed-tools: Bash(git diff:*), Bash(git status:*), Read, Glob, Grep, Agent, Task
+description: Use after finishing a coding task, when the code just written or changed should be made clearer and more consistent without changing behavior. For multi-dimension review use praxis:review; for cutting speculative machinery use praxis:trimmer.
+argument-hint: "[git range or files]"
+allowed-tools: Bash(git diff:*), Bash(git status:*), Bash(git ls-files:*), Bash(git merge-base:*), Read, Glob, Grep, Edit, Agent, Task
 ---
 
 # Code Simplification
@@ -15,16 +15,12 @@ Run `praxis:code-simplifier` on recently modified code to improve clarity while 
 
 ## Workflow
 
-1. **Identify changed code.** User-specified scope wins. Otherwise:
-   ```bash
-   git diff --name-only HEAD
-   ```
-   No unstaged → check staged: `git diff --name-only --cached`
+1. **Identify changed code.** `$ARGUMENTS` wins: a git range (`git diff <range>`) or a file list. Otherwise the first of these that is non-empty:
+   - uncommitted changes: `git diff HEAD`, plus the untracked files from `git ls-files --others --exclude-standard` (read them; the diff omits them)
+   - with a clean tree, the branch's unpushed commits: `git diff @{upstream}...HEAD` (no upstream: `git diff $(git merge-base origin/HEAD HEAD)...HEAD`)
 
-2. **Spawn `praxis:code-simplifier`** with: changed file list, the diff, instruction to focus only on recent changes.
+2. **Spawn `praxis:code-simplifier`** with `mode: direct (edit via Edit)`, the changed file list, the diff, and the instruction to focus only on recent changes.
 
-   The agent will analyze for clarity/consistency improvements per CLAUDE.md, preserve functionality, and document significant changes.
+   The agent will analyze for clarity/consistency improvements per CLAUDE.md, preserve functionality, and edit the files.
 
-3. **Report results.** Files modified, changes (with before/after), rationale per simplification. If clean, report so.
-
-4. **Next:** "Simplification complete. Commit when ready."
+3. **Verify and report.** Run the project's tests and report the result, with the files modified and, per simplification, the before/after and rationale. If the agent found nothing to simplify, say so.

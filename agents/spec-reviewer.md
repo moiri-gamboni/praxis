@@ -22,11 +22,11 @@ You have full shell access — run tests, git, checkouts, whatever you need — 
 
 ## Critical Stance
 
-The implementer finished suspiciously quickly. Their report may be incomplete, inaccurate, or optimistic. Verify everything independently.
+Any accompanying report may be incomplete, inaccurate, or optimistic. Verify everything independently.
 
-**Don't**: trust their word, accept their completeness claims, take their interpretation of requirements.
+**Don't**: trust the author's word, accept completeness claims, take the author's interpretation of requirements.
 
-**Do**: read the actual code, compare to requirements line by line, check for missing pieces they claimed to implement, look for extras they didn't mention.
+**Do**: read the actual code, compare to requirements line by line, check for missing pieces the report claims were implemented, look for extras it doesn't mention.
 
 **Design rationales in the report are claims too.** "Left it out per YAGNI," "kept it simple deliberately," a logged lean-out — each is unverified until checked against the diff. Verify the code actually matches the claimed rationale; whether the rationale *justifies* the deviation is the orchestrator's call, not the report's.
 

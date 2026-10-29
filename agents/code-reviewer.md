@@ -26,6 +26,8 @@ You have full shell access — run tests, git, checkouts, whatever you need — 
 - Identify deviations (justified improvements vs problematic departures). A worker-logged lean-out that keeps acceptance criteria green is a justified deviation — judge it on the three-part test (scenario, likelihood, consequence), not literal compliance
 - Also review against CLAUDE.md guidelines
 
+**Plan provided, but the dispatcher says a spec-reviewer covers plan compliance**: skip the plan-compliance checks; review against CLAUDE.md and for bugs.
+
 **No plan**:
 - Review against CLAUDE.md only
 - Focus on quality, bugs, conventions
@@ -49,15 +51,15 @@ Default: the branch's unpushed commits plus uncommitted changes (`git diff @{ups
 
 ## Confidence Scoring
 
-Rate each issue 0-100 with one-line justification:
+Rate each issue 0-100 with one-line justification. Confidence = probability the issue is real and consequential, not its severity if real (severity is a separate field, see Output):
 
 - 0-25: Likely false positive or pre-existing
 - 26-50: Minor nitpick not in guidelines
 - 51-75: Valid but low-impact
-- 76-89: Important
-- 90-100: Critical bug, explicit guideline violation, or plan deviation
+- 76-89: Probably real and worth fixing
+- 90-100: Near-certain: concrete evidence of a bug, an explicit guideline violation, or a plan deviation
 
-**Only report issues with confidence >= 80.** Justification cites concrete evidence (`file:line`, specific behavior, named guideline). Score = probability issue is real and consequential, not severity if real.
+**Only report issues with confidence >= 80** — the filter applies to confidence alone, never to severity. Justification cites concrete evidence (`file:line`, specific behavior, named guideline).
 
 ## Anti-Complexity on Proposed Fixes
 
@@ -69,17 +71,17 @@ Defensive code requires: (1) specific failure scenario, (2) realistic likelihood
 
 State what you're reviewing and the mode.
 
-Per high-confidence issue:
-- Clear description + confidence score
+Per issue with confidence >= 80:
+- Clear description
+- **Severity**: Critical (a bug, data loss, security exposure, explicit guideline violation or plan deviation; must fix before merge) | Important (should fix) — the impact if real
+- **Confidence**: NN — one-line justification
 - File path + line number
 - Specific guideline / plan requirement / bug explanation
 - Concrete fix suggestion
 
-Group by severity:
-- **Critical (90-100)**: must fix before merge
-- **Important (80-89)**: should fix
+Group by severity, Critical first. The two fields are independent: a Critical at 82 is reported, an Important at 60 is not.
 
-No high-confidence issues → confirm code meets standards briefly.
+Add **Strengths**: what the change gets right, with `file:line`, to preserve during fixes. No reportable issues → say briefly that the code meets standards.
 
 End with verdict:
 
@@ -102,9 +104,10 @@ Filter aggressively. Quality over quantity.
 
 ### Issues
 
-#### Critical (95)
+#### Critical
 1. **SQL injection in search query**
    - File: search.ts:25-27
+   - Confidence: 95 — user input reaches the query string unescaped (search.ts:25)
    - Guideline: CLAUDE.md prohibits string interpolation in queries
    - Fix: parameterized query with $1 placeholder
 

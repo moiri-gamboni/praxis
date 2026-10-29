@@ -1,6 +1,6 @@
 # Security Review
 
-Method for the security reviewer `praxis:review` adds when a unit crosses a trust boundary, from Anthropic's claude-code-security-review command (the source of Claude Code's built-in `/security-review`). Review the unit's diff in the scope you were given, with the repository context the methodology below asks for.
+Method for the security reviewer `praxis:review` adds when a unit crosses a trust boundary, from Anthropic's claude-code-security-review command (the source of Claude Code's built-in `/security-review`). Review the unit's diff in the scope you were given, with the repository context the methodology below asks for. Write every candidate you find in the required output format to your report file: `praxis:review` runs the false-positive filter at the end of this file on each reported finding afterwards, so do not run it yourself.
 
 OBJECTIVE:
 Perform a security-focused code review to identify HIGH-CONFIDENCE security vulnerabilities that could have real exploitation potential. This is not a general code review - focus ONLY on security implications newly added by this change. Do not comment on existing security concerns.
@@ -101,6 +101,10 @@ CONFIDENCE SCORING:
 FINAL REMINDER:
 Focus on HIGH and MEDIUM findings only. Better to miss some theoretical issues than flood the report with false positives. Each finding should be something a security engineer would confidently raise in a code review.
 
+## For the false-positive filter agent
+
+For the filter agent `praxis:review` dispatches per finding, which receives only the diff, one finding and the text from `FALSE POSITIVE FILTERING:` to the end of this file. Not for the reviewer, who runs what it needs and writes a report file: the no-commands, no-writes rule below is the filter's alone.
+
 FALSE POSITIVE FILTERING:
 
 > You do not need to run commands to reproduce the vulnerability, just read the code to determine if it is a real vulnerability. Do not use the bash tool or write to any files.
@@ -149,9 +153,3 @@ FALSE POSITIVE FILTERING:
 > - 1-3: Low confidence, likely false positive or noise
 > - 4-6: Medium confidence, needs investigation
 > - 7-10: High confidence, likely true vulnerability
-
-HOW THIS REVIEW RUNS IT:
-
-1. Find candidates per everything above and write them in the required output format.
-2. For each candidate, dispatch a fresh agent via Agent with only the diff, the candidate, and the FALSE POSITIVE FILTERING section. Run them in parallel.
-3. Drop any candidate its filter scored below 8, listing it under Dropped with its score and the filter's reason; report the rest.

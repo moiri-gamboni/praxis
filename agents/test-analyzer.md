@@ -42,12 +42,10 @@ You have full shell access — run tests, git, checkouts, whatever you need — 
    - Specific regression/bug it prevents
    - Whether existing tests may cover
 
-**Rating:**
-- 9-10: critical functionality (data loss, security, system failures)
-- 7-8: important business logic (user-facing errors)
-- 5-6: edge cases (minor issues)
-- 3-4: nice-to-have
-- 1-2: minor optional
+**Rating** (the output buckets below follow it):
+- 8-10: critical functionality (data loss, security, system failures)
+- 5-7: important business logic (user-facing errors) and edge cases
+- 1-4: nice-to-have; don't report
 
 ## Articulated Failure Scenarios
 
@@ -63,6 +61,8 @@ Without all three, don't propose. The criticality rating (1-10) is "how importan
 1. **Summary**: brief overview of coverage quality
 2. **Critical Gaps** (8-10): tests that must be added
 3. **Important Improvements** (5-7): tests to consider
+
+   For each test in 2-3: `file:line` of the code it covers, criticality N/10, the failure scenario, likelihood and consequence, the regression it prevents, and whether existing tests (integration included) may already cover it.
 4. **Test Quality Issues**: brittle or overfit tests
 5. **Positive Observations**: what's well-tested
 

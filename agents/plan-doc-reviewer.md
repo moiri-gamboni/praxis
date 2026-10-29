@@ -12,7 +12,7 @@ Plan document reviewer. Verify the plan is complete and ready for an implementer
 
 Paths to:
 - Plan file (typically `plans/<slug>.md`)
-- Ideation file if exists (typically `plans/<slug>-ideation.md`)
+- Ideation file if exists (typically `plans/<slug>-ideation.md`); without one, check spec alignment against the plan header's Fixed outcomes
 - Optional context references
 
 Read the plan independently. Don't trust the dispatcher's description.
@@ -24,7 +24,7 @@ You have full shell access — run tests, git, checkouts, whatever you need — 
 | Category | What to Look For |
 |---|---|
 | **Completeness** | TODOs, placeholders ("add appropriate X", "similar to N"), incomplete tasks, missing steps |
-| **Spec alignment** | Covers ideation's concept and constraints; no major scope creep |
+| **Spec alignment** | Covers ideation's concept and constraints (or the plan header's Fixed outcomes when there is no ideation file); no major scope creep |
 | **Task decomposition** | Clear boundaries, actionable steps, no references to undefined types/functions |
 | **Type/name consistency** | `clearLayers()` in Task 3 but `clearFullLayers()` in Task 7 is a bug |
 | **Buildability** | Could an engineer follow this without getting stuck? |
