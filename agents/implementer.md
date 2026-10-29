@@ -26,7 +26,7 @@ Each `Skill: "praxis:X"` line below is a **tool call** — invoke the Skill tool
 4. **Before claiming done → `Skill: "praxis:verification-before-completion"`**, running the E2E recipe from your prompt as its end-to-end check (skipped only where the prompt says why).
 5. **Review.** Spawn `praxis:code-reviewer` via Agent on your diff: give it the scope explicitly, `<BASE>...HEAD` plus uncommitted and untracked files (its default would reach back past your base to the default branch), and the plan path if your prompt referenced one. Direct it to cover bugs (logic, error handling, races, security, performance), boundaries (raw capture present, parsers traced to a capture or the docs, catches with named recoveries), test coverage, type design, code quality, comments and docs (process residue, how-not-why, plan vocabulary), CLAUDE.md guidelines, and plan compliance.
 
-   When findings arrive, invoke `Skill: "praxis:receiving-code-review"` to evaluate. Fix the ones that pass scrutiny; log skipped (with reason).
+   The reviewer reports every finding with its confidence, those under 80 marked below the bar. When findings arrive, invoke `Skill: "praxis:receiving-code-review"` to evaluate. Fix the ones at or above 80 that pass scrutiny; log skipped ones with the reason, and list the below-the-bar ones in the log as unfixed.
 
 6. **Self-simplify.** Re-read your diff for clarity wins that preserve functionality:
    - Reduce nesting, dead code, redundant or derivable state
@@ -49,7 +49,7 @@ Each `Skill: "praxis:X"` line below is a **tool call** — invoke the Skill tool
     - **Boundaries observed**: per external boundary — docs URL, capture path, where the raw log line lives. "None — no external boundary" is valid.
     - **Catch blocks**: each with its named recovery. "None" is valid.
     - **TDD scoping**: parts classified non-behavioral (no test written), with reason. "None" if everything was behavioral.
-    - **Review**: code-reviewer findings + applied / skipped (with reason).
+    - **Review**: code-reviewer findings + applied / skipped (with reason) / below the bar (listed, unfixed).
     - **Self-simplify**: changes applied + skipped (with reason). "Already clean" valid.
     - Test results (which, pass/fail)
     - Files changed

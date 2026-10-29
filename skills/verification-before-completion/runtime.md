@@ -87,6 +87,17 @@ The claim checking out is the first half. Probe *around* the change, at the same
 
 These aren't a checklist — pick the ones the change points at. A probe that finds nothing is still a step: "🔍 passed `--from ''` → clean `error: --from requires a value`, exit 2." A Steps list that's all ✅ and no 🔍 is a happy-path replay.
 
+## Rehearsal
+
+Some failures exist only in the real environment at real scale: a CI runner's disk, an API's rate limit or throttling, gateway timeouts, a vendor's cheaper tier behaving differently, cost. Mocked tests and a single end-to-end call don't reach them. When a change crosses an external boundary (API, SDK, CLI, database, queue, LLM) or runs on infrastructure (a CI runner, a scheduled job, a deployed service), rehearse it before calling it done:
+
+- **Where:** the target environment itself (the real runner or service, the real external services), not a local stand-in.
+- **What:** the integrated change end to end on a realistic slice of real data, big enough to meet the rate limits, timeouts and resource use a full run would (often one full unit of work, or 10-20% of a run), small enough to re-run.
+- **Spend cap:** set one on paid services before starting, and say what it is.
+- **Watch:** disk and memory, rate-limit and throttle responses, timeouts and retries, wall-clock time and cost, extrapolated to the full run.
+- **Pass:** the slice completes, its outputs hold up on a spot check, and the extrapolated full run fits its time and cost budget. Keep the raw output and resource readings as the evidence.
+- **Fail:** fix it and rehearse again. A rehearsal failure is not a reason for another review round.
+
 ## Capture
 
 Stdout, response bodies, screenshots with the browser console beside them, pane dumps — raw and unedited. Captured output is evidence; your memory isn't. Something unexpected? Don't route around it — capture it, note it, decide whether it's the change or the environment. Unrelated breakage is a finding, not noise. A run that crosses an external boundary for the first time also yields the capture `praxis:observe-before-model` asks for: keep it.

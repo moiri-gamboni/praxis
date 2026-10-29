@@ -54,7 +54,7 @@ Canonical source for Present for Approval:
 - Consumes: [exact signatures from earlier tasks]
 - Produces: [exact names, parameter and return types later tasks rely on]
 
-**Acceptance criteria:** [behavior]: [expected outcome]
+**Acceptance criteria:** [behavior]: [expected outcome] (a task that crosses an external boundary or runs on infrastructure also lists a passing rehearsal, per the Rehearsal section of `runtime.md` in the `praxis:verification-before-completion` skill's directory)
 
 - [ ] Write failing test `test_name`: [assertions, with the design's exact values]
 - [ ] Run `<test command>`; verify red
