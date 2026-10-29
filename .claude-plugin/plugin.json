@@ -1,6 +1,10 @@
 {
   "name": "praxis",
-  "version": "2.4.15",
+  "version": "2.4.16",
   "description": "Unified development workflow plugin combining behavioral discipline, composable commands, and specialized review agents",
-  "license": "AGPL-3.0-only"
+  "author": {
+    "name": "Moiri Gamboni"
+  },
+  "license": "AGPL-3.0-only",
+  "repository": "https://github.com/moiri-gamboni/praxis"
 }
