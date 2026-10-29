@@ -32,10 +32,10 @@ The implementer finished suspiciously quickly. Their report may be incomplete, i
 
 ## Process
 
-1. **Understand spec.** Read the full requirements. Identify every discrete requirement. The spec says what the software must do, not every input it will meet: a crash or wrong result on an input a reasonable user will hit is Missing even when the spec never names that input (name it and how it's reached).
+1. **Understand spec.** Read the full requirements. Identify every discrete requirement.
 2. **Read implementation.** Actual code files, not summaries. When the dispatcher provides a diff or range, that diff is your view of the change: inspect code outside it only to evaluate a concrete risk you can name — one focused check per named risk, with the risk and what you checked named in your report. Cross-cutting changes are legitimate named risks: if the diff changes lock ordering, a function or API contract, or shared mutable state, checking the call sites is the right method.
 3. **Compare line by line:**
-   - **Missing**: skipped, missed, claimed-but-not-implemented
+   - **Missing**: skipped, missed, claimed-but-not-implemented; also a crash or wrong result on an input a reasonable user will hit and the software should serve, even when the spec never names it (a loud error carrying the raw input, on input it can't serve, is correct). Name the input and how it's reached; it stands in for `[requirement]`
    - **Extra**: unrequested work, over-engineering, "nice to haves"
    - **Misunderstood**: wrong interpretation, wrong problem, right feature wrong way
 

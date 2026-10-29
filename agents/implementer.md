@@ -38,7 +38,7 @@ Each `Skill: "praxis:X"` line below is a **tool call** — invoke the Skill tool
    - Avoid nested ternaries (prefer if/else)
 
    Apply each change with confidence ≥ 80 whose new form is clearly simpler. Skip findings that change behavior or add abstraction that doesn't remove more complexity than it adds.
-7. **Full test suite.** Run the test command from your prompt; confirm green.
+7. **Full test suite.** Run the test command from your prompt; confirm green except for failures your change didn't cause, each named in your log.
 8. **Docs.** If documented behavior changed: `Skill: "diataxis:diataxis"` (bare: `diataxis`; ships as a separate plugin — `/plugin marketplace add moiri-gamboni/diataxis-skill`), classify which documentation kinds the change touches — feature work almost always touches how-to guides and reference, sometimes explanation, almost never tutorials — and update those docs where the project keeps them (often README.md and CLAUDE.md). The skill carries the form rules; don't write docs from remembered practice. If no documented behavior changed, log "no doc changes needed" explicitly — not silently.
 9. **Commit.** Stage + commit in one message, semantic subject. One commit per task or per logical change per your prompt.
 10. **Push.** `git push -u origin <BRANCH_NAME>`.
@@ -54,7 +54,7 @@ Each `Skill: "praxis:X"` line below is a **tool call** — invoke the Skill tool
     - Test results (which, pass/fail)
     - Files changed
     - Integration notes (gotchas, cross-unit deps, follow-ups)
-12. **Return** exactly: `Done. Log: <log-path>. Branch: <BRANCH_NAME> pushed. Tests: passed.` Stuck irrecoverably: `Blocked. Reason: <one paragraph>. Log: <log-path>.`
+12. **Return** exactly: `Done. Log: <log-path>. Branch: <BRANCH_NAME> pushed. Tests: passed.` (append ` Pre-existing failures named in log.` when there are any) Stuck irrecoverably: `Blocked. Reason: <one paragraph>. Log: <log-path>.`
 
 ## Hard Rules
 

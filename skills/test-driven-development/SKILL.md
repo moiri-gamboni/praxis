@@ -164,12 +164,12 @@ npm test path/to/test.test.ts
 
 Confirm:
 - Test passes
-- The project's whole suite still passes: run its test command (`pytest`, `npm test`, `cargo test`), not just your file, even when the task named one
+- Before calling the change done, the project's whole suite passes: run its test command (`pytest`, `npm test`, `cargo test`), not just your file, even when the task named one
 - Output pristine (no errors, warnings)
 
 **Test fails?** Fix code, not test.
 
-**Other tests fail?** Fix the ones your change caused now; report any you didn't cause, by name.
+**Other tests fail?** Fix the ones your change broke; one that also fails without your change is reported by name, not fixed.
 
 ### REFACTOR - Clean Up
 
