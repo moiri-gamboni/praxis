@@ -25,7 +25,7 @@ Research before routing — the single-vs-parallel call needs codebase context, 
 
 1. **Understand the task.** Read the argument and any referenced plan/architecture doc. Use Glob/Grep/subagents to survey codebase, patterns, conventions, test infrastructure.
 
-   **Workspace root**: plan file at `plans/<slug>.md` → workspace at `plans/<slug>/.workspace/`. Otherwise derive a kebab-case slug from the task. Worker logs: `<workspace>/workers/<unit>.md`.
+   **Workspace root**: plan file at `plans/<slug>.md` → workspace at `plans/<slug>/.workspace/`. Otherwise derive a kebab-case slug from the task. Worker logs: `<workspace>/workers/<unit>.md`. Ledger: `<workspace>/progress.md`, first line `integration: <branch>`; if it already exists this is a resumed run, so pick up from the ledger and `git branch --merged <integration>`, never from recollection.
 
 2. **Route based on what you found.**
    - **Slice 0 first**: the plan's Task 1 is Slice 0, or (no plan) the task crosses a boundary whose shape nobody has observed. Dispatch it alone as one `praxis:implementer` (worktree) before decomposing; write the batch plan's integration contract from its captures; then route the widening units below. No boundary tagged `docs` or `assumed` → skip this.
@@ -64,34 +64,25 @@ The `praxis:implementer` agent owns the worker procedure (skill loop, push, log,
 
 ## Phase 3: Process Returns, Merge
 
-Workers run independently and return when done. Process each return as it arrives. If a worker returned blocked or failed, diagnose: re-dispatch with more context, or escalate to the user.
+Workers run independently and return when done. Process each return as it arrives. If a worker returned blocked or failed, diagnose and rule: re-dispatch with more context, re-scope, or drop the unit.
 
-**Context economy.** Yours is the only context that spans the batch; compacting mid-orchestration loses coordination state nothing else records. Spend it on coordination, not code: read worker logs, not merged diffs (Phase 4's reviewers and trimmer read the code themselves), and don't re-derive what a worker already reported. The fix split, for every phase: a few obvious lines → fix inline; anything more → an agent. For a unit-scoped fix, send the finding back to the owning worker via SendMessage — it still holds the unit's context, so it writes the fix, commits, and pushes, and you re-merge (its tree predates peers' merges; fine for unit-scoped work). For cross-unit fixes, or once workers are swept, dispatch a fresh `praxis:implementer` (worktree, fix branch, self-contained brief listing the findings) and merge its branch like any unit.
+**Rulings, not stalls.** Mid-run you decide on the user's behalf: a blocked worker re-scoped, a unit dropped or kept partial, a conflict resolved against the contract, a review finding, trim cut or spec gap declined. Log each in the ledger as `Ruling: <what> — <why> — <cost if wrong>`; Phase 5 lists every one. Stop for the user only before something irreversible, security-sensitive, or reaching beyond the batch's branches and PR.
+
+**Context economy.** Yours is the only context that spans the batch; compacting mid-orchestration loses whatever the ledger doesn't hold. Spend it on coordination, not code: read worker logs, not merged diffs (Phase 4's reviewers and trimmer read the code themselves), and don't re-derive what a worker already reported. The fix split, for every phase: a few obvious lines → fix inline; anything more → an agent. For a unit-scoped fix, send the finding back to the owning worker via SendMessage — it still holds the unit's context, so it writes the fix, commits, and pushes, and you re-merge (its tree predates peers' merges; fine for unit-scoped work). For cross-unit fixes, or once workers are swept, dispatch a fresh `praxis:implementer` (worktree, fix branch, self-contained brief listing the findings) and merge its branch like any unit.
 
 On worker done:
 
-1. Merge their branch into the integration branch
+1. Merge their branch into the integration branch; append `merged <unit> (<branch>, <merge-sha>)` to the ledger
 2. Run tests post-merge. Resolve conflicts per the integration contract
 3. **Keep the worktree + local branch** — the worker stays resumable for fixes; cleanup is one sweep at the end of Phase 4.
 4. **Surface inline**: pull deviations, integration concerns, and follow-ups from the worker log into your update.
 
-Status table:
-
-```
-Unit            | Merged | Notes
-----------------|--------|-------
-<unit-name>     | yes    |
-<unit-name>     | no     | waiting on worker
-```
-
-If any unit fails irrecoverably, ask user: continue with partial results or abort.
-
 ## Phase 4: Cross-Cutting Quality
 
-After all units merged:
+After all units merged (append `phase4 <step> done` to the ledger as each step finishes):
 
 1. Invoke `Skill: "praxis:review"` with args `all` — catch cross-unit inconsistencies (naming, patterns, interface mismatches, duplication). Before fixing, invoke `Skill: "praxis:receiving-code-review"`.
-2. **Trim pass**: dispatch `praxis:trimmer` (diff mode) on the integration branch's full diff, with the plan's fixed outcomes (or the task's stated outcomes when there's no plan), test command, and report path `<workspace>/trim.md`. Adjudicate via `Skill: "praxis:receiving-code-review"`: apply an L1 cut only when its outcome-trace and falsifier hold up — for guard removals, verify unreachability (validated one frame up, type-guaranteed, or caller-audited) before deleting. L2 findings (the plan clause itself questioned) go to the user, never auto-applied. Each applied cut is its own commit (revivable via `git revert`); re-run tests after cuts.
+2. **Trim pass**: dispatch `praxis:trimmer` (diff mode) on the integration branch's full diff, with the plan's fixed outcomes (or the task's stated outcomes when there's no plan), test command, and report path `<workspace>/trim.md`. Adjudicate via `Skill: "praxis:receiving-code-review"`: apply an L1 cut only when its outcome-trace and falsifier hold up — for guard removals, verify unreachability (validated one frame up, type-guaranteed, or caller-audited) before deleting. L2 findings (the plan clause itself questioned) are never auto-applied; they go to the user in the PR. Each applied cut is its own commit (revivable via `git revert`); re-run tests after cuts.
 3. `Skill: "praxis:simplify"` — apply each finding's fix. Skip findings that change behavior or fall outside the merged diff.
 4. Run integration tests from the plan
 5. **Plan-completion check** (if plan file present): spawn `praxis:spec-reviewer` via Agent with plan as spec. Address gaps after invoking `Skill: "praxis:receiving-code-review"`. Gaps matching a worker-logged lean-out, a non-behavioral classification, or an applied trim cut are adjudicated against the fixed outcomes — not auto-restored.
@@ -106,7 +97,8 @@ Create PR from integration branch:
 - Summary of what was built
 - List of units, what each did
 - Test results
-- Concerns/TODOs from workers
+- Concerns/TODOs from workers, and unapplied L2 trim findings for the user's call
+- Rulings: every `Ruling:` line from the ledger
 - Links to plan/design artifacts
 
 Present PR URL. Worker remote branches still exist; sweep them once the PR merges.
