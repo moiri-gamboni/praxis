@@ -60,6 +60,7 @@ You MUST complete each phase before proceeding to the next.
    - What are the exact steps?
    - Does it happen every time?
    - If not reproducible, gather more data, don't guess
+   - Flaky, or fails only under load or in parallel? Suspect a guessed delay: see `condition-based-waiting.md` in this skill's directory
 
 3. **Check Recent Changes**
    - What changed that could cause this?
@@ -158,7 +159,7 @@ You MUST complete each phase before proceeding to the next.
    - Make the SMALLEST possible change to test hypothesis
    - One variable at a time
    - Don't fix multiple things at once
-   - Prefer observation over trial-fixes: when a log line or assertion can check the hypothesis, instrument and run — a candidate fix that fails costs a full cycle and muddies the evidence
+   - Prefer observation over trial-fixes: if a log line or assertion can check the hypothesis, instrument and run (Phase 1, step 4)
 
 3. **Verify Before Continuing**
    - Did it work? Yes, proceed to Phase 4
@@ -180,24 +181,26 @@ You MUST complete each phase before proceeding to the next.
    - Automated test if possible
    - One-off test script if no framework
    - MUST have before fixing
-   - Use the test-driven-development skill for writing proper failing tests
+   - Use `Skill: "praxis:test-driven-development"` for writing proper failing tests
+   - A Phase 3 change already confirmed the hypothesis? Revert the probe, write the failing test and watch it fail, then re-apply the probe
 
 2. **Implement Single Fix**
    - Address the root cause identified
    - ONE change at a time
    - No "while I'm here" improvements
    - No bundled refactoring
+   - Before adding validation or guards beyond the fix itself, read `defense-in-depth.md` in this skill's directory
 
 3. **Verify Fix**
    - Test passes now?
    - No other tests broken?
    - Issue actually resolved?
-   - Use the verification-before-completion skill before claiming success
+   - Use `Skill: "praxis:verification-before-completion"` before claiming success
 
 4. **If Fix Doesn't Work**
    - STOP
    - Count: How many fixes have you tried?
-   - If < 3: Return to Phase 1, re-analyze with new information — instrumented this time; a failed fix proves the divergence is somewhere you didn't look
+   - If < 3: Return to Phase 1, re-analyze with new information, instrumenting (Phase 1, step 4)
    - **If >= 3: STOP and question the architecture (step 5 below)**
    - DON'T attempt Fix #4 without architectural discussion
 
@@ -234,7 +237,7 @@ If you catch yourself thinking:
 
 **ALL of these mean: STOP. Return to Phase 1.**
 
-**If 3+ fixes failed:** Question the architecture (see Phase 4.5)
+**If 3+ fixes failed:** Question the architecture (see Phase 4, step 5)
 
 ## Your Human Partner's Signals You're Doing It Wrong
 
@@ -277,12 +280,12 @@ If systematic investigation reveals issue is truly environmental, timing-depende
 3. Implement appropriate handling (retry, timeout, error message)
 4. Add monitoring/logging for future investigation
 
-**But:** 95% of "no root cause" cases are incomplete investigation.
+**But:** most "no root cause" cases are incomplete investigation.
 
 ## Supporting Techniques
 
 These techniques are part of systematic debugging and available in this skill's directory:
 
 - **`root-cause-tracing.md`** - Trace bugs backward through call stack to find original trigger
-- **`defense-in-depth.md`** - Where to validate vs assert after finding root cause
+- **`defense-in-depth.md`** - Validate at the trust boundary, assert internal invariants once, and resist stacking guard layers after finding root cause
 - **`condition-based-waiting.md`** - Replace arbitrary timeouts with condition polling

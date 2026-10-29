@@ -1,6 +1,6 @@
 ---
 name: observe-before-model
-description: Use when writing or changing code that calls an external API, SDK, CLI, subprocess, file format, database, queue, or LLM — or parses what comes back, or handles its errors — before writing the parser, the handler, or the test.
+description: Use when writing or changing code that calls or parses something whose shape this codebase doesn't define (an external API, SDK, CLI, subprocess, file format, database, queue, or LLM), or handles its errors, before writing the parser, the handler, or the test.
 ---
 
 # Observe Before Model
@@ -9,15 +9,15 @@ Code that depends on the shape of something outside this codebase is written fro
 
 ## Before the parser
 
-1. **Read the official docs for this exact call** — endpoint, parameters, response schema, error shapes, pagination, limits. Official means the vendor's current reference, fetched now (WebFetch); not memory, not a tutorial. "The library is already in the codebase" counts only if *this call* already is.
-2. **Make one real call** — unless the codebase already makes this exact call and a capture on disk or its raw log shows the shape. Capture the raw result to a file under the project's fixtures or scratch directory, unedited. Redact credentials in the captured request; nothing else.
+1. **Read the official docs for this exact call** — endpoint, parameters, response schema, error shapes, pagination, limits. Official means the vendor's current reference, fetched now (WebFetch; for a local CLI, its `--help` or man page); not memory, not a tutorial. "The library is already in the codebase" counts only if *this call* already is.
+2. **Make one real call** — unless the codebase already makes this exact call and a capture on disk or its raw log shows the shape. Capture the raw result to a file under the project's fixtures or scratch directory, unedited. Prefer a read-only or sandbox/test-mode call. A call that mutates, bills or sends messages uses the vendor's test mode or a throwaway resource, or you ask first; failing both, the docs' example response is the capture, marked as such. Redact secrets (auth headers, tokens in bodies, cookies) in the captured request and response, and mask personal data with same-shape replacements; edit nothing else.
 3. **Write the code against the capture.** The capture is the test fixture.
 4. **Don't read a field you haven't seen** in a capture or the docs.
 5. **Widen by observation.** The error response, the empty result, the pagination edge, the rate limit — each captured once before it is handled.
 
 ## Raw capture stays
 
-Every boundary logs its full raw request and full raw response before any parsing — at debug level or to a file, so it doesn't drown stdout, but present, and kept after the feature ships. Log the raw thing, not a summary of it:
+Every boundary logs its full raw request and full raw response before any parsing — at debug level or to a file, so it doesn't drown stdout, but present, and kept after the feature ships. Log the raw thing, not a summary of it (secrets redacted as in a fixture; a payload too large to log truncated, its byte length noted):
 
 ```python
 log.debug("POST %s\n%s", url, body)                  # raw request

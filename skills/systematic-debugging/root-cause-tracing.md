@@ -99,22 +99,9 @@ done
 
 **Symptom:** `.git` created in `packages/core/` (source code)
 
-**Trace chain:**
-1. `git init` runs in `process.cwd()` because empty cwd parameter
-2. WorktreeManager called with empty projectDir
-3. Session.create() passed empty string
-4. Test accessed `context.tempDir` before beforeEach
-5. setupCoreTest() returns `{ tempDir: '' }` initially
+**Root cause:** the trace above ends at a top-level variable read before `beforeEach` ran, while `setupCoreTest()` still returns `{ tempDir: '' }`.
 
-**Root cause:** Top-level variable initialization accessing empty value
-
-**Fix:** Made tempDir a getter that throws if accessed before beforeEach
-
-**Also added defense-in-depth:**
-- Layer 1: Project.create() validates directory
-- Layer 2: WorkspaceManager validates not empty
-- Layer 3: NODE_ENV guard refuses git init outside tmpdir
-- Layer 4: Stack trace logging before git init
+**Fix:** at the source: made `tempDir` a getter that throws if accessed before `beforeEach`. Whether any further validation belongs is `defense-in-depth.md`.
 
 ## Key Principle
 

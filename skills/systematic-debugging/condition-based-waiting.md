@@ -27,7 +27,7 @@ const result = getResult();
 expect(result).toBeDefined();
 
 // GOOD: Waiting for condition
-await waitFor(() => getResult() !== undefined);
+await waitFor(() => getResult() !== undefined, 'result to be defined');
 const result = getResult();
 expect(result).toBeDefined();
 ```
@@ -36,11 +36,11 @@ expect(result).toBeDefined();
 
 | Scenario | Pattern |
 |----------|---------|
-| Wait for event | `waitFor(() => events.find(e => e.type === 'DONE'))` |
-| Wait for state | `waitFor(() => machine.state === 'ready')` |
-| Wait for count | `waitFor(() => items.length >= 5)` |
-| Wait for file | `waitFor(() => fs.existsSync(path))` |
-| Complex condition | `waitFor(() => obj.ready && obj.value > 10)` |
+| Wait for event | `waitFor(() => events.find(e => e.type === 'DONE'), 'DONE event')` |
+| Wait for state | `waitFor(() => machine.state === 'ready', 'machine ready')` |
+| Wait for count | `waitFor(() => items.length >= 5, '5 items')` |
+| Wait for file | `waitFor(() => fs.existsSync(path), 'file to exist')` |
+| Complex condition | `waitFor(() => obj.ready && obj.value > 10, 'obj ready with value > 10')` |
 
 ## Implementation
 
@@ -81,7 +81,7 @@ async function waitFor<T>(
 
 ```typescript
 // Tool ticks every 100ms - need 2 ticks to verify partial output
-await waitForEvent(manager, 'TOOL_STARTED'); // First: wait for condition
+await waitFor(() => events.find(e => e.type === 'TOOL_STARTED'), 'TOOL_STARTED event'); // First: wait for condition
 await new Promise(r => setTimeout(r, 200));   // Then: wait for timed behavior
 // 200ms = 2 ticks at 100ms intervals - documented and justified
 ```

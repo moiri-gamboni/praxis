@@ -25,7 +25,7 @@ The surface is where a user — human or programmatic — meets the change. That
 | Prompt / agent config / skill | the agent | run the agent on a task that exercises the change, and again without it (the old version, or none): a result both runs share shows nothing; read the transcripts, not just the final outputs |
 | CI workflow | Actions | dispatch it, read the run |
 
-For a UI change, the states and accessibility checks to drive are in `skills/frontend-design/fundamentals.md`.
+For a UI change, drive every state (default, hover, focus, active, disabled, loading, error, empty) and the accessibility checks (a keyboard pass, a 200% zoom pass, text and control contrast); the full floor is in `fundamentals.md` in the `praxis:frontend-design` skill's directory.
 
 **Internal function? Not a surface.** Something in the repo calls it and that caller ends at one of the rows above. Follow it there. A bash security gate's surface isn't the function's return value — it's the CLI prompting or auto-allowing when you type the command.
 
@@ -37,7 +37,7 @@ For a UI change, the states and accessibility checks to drive are in `skills/fro
 
 - **`verifier-*` matching your surface** → invoke it with the Skill tool and follow its setup; it is the repo's evidence-capture protocol. A mismatched surface → try the next. A stale verifier (fails on mechanics unrelated to the change) → report it; don't FAIL the change for verifier rot.
 - **`run-*` but no matching verifier** → use its build and launch primitives as your handle.
-- **Neither** → `Skill: "run"` (the built-in launcher: it looks for a project recipe, then falls back to per-project-type patterns), else cold start from README, package.json, Makefile. Timebox it (~15 min). Stuck → BLOCKED, with exactly where it stopped.
+- **Neither** → `Skill: "run"` (the built-in launcher: it looks for a project recipe, then falls back to per-project-type patterns); if `run` doesn't resolve, cold start from README, package.json, Makefile. Timebox it (~15 min). Stuck → BLOCKED, with exactly where it stopped.
 
 **Isolate shared process state.** Parallel workers and the host session share tmux, ports, lockfiles and temp paths: `tmux -L <name>`, bind port `0` (or pick a free one), `mktemp -d` for working directories.
 
@@ -56,16 +56,19 @@ Smallest path that makes the changed code execute:
 
 **Destructive path?** If the change touches code that deletes, publishes, sends, or writes outside the workspace and there's no dry-run or safe target (a tmp dir, a mock, a dry-run flag), don't drive it live. Verify what you can around it and say which path you didn't exercise and why.
 
-A server needs a lifecycle — start in the background, poll for readiness, stop it after:
+A server needs a lifecycle — a free port, start in the background, poll for readiness, stop and clean up however the script ends:
 
 ```bash
 tmp=$(mktemp -d)
-<start-command> &> "$tmp/server.log" &
+PORT=$(python3 -c 'import socket; s = socket.socket(); s.bind(("", 0)); print(s.getsockname()[1])')
+<start-command, listening on $PORT> &> "$tmp/server.log" &
 SERVER_PID=$!
+trap 'kill $SERVER_PID; rm -rf "$tmp"' EXIT
 for i in {1..30}; do curl -sf localhost:$PORT/health >/dev/null && break; sleep 1; done
-# ... requests ...
-kill $SERVER_PID
+# ... requests; on a failure, print "$tmp/server.log" before the script ends (the trap deletes it) ...
 ```
+
+Run it as one script so the trap fires when it ends.
 
 No readiness endpoint? Poll the route you're about to test until it stops refusing connections.
 
@@ -92,6 +95,8 @@ Stdout, response bodies, screenshots with the browser console beside them, pane 
 
 ## Report
 
+The verdicts and report format below apply when you hand a verdict to someone else. An implementer verifying its own change needs Find the change, Surface, Get a handle, Drive it and Capture, and states the result under the gate's rules.
+
 Each step is one thing you did to the **running app** and what it showed, marked ✅ / ❌ / ⚠️ / 🔍 (🔍 = a probe off the happy path; at least one), with the app's own output as evidence. Then the things you noticed: friction, surprises, a slow path, an unhelpful error, a claim/diff mismatch — anything that made you pause while running it, not while reading the diff. Each probe gets a line even when it held.
 
 **Verdicts:**
@@ -100,6 +105,6 @@ Each step is one thing you did to the **running app** and what it showed, marked
 - **BLOCKED** — couldn't reach a state where the change is observable (build broke, a dependency missing, the handle wouldn't come up). Not a verdict on the change, and not a completion: say exactly where it stopped and that the runtime behavior is unverified. Never call it blocked before checking the skills along the touched subtree.
 - **SKIP** — no runtime surface exists. One line why.
 
-No partial pass. "3 of 4 passed" is FAIL until 4 passes or is explained away.
+No partial pass. "3 of 4 passed" is FAIL until all 4 pass, or the failing one is shown environmental with the raw capture.
 
-**When in doubt, FAIL.** False PASS ships broken code; false FAIL costs one more look. Ambiguous output is FAIL with the raw capture attached — don't interpret.
+**When in doubt, FAIL.** False PASS ships broken code; false FAIL costs one more look. Ambiguous output is FAIL with the raw capture attached — don't interpret it into a pass.

@@ -2,6 +2,8 @@
 
 These apply to every treatment, from an admin table to a launch page. SKILL.md's studio stance and process sit on top of them; where the two seem to disagree, the precedence below decides.
 
+Read the first four sections (Respect what already exists, Decide the treatment, When the page is a UI, Make the page complete at rest) before designing; read the rest when building and checking.
+
 ## Respect what already exists
 
 Look for an existing design system first: CLAUDE.md, a tokens or theme file, existing component styles, the component library the project already uses. When one exists, apply it; everything else in this skill fills gaps and never overrides. Precedence is always the user's own words, then the project's existing system, then your choices.
@@ -42,7 +44,7 @@ A tool or app opens in a realistic working state: the user's real data where it 
 
 ## Design both themes
 
-New UI follows the viewer's OS theme unless the project is single-theme (precedence) or the design deliberately commits to one visual world. Structure the CSS at the token level:
+New UI follows the viewer's OS theme unless the project is single-theme (precedence), the design deliberately commits to one visual world, or it is a throwaway demo and both themes weren't asked for. Structure the CSS at the token level:
 
 - The bare `:root` block declares every token with the light palette (for a dark-first design, swap light and dark consistently through this pattern).
 - `@media (prefers-color-scheme: dark)` redefines only the tokens.
@@ -93,7 +95,7 @@ For any chart, graph, sparkline, stat tile or KPI row, or choice of chart colors
 
 ## More generated-design tells
 
-Add these to SKILL.md's calibration list; like those, they are defaults rather than choices, and precedence still applies:
+Treat these as further entries in SKILL.md's calibration list; like those, they are defaults rather than choices, and precedence still applies:
 
 - a purple-to-blue gradient hero on white;
 - Inter or Space Grotesk as the "safe" face;

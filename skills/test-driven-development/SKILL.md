@@ -17,7 +17,7 @@ Write the test first. Watch it fail. Write minimal code to pass.
 
 **Always — when there's a behavioral contract:**
 - New features
-- Bug fixes
+- Bug fixes (a behavioral bug gets a failing test that reproduces it before the fix)
 - Behavior changes
 
 **Refactoring:** TDD's role in a behavior-preserving change is that existing tests stay green — never a new failing test. A new test that fails before a refactor can only be failing because it pins the new shape.
@@ -28,6 +28,10 @@ Write the test first. Watch it fail. Write minimal code to pass.
 - Throwaway prototypes
 - Generated code
 
+A scoped build under `praxis:prototype` applies TDD where its Phase 2 decided it pays.
+
+**Worker context:** with no human to ask (an implementer or other subagent), every "ask your human partner" in this skill means: record the question as unresolved in your log and return Blocked.
+
 Thinking "skip TDD just this once"? Stop. That's rationalization. The question is never whether testing is worth the effort (it is); it's whether a behavioral contract exists to test.
 
 ## The Iron Law
@@ -36,7 +40,7 @@ Thinking "skip TDD just this once"? Stop. That's rationalization. The question i
 NO NEW BEHAVIOR WITHOUT A FAILING TEST FIRST
 ```
 
-Write code before the test? Delete it. Start over.
+Wrote code for the new behavior before its test? Delete it. Start over.
 
 **No exceptions:**
 - Don't keep it as "reference"
@@ -46,11 +50,13 @@ Write code before the test? Delete it. Start over.
 
 Implement fresh from tests. Period.
 
+This covers code you wrote in this task for the new behavior. Pre-existing code without tests is not deleted: pin what it does now with characterization tests, then change it test-first.
+
 ## The Gate: Name the Behavior
 
 Before writing the test, phrase the behavior: **inputs/state → observable output or effect**, with no reference to the code's text or structure.
 
-- Can't phrase it that way? There is no test to write here — the deliverable is non-behavioral. Verify by running/rendering; don't manufacture a red test.
+- Can't phrase it that way? There is no test to write here — the deliverable is non-behavioral: say so, with the reason. Verify by running/rendering; don't manufacture a red test.
 - **Output text is behavior** (error messages, rendered templates, CLI output are contracts). **Source text never is.** Prefer asserting the property of the output that matters over byte-pinning the whole output, unless exact bytes are the contract (golden files).
 - A test that can only fail via text diff on the source proves nothing: watching it fail is ceremony, not verification.
 
@@ -94,7 +100,7 @@ Vague name, tests mock not code
 </Bad>
 
 **Requirements:**
-- One behavior
+- One behavior ("and" in the name? Split it)
 - Clear name
 - Real code (no mocks unless unavoidable)
 - Real data: a fixture for an external shape is a capture, never invented
@@ -169,7 +175,7 @@ Confirm:
 
 **Test fails?** Fix code, not test.
 
-**Other tests fail?** Fix the ones your change broke; one that also fails without your change is reported by name, not fixed.
+**Other tests fail?** Fix the ones your change broke; one that also fails on the base commit is reported by name, not fixed. Establish that by running it on the base commit in a clean worktree (`git worktree add`), not by switching revisions in your working tree.
 
 ### REFACTOR - Clean Up
 
@@ -186,12 +192,6 @@ Keep tests green. Don't add behavior.
 Next failing test for next feature.
 
 ## Good Tests
-
-| Quality | Good | Bad |
-|---------|------|-----|
-| **Minimal** | One thing. "and" in name? Split it. | `test('validates email and domain and whitespace')` |
-| **Clear** | Name describes behavior | `test('test1')` |
-| **Shows intent** | Demonstrates desired API | Obscures what code should do |
 
 When writing or changing any test, read `writing-good-tests.md` in this skill's directory for the rules that keep tests honest:
 - Name the production change that would make the test fail — before writing it
@@ -213,15 +213,13 @@ When writing or changing any test, read `writing-good-tests.md` in this skill's 
 | "Test hard = design unclear" | Listen to test. Hard to test = hard to use. |
 | "TDD will slow me down" | TDD IS the pragmatic path: catches bugs before commit, prevents regressions, lets you refactor without fear. "Pragmatic" shortcuts mean debugging in production — slower, not faster. |
 | "Manual test faster" | Manual doesn't prove edge cases. You'll re-test every change. |
-| "Existing code has no tests" | You're improving it. Add tests for existing code. |
+| "Existing code has no tests" | You're improving it. Pin its current behavior with characterization tests, then change it test-first. |
 | "No behavior here" (docs/config/cosmetics) | Legitimate ONLY if the deliverable can't be phrased as inputs → observable effect. Property of the deliverable, not your effort budget. "Too simple to test" is still not this. |
 
 ## Red Flags - STOP and Start Over
 
 - Code before test
 - Test after implementation
-- Test passes immediately
-- Can't explain why test failed
 - Tests added "later"
 - Rationalizing "just this once"
 - "I already manually tested it"
@@ -231,9 +229,16 @@ When writing or changing any test, read `writing-good-tests.md` in this skill's 
 - "Already spent X hours, deleting is wasteful"
 - "TDD is dogmatic, I'm being pragmatic"
 - "This is different because..."
+
+**All of these mean: Delete the code written for the new behavior. Start over with TDD.**
+
+## Red Flags in the Test - STOP and Fix the Test
+
+- Test passes immediately
+- Can't explain why test failed
 - Test asserts source text or code shape (manufactured red)
 
-**All of these mean: Delete code. Start over with TDD.**
+**These mean the test is wrong, not the code: fix it, or delete it if there is no behavior to name (The Gate). Keep the code.**
 
 ## Example: Bug Fix
 
@@ -272,21 +277,6 @@ PASS
 **REFACTOR**
 Extract validation for multiple fields if needed.
 
-## Verification Checklist
-
-Before marking work complete:
-
-- [ ] Every new behavior has a test; anything exempted is named as non-behavioral, with the reason
-- [ ] Watched each test fail before implementing
-- [ ] Each test failed for expected reason (feature missing, not typo)
-- [ ] Wrote minimal code to pass each test
-- [ ] All tests pass
-- [ ] Output pristine (no errors, warnings)
-- [ ] Tests use real code (mocks only if unavoidable)
-- [ ] Edge cases and errors covered
-
-Can't check all boxes? You skipped TDD. Start over.
-
 ## When Stuck
 
 | Problem | Solution |
@@ -295,19 +285,3 @@ Can't check all boxes? You skipped TDD. Start over.
 | Test too complicated | Design too complicated. Simplify interface. |
 | Must mock everything | Code too coupled. Use dependency injection. |
 | Test setup huge | Extract helpers. Still complex? Simplify design. |
-
-## Debugging Integration
-
-Bug found? Write failing test reproducing it. Follow TDD cycle. Test proves fix and prevents regression.
-
-Never fix bugs without a test.
-
-## Final Rule
-
-```
-New behavior -> test exists and failed first
-Non-behavioral deliverable -> named as such, verified by running/rendering
-Otherwise -> not TDD
-```
-
-No exceptions without your human partner's permission.

@@ -17,7 +17,7 @@ description: Use when about to claim work is complete, fixed, or passing, before
 NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE
 ```
 
-If you haven't run the verification command in this message, you cannot claim it passes.
+If you haven't run the verification command after your last change, you cannot claim it passes.
 
 ## The Gate Function
 
@@ -46,7 +46,7 @@ Skip any step = lying, not verifying
 | Regression test works | Red-green cycle verified | Test passes once |
 | Agent completed | VCS diff shows changes | Agent reports "success" |
 | Requirements met | Line-by-line checklist | Tests passing |
-| Outcome delivered | End-to-end run on real input, output shown and compared to what was asked | Tests green; a mocked or invented-data run |
+| Outcome delivered | End-to-end run on real input, output shown and compared to what was asked. Required whenever the change has a runtime surface (how: `runtime.md` in this skill's directory); with none, state SKIP and why | Tests green; a mocked or invented-data run |
 
 ## Red Flags - STOP
 
@@ -56,7 +56,6 @@ Skip any step = lying, not verifying
 - Trusting agent success reports
 - Relying on partial verification
 - Thinking "just this once"
-- Tired and wanting work over
 - **ANY wording implying success without having run verification**
 
 ## Rationalization Prevention
@@ -68,7 +67,6 @@ Skip any step = lying, not verifying
 | "Just this once" | No exceptions |
 | "Linter passed" | Linter does not equal compiler |
 | "Agent said success" | Verify independently |
-| "I'm tired" | Exhaustion does not equal excuse |
 | "Partial check is enough" | Partial proves nothing |
 | "Different words so rule doesn't apply" | Spirit over letter |
 
@@ -104,8 +102,6 @@ OK: [Run the real thing on real input] [Show the output] [Compare to the ask] "D
 BAD: "Tests pass, so it works" / a run against mocked or invented data
 ```
 
-Before the first end-to-end run of a change, read `runtime.md` in this skill's directory for how to run it where a user meets it.
-
 **Agent delegation:**
 ```
 OK: Agent reports success -> Check VCS diff -> Verify changes -> Report actual state
@@ -130,4 +126,4 @@ BAD: Trust agent report
 
 ## Web UI Verification
 
-For changes involving web UI, verify visually with whatever headless-browser tooling the environment provides (screenshots, element interaction, accessibility checks). If none is available, state explicitly that the visual result is unverified. Driving the page and capturing it follow `runtime.md` in this skill's directory.
+Drive and capture the page as `runtime.md` in this skill's directory describes. With no headless-browser tooling available, state explicitly that the visual result is unverified.

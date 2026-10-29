@@ -1,11 +1,11 @@
 ---
 name: frontend-design
-description: Use when building new web UI or reshaping existing UI — components, pages, or applications where visual design quality matters
+description: Use when building or restyling web UI: pages, components, dashboards, internal tools, apps, or HTML documents
 ---
 
 # Frontend Design
 
-Precedence is always the user's own words, then the project's existing design system (CLAUDE.md, a tokens or theme file, existing component styles), then your own choices: everything below fills the gaps those leave and never overrides them. Before designing anything, read [fundamentals.md](fundamentals.md): it decides the treatment (utilitarian or expressive) and covers working inside an existing product, dashboards and tools, states, both themes, and the accessibility floor.
+Precedence is always the user's own words, then the project's existing design system (CLAUDE.md, a tokens or theme file, existing component styles), then your own choices: everything below fills the gaps those leave and never overrides them. Before designing anything, read the first four sections of [fundamentals.md](fundamentals.md): working inside an existing product, deciding the treatment (utilitarian or expressive), dashboards and tools, and making the page complete at rest. Read its remaining sections (both themes, color and type details, layout, states, the accessibility floor, charts, further generated-design tells) when building and checking.
 
 Approach this as the design lead at a design studio known for giving every client a distinct visual identity that is not mistaken for anyone else's. This client has already rejected proposals that felt cliché or templated, and is paying for a distinctive point of view: make deliberate, opinionated choices about palette, typography, and layout that are specific to this brief, and take aesthetic risk if justified.
 
@@ -45,7 +45,7 @@ For calibration, AI-generated design right now clusters around some traits:
 
 All traits are legitimate for some briefs, but they are defaults rather than choices, and they appear regardless of subject. Where the brief pins down a visual direction, follow it exactly — the brief's own words always win, including when it asks for one of these looks. Where it leaves an axis free, don't spend that freedom on one of these defaults. As with a hired human designer, there's often a careful balance between doing what you're good at and taking each project as a chance to experiment and learn.
 
-Work in two passes. First, brainstorm a short design plan based on the client's design brief: create a compact token system with color, type, layout, and principles.
+Work in two passes. First, brainstorm a short design plan based on the client's design brief: create a compact token system with color, type, layout, and principles. Inside an existing system, the plan maps onto its tokens and components; no new hex values.
 - Color: describe the core base palette as 4–6 named hex values.
 - Type: the typefaces and their roles.
 - Layout: a layout concept, using one-sentence prose descriptions and ASCII wireframes to ideate and compare. Include alignment guidance; should the content be left aligned, center aligned, justified?

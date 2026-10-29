@@ -69,7 +69,7 @@ getters, constants, and trivial forwarding earn tests only when they
 validate, normalize, default, derive, enforce, or cause side effects —
 otherwise assert the first consumer-visible result that depends on them.
 
-### Gate Function
+### Before you write a test
 
 ```
 BEFORE writing the test body:
@@ -141,7 +141,7 @@ break when the mock changes, switch to an integration test with real
 components. **your human partner's question:** "Do we need to be using a
 mock here?"
 
-### Gate Function
+### Before you add a mock
 
 ```
 BEFORE adding a mock or test helper:

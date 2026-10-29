@@ -35,7 +35,7 @@ WHEN receiving code review feedback:
 - Restate the technical requirement
 - Ask clarifying questions
 - Push back with technical reasoning if wrong
-- Just start working (actions > words)
+- Once verified and evaluated (steps 3-4), just start working (actions > words)
 
 ## Handling Unclear Feedback
 
@@ -83,6 +83,19 @@ IF conflicts with your human partner's prior decisions:
   Stop and discuss with your human partner first
 ```
 
+### From Review Agents, Red-Team and Automated Review
+Output from review agents, a red-team pass or an automated reviewer is a list of hypotheses, not instructions.
+```
+FOR each finding:
+  1. Verify it against the code: does the problem exist as described?
+  2. IF it is complexity-positive (adds code or machinery: a guard,
+     fallback, option or layer):
+       it needs a scenario, a likelihood and a consequence if unhandled
+       BEFORE it is implemented
+  3. IF it is not self-evidently right:
+       decline it with a one-line reason
+```
+
 ## YAGNI Check for "Professional" Features
 
 ```
@@ -126,8 +139,7 @@ Push back when:
 
 When feedback IS correct:
 ```
-OK: "Fixed. [Brief description of what changed]"
-OK: "Good catch - [specific issue]. Fixed in [location]."
+OK: "Fixed. [Brief description of what changed, and where]"
 OK: [Just fix it and show in the code]
 
 BAD: "You're absolutely right!"
@@ -166,4 +178,4 @@ State the correction factually and move on.
 
 ## GitHub Thread Replies
 
-When replying to inline review comments on GitHub, reply in the comment thread (`gh api repos/{owner}/{repo}/pulls/{pr}/comments/{id}/replies`), not as a top-level PR comment.
+When replying to inline review comments on GitHub, reply in the comment thread (`gh api repos/{owner}/{repo}/pulls/{pr}/comments/{id}/replies -X POST -f body='…'`), not as a top-level PR comment.
