@@ -2,7 +2,7 @@
 
 A Claude Code plugin for software development. Skills teach Claude structured approaches to ideation, design, prototyping, implementation, and code review. They invoke as slash commands (`/praxis:design`, `/praxis:implement`, `/praxis:review`, etc.) and auto-trigger when relevant. Specialized agents handle parallel exploration, adversarial design review, multi-dimensional code review, and plan-document review.
 
-Praxis incorporates material from [superpowers](https://github.com/obra/superpowers), Anthropic's [claude-plugins-official](https://github.com/anthropics/claude-plugins-official) (feature-dev, pr-review-toolkit, commit-commands, frontend-design), and Claude Code's [built-in skills](https://github.com/anthropics/claude-code), picking the best version of each component and filling gaps between them.
+Praxis incorporates material from [superpowers](https://github.com/obra/superpowers), Anthropic's [claude-plugins-official](https://github.com/anthropics/claude-plugins-official) (feature-dev, pr-review-toolkit, frontend-design), and Claude Code's [built-in skills](https://github.com/anthropics/claude-code), picking the best version of each component and filling gaps between them.
 
 ## Installation
 
@@ -132,4 +132,4 @@ The `upstream` branch stores verbatim copies of the source plugins. `upstream.js
 
 AGPL-3.0. See [LICENSE](LICENSE) and [NOTICE](NOTICE) for details.
 
-Incorporates MIT-licensed material from [superpowers](https://github.com/obra/superpowers) by Jesse Vincent. Components from Anthropic's [claude-plugins-official](https://github.com/anthropics/claude-plugins-official): frontend-design is Apache-2.0 licensed; other components had no license specified as of 2026-02-16. 
+Incorporates MIT-licensed material from [superpowers](https://github.com/obra/superpowers) by Jesse Vincent. Components from Anthropic's [claude-plugins-official](https://github.com/anthropics/claude-plugins-official): frontend-design, feature-dev and pr-review-toolkit are Apache-2.0 licensed. 

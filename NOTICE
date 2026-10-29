@@ -50,7 +50,7 @@ Files derived from superpowers:
   skills/design/SKILL.md (partial, merged with feature-dev; from writing-plans)
   agents/code-reviewer.md (partial, merged with other sources)
   agents/spec-reviewer.md
-  agents/plan-doc-reviewer.md
+  agents/plan-doc-reviewer.md (from writing-plans' plan-document-reviewer prompt, since removed upstream)
 
 -------------------------------------------------------------------------------
 
@@ -75,10 +75,10 @@ Files derived from frontend-design:
 
 -------------------------------------------------------------------------------
 
-feature-dev, pr-review-toolkit, commit-commands
+feature-dev, pr-review-toolkit
 (https://github.com/anthropics/claude-plugins-official)
 Author: Anthropic
-License: No license specified in repository as of 2026-02-16
+License: Apache License, Version 2.0 (each plugin ships the same LICENSE as frontend-design above)
 
 Files derived from these plugins:
   skills/review/SKILL.md (pr-review-toolkit)
