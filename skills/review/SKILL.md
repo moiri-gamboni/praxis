@@ -62,6 +62,8 @@ Per unit, dispatch the reviewer fleet in parallel via Agent:
 
 **Per-reviewer briefing**: the root (repo or worktree) to work from and the test command, plus what the tree can't reveal — the branch's base point relative to other in-flight work, and the provenance/freshness of any generated or snapshot data in the diff. When a plan has them, pass the flow sketch and the Slice 0 capture paths.
 
+**Units crossing a trust boundary** (untrusted input reaching queries, commands, templates, file paths, HTML or deserializers; auth, session or permission logic; secrets or crypto): also dispatch a `praxis:code-reviewer` briefed to follow `security.md` in this directory, its per-finding false-positive check included.
+
 **Documentation units**: additionally brief the dispatched reviewer(s) to load `Skill: "diataxis:diataxis"` (bare: `diataxis`; separate plugin — if it resolves in neither form, surface `/plugin marketplace add moiri-gamboni/diataxis-skill` instead of substituting) and review for kind-purity — the compass applied per section: content that informs a different need than its document's kind belongs elsewhere — on top of the accuracy and completeness checks the fleet already runs.
 
 **Scale to unit complexity**: trivial diff → inline. Sequential chain (one logical thread across files) → single code-reviewer. Small unit (1-2 files) → code-reviewer + 1-2 relevant others. Large/risky → full 7. Anything beyond trivial dispatches at least one agent. `praxis:comment-analyzer` dispatches whenever the diff adds or changes comments or docs, at any unit size.

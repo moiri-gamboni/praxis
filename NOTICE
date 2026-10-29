@@ -54,6 +54,15 @@ Files derived from superpowers:
 
 -------------------------------------------------------------------------------
 
+claude-code-security-review (https://github.com/anthropics/claude-code-security-review)
+Copyright (c) 2025 Anthropic
+License: MIT (same terms as the superpowers notice above)
+
+Files derived from claude-code-security-review:
+  skills/review/security.md
+
+-------------------------------------------------------------------------------
+
 frontend-design (https://github.com/anthropics/claude-plugins-official)
 Authors: Prithvi Rajasekaran, Alexander Bricken (Anthropic)
 License: Apache License, Version 2.0
