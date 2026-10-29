@@ -15,6 +15,10 @@
       "path": "plugins/pr-review-toolkit",
       "last_analyzed": "f8c5e7a1dcb71b10cb74586224b5401f3de5db28"
     },
+    "code-review": {
+      "repo": "anthropics/claude-plugins-official",
+      "path": "plugins/code-review"
+    },
     "commit-commands": {
       "repo": "anthropics/claude-plugins-official",
       "path": "plugins/commit-commands",
