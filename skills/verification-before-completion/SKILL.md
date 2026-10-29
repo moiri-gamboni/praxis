@@ -104,6 +104,8 @@ OK: [Run the real thing on real input] [Show the output] [Compare to the ask] "D
 BAD: "Tests pass, so it works" / a run against mocked or invented data
 ```
 
+Before the first end-to-end run of a change, read `runtime.md` in this skill's directory for how to run it where a user meets it.
+
 **Agent delegation:**
 ```
 OK: Agent reports success -> Check VCS diff -> Verify changes -> Report actual state
@@ -128,4 +130,4 @@ BAD: Trust agent report
 
 ## Web UI Verification
 
-For changes involving web UI, verify visually with whatever headless-browser tooling the environment provides (screenshots, element interaction, accessibility checks). If none is available, state explicitly that the visual result is unverified.
+For changes involving web UI, verify visually with whatever headless-browser tooling the environment provides (screenshots, element interaction, accessibility checks). If none is available, state explicitly that the visual result is unverified. Driving the page and capturing it follow `runtime.md` in this skill's directory.
