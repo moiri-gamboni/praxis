@@ -96,7 +96,8 @@ Some failures exist only in the real environment at real scale: a CI runner's di
 - **Spends:** anything paid (API calls, credits, compute) waits for the user's yes: state the estimated cost and the cap, then ask. Set the cap on the service itself where it allows one.
 - **Sends and publishes:** any step that emails, messages, posts, publishes, or writes to a shared record (Notion, a production database, a live page) runs in its dry-run mode or against a test target. With neither available, stop and ask before rehearsing; it is the destructive-path rule under Drive it, applied to the whole slice.
 - **Watch:** disk and memory, rate-limit and throttle responses, timeouts and retries, wall-clock time and cost, extrapolated to the full run.
-- **Pass:** the slice completes, its outputs hold up on a spot check, and the extrapolated full run fits its time and cost budget. Keep the raw output and resource readings as the evidence.
+- **Pass:** the slice completes, its outputs hold up on a spot check, and the extrapolated full run fits its time and cost budget (the plan's acceptance criteria, or the user's). Keep the raw output and resource readings as the evidence, redacted and masked per `praxis:observe-before-model`'s capture rule.
+- **On a CI runner or deployed service:** push the integration branch (or deploy to a staging target) first; that push is part of the rehearsal, not the PR.
 - **Fail:** fix it and rehearse again. A rehearsal failure is not a reason for another review round.
 
 ## Capture

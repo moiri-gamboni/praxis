@@ -22,9 +22,9 @@ Read the full diff for context.
 
 ## Re-Review Mode
 
-Trigger: the caller says re-review, or the range is a fix round answering findings a prior `reviews/<timestamp>/` holds. An earlier review folder alone doesn't trigger it, and an explicit range in Step 1 still sets the scope. A fix round gets **one** Re-Review, **scoped, not fresh**: no units and no Wave 1, because re-running the full review re-litigates settled findings and invites fabricated new ones. Dispatch `praxis:finding-verifier` once via Agent in its re-review mode: the fix diff as the range, the prior findings (the earlier folder's `verifier.md`, its Wave 1 reports behind it) and the report path `reviews/<new timestamp>/verifier.md`. It verdicts each prior finding Addressed or Not addressed, then sweeps the fix diff only for breakage the fix introduced. Skip Steps 2-5.
+Trigger: the caller says re-review, or the range is a fix round answering findings a prior `reviews/<timestamp>/` holds. An earlier review folder alone doesn't trigger it, and an explicit range in Step 1 still sets the scope. A fix round gets **one** Re-Review, **scoped, not fresh**: no units and no Wave 1, because re-running the full review re-litigates settled findings and invites fabricated new ones. Dispatch `praxis:finding-verifier` once via Agent in its re-review mode: the root and test command, the fix diff as the range, the prior findings the fix round answered (from the earlier folder's `verifier.md` or `verifier-<n>.md` files; not the ones deliberately left unfixed, which would only come back Not addressed) and the report path `reviews/<new timestamp>/verifier.md`. It verdicts each prior finding Addressed or Not addressed, then sweeps the fix diff only for breakage the fix introduced. Skip Steps 2-5.
 
-What it still finds, a prior finding not addressed or new breakage, is not another round: present it in Step 6's format (new findings by severity, the prior verdicts one line each) for the caller's ruling or the user's decision, and stop. Another Re-Review or a fresh Wave 1 happens only if the user asks.
+What it still finds, a prior finding not addressed or new breakage, is not another round: present it in Step 6's format (new findings by severity, the prior verdicts one line each) for the user, or the calling workflow, to decide, and stop. Another Re-Review or a fresh Wave 1 happens only if the user asks.
 
 Otherwise continue with Step 2.
 
@@ -71,7 +71,7 @@ Per unit, dispatch the reviewer fleet in parallel via Agent:
 
 **Documentation units**: additionally brief the dispatched reviewer(s) to load `Skill: "diataxis:diataxis"` (bare: `diataxis`; separate plugin — if it resolves in neither form, surface `/plugin marketplace add moiri-gamboni/diataxis-skill` instead of substituting) and review for kind-purity — the compass applied per section: content that informs a different need than its document's kind belongs elsewhere — on top of the accuracy and completeness checks the fleet already runs.
 
-**Scale to unit complexity**: trivial diff → inline, with Step 5 only if the inline pass has findings. Sequential chain (one logical thread across files) → single code-reviewer. Small unit (1-2 files) → code-reviewer + 1-2 relevant others. Large/risky → the full fleet. Anything beyond trivial dispatches at least one agent. `praxis:comment-analyzer` dispatches whenever the diff adds or changes comments or docs, at any unit size.
+**Scale to unit complexity**: trivial diff → inline, with Step 5 only if the inline pass has findings (written to `reviews/<timestamp>/inline.md` for the verifier). Sequential chain (one logical thread across files) → single code-reviewer. Small unit (1-2 files) → code-reviewer + 1-2 relevant others. Large/risky → the full fleet. Anything beyond trivial dispatches at least one agent. `praxis:comment-analyzer` dispatches whenever the diff adds or changes comments or docs, at any unit size.
 
 Reviewers may return "no findings, this dimension isn't relevant" — preferred over fabrication. Otherwise they report everything, each finding with its confidence, those under 80 marked below the bar; a low score is not a reason to omit, because Step 5 rules on each one.
 
@@ -128,10 +128,10 @@ Every finding lands in your message (the user only sees what's here), once, in t
 [same structure, advisory]
 
 ## Not Worth Fixing (<count>)
-- **[reviewer]** <description> [file:line] — <the verifier's reason>
+- **[reviewer]** [<severity>] <description> [file:line] — <the verifier's reason>
 
 ## Disputed (<count>)
-- **[reviewer]** [confidence: <0-100>]: <claim> [file:line]
+- **[reviewer]** [<severity>] [confidence: <0-100>]: <claim> [file:line]
   - For: <the reviewer's evidence>
   - Against: <the verifier's quoted line or invariant>
 
@@ -151,7 +151,7 @@ After presenting, invoke `Skill: "praxis:verification-before-completion"` before
 
 ## Next Step
 
-- Critical found → "Fix the Critical and Important issues, then re-run /praxis:review scoped to the fixes: one Re-Review, whose leftovers go to a ruling or you."
+- Critical found → "Fix the Critical and Important issues, then re-run /praxis:review scoped to the fixes: one Re-Review, whose leftovers are for you (or the calling workflow) to decide."
 - Only Disputed Critical → "Decide on the disputed findings; fixing any gets the same one Re-Review."
-- Only Important / Suggestions → "Fix the Important issues, then commit when ready."
+- Only Important / Suggestions → "Fix the Important issues (one Re-Review), then commit when ready."
 - Clean → "Ready to commit."

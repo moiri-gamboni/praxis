@@ -54,7 +54,7 @@ Canonical source for Present for Approval:
 - Consumes: [exact signatures from earlier tasks]
 - Produces: [exact names, parameter and return types later tasks rely on]
 
-**Acceptance criteria:** [behavior]: [expected outcome] (a task that crosses an external boundary or runs on infrastructure also lists a passing rehearsal, per the Rehearsal section of `runtime.md` in the `praxis:verification-before-completion` skill's directory)
+**Acceptance criteria:** [behavior]: [expected outcome]
 
 - [ ] Write failing test `test_name`: [assertions, with the design's exact values]
 - [ ] Run `<test command>`; verify red
@@ -64,5 +64,7 @@ Canonical source for Present for Approval:
 ````
 
 Non-behavioral tasks (docs, config, wiring, cosmetics) swap the red-green steps for `- [ ] Verify: <command / render / check + expected result>`.
+
+Tasks that cross an external boundary or run on infrastructure are rehearsed once the batch is integrated (`/praxis:implement` Phase 4, or iterate's Wrap), not by the task's own worker: no per-task rehearsal criterion.
 
 Tasks building web UI list `praxis:frontend-design` under **Skills to activate**.
