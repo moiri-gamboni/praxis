@@ -52,6 +52,9 @@ for plugin in $(jq -r '.sources | keys[]' "$UPSTREAM_JSON"); do
   elif [ "$old_hash" != "$new_hash" ]; then
     echo "  $plugin: changed (${old_hash:0:8} -> ${new_hash:0:8})"
     changed_sources+=("$plugin")
+  elif git rev-parse --verify --quiet "$LAST_COMMIT^{commit}" >/dev/null && ! git diff --quiet "$LAST_COMMIT" "$UPSTREAM_HEAD" -- "$plugin"; then
+    echo "  $plugin: content changed at the same version (${old_hash:0:8})"
+    changed_sources+=("$plugin")
   else
     echo "  $plugin: unchanged (${old_hash:0:8})"
   fi
@@ -147,7 +150,7 @@ Also look for entirely NEW files upstream that don't map to any existing praxis 
 
 The \"claude-code\" source is not a plugin: \"claude-code/<skill>.md\" holds the prompt of a Claude Code built-in skill, extracted from the compiled binary (its \"last_analyzed\" is a Claude Code version, not a commit). Skills shipped as markdown files are verbatim. The others are heuristic: only the string/template literals of the prompt code are recovered, in source order, with \"\${_}\" standing for an interpolation that is not a plain constant, and routing code and short strings are not captured. A large change in such a file may be an extraction artifact rather than a prompt change, so say so when you suspect it. A file leaves \"claude-code/\" only when someone removes the skill from the \"skills\" list in upstream.json; the sync fails when a listed skill is missing from the binary.
 
-Upstream files that no mapping below lists (for example the \"claude-security\" plugin, and claude-code's simplify.md and workflow-authoring.md) are tracked for comparison only, which takes precedence over the instruction about new upstream files: report notable changes in them in your summary, but do not propose adding them to praxis wholesale.
+Two kinds of upstream file are tracked for comparison only, which takes precedence over the instruction about new upstream files: everything in the \"claude-security\" source, and the \"claude-code\" files that no mapping below lists. Report notable changes in them in your summary, but do not propose adding them to praxis wholesale. For every other source, new upstream files stay in scope as described above.
 
 Sources that changed: $SOURCES_CHANGED
 

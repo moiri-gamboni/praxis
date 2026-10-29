@@ -108,13 +108,19 @@ class Bundle:
             off, length, encoding = self.mods[name]
             data = self.m[off:off + length]
             if name.endswith(".zst"):
-                data = subprocess.run(["zstd", "-dc"], input=data, capture_output=True, check=True).stdout
+                done = subprocess.run(["zstd", "-dc"], input=data, capture_output=True)
+                if done.returncode:
+                    raise RuntimeError(f"{name}: zstd exited {done.returncode}: {done.stderr.decode(errors='replace').strip()}")
+                data = done.stdout
                 codec = "utf-8"
             elif encoding in TEXT_CODECS:
                 codec = TEXT_CODECS[encoding]
             else:
                 raise RuntimeError(f"{name}: module encoding {encoding} is not text")
-            self.texts[name] = data.decode(codec)
+            try:
+                self.texts[name] = data.decode(codec)
+            except UnicodeDecodeError as e:
+                raise RuntimeError(f"{name}: not valid {codec}: {e}") from e
         return self.texts[name]
 
     def chunk(self, name):
@@ -247,8 +253,8 @@ class Decl:
         self.init: tuple[int, int] | None = init
 
 
-BLOCK_STATEMENTS = {"if", "for", "while", "try", "switch", "do", "with"}
-CONTINUATIONS = {"if": {"else"}, "try": {"catch", "finally"}, "do": {"while"}}  # what may follow a block's closing brace
+BLOCK_STATEMENTS = {"if", "else", "for", "while", "try", "switch", "do", "with"}
+CONTINUATIONS = {"if": {"else"}, "else": {"else"}, "try": {"catch", "finally"}, "do": {"while"}}  # what may follow a block's closing brace
 
 
 def split_units(s):
@@ -337,6 +343,20 @@ IMPORT_RE = re.compile(r'import\s*(?:([^"]*?)\s*from\s*)?"([^"]+)"\s*;?')
 EXPORT_RE = re.compile(r"export\{([^}]*)\}")
 
 
+def header_end(s):
+    """Index past the comment lines and blank space that open a chunk, where its import statements start."""
+    pos = 0
+    while pos < len(s):
+        if s.startswith("//", pos):
+            newline = s.find("\n", pos)
+            pos = len(s) if newline < 0 else newline + 1
+        elif s[pos].isspace():
+            pos += 1
+        else:
+            break
+    return pos
+
+
 def import_bindings(clause):
     """[(exported name, local name)] for an import clause: default, namespace (exported name `*`) and named bindings."""
     out = []
@@ -372,8 +392,8 @@ class Chunk:
         self.name = name
         self.s = bundle.text(name)
         self.imports = {}   # local name -> (module name, exported name)
-        pos = self.s.find("\nimport") + 1
-        while pos > 0 and self.s.startswith("import", pos) and self.s[pos + 6:pos + 7] not in ("(", "."):
+        pos = header_end(self.s)
+        while self.s.startswith("import", pos) and self.s[pos + 6:pos + 7] not in ("(", "."):
             m = IMPORT_RE.match(self.s, pos)
             if not m:
                 raise RuntimeError(f"{name}: unrecognised import statement `{self.s[pos:pos + 80]}`")
@@ -549,17 +569,18 @@ def bound_names(s, a, b):
     return bound
 
 
-def lookup(bundle, chunk, ident, depth=0):
-    """Resolve an identifier used in chunk to (defining chunk, Decl), following imports and re-exports."""
+def lookup(bundle, chunk, ident, any_size=False, depth=0):
+    """Resolve an identifier used in chunk to (defining chunk, Decl), following imports and re-exports.
+    Imports into chunks of CROSS_CHUNK_MAX or more are followed only if any_size."""
     if depth > 8:
         return None
     if ident in chunk.imports:
         module, exported = chunk.imports[ident]
-        if module not in bundle.mods or bundle.mods[module][1] > CROSS_CHUNK_MAX:
+        if module not in bundle.mods or (bundle.mods[module][1] > CROSS_CHUNK_MAX and not any_size):
             return None
         target = bundle.chunk(module)
         local = target.exports.get(exported)
-        return lookup(bundle, target, local, depth + 1) if local else None
+        return lookup(bundle, target, local, any_size, depth + 1) if local else None
     d = chunk.decls.get(ident)
     return (chunk, d) if d else None
 
@@ -584,7 +605,7 @@ def cook(raw):
 
 def constant_value(bundle, chunk, ident):
     """Text of a top-level `ident="..."`, a template without interpolation, or a number; else None."""
-    hit = lookup(bundle, chunk, ident)
+    hit = lookup(bundle, chunk, ident, any_size=True)
     if not hit or not hit[1].init:
         return None
     c, d = hit
@@ -724,7 +745,7 @@ def embedded_loads(bundle, skill):
         if name.endswith((".md", ".md.zst")) and frontmatter_name(bundle.text(name)) == skill:
             files = []
             for n in bundle.mods:
-                if bundle.is_chunk(n) and bundle.contains(n, name) and bundle.contains(n, "SKILL_MD"):
+                if bundle.is_chunk(n) and bundle.contains(n, name) and bundle.contains(n, "SKILL_MD") and "SKILL_MD" in bundle.chunk(n).exports:
                     md, more = skill_files(bundle, bundle.chunk(n))
                     if md == name:
                         files += more
@@ -732,22 +753,34 @@ def embedded_loads(bundle, skill):
     return out
 
 
+IMPORT_CALL = re.compile(r'import\("(/\$bunfs/root/[^"]+\.js)"\)')
+
+
+def unit_text(chunk, i):
+    return chunk.s[slice(*chunk.units[i])]
+
+
+def called_units(bundle, chunk, i):
+    """(chunk, unit index) of the units that unit i of chunk references."""
+    hits = (lookup(bundle, chunk, ident) for ident in chunk.refs(i))
+    return [(c, d.unit) for c, d in filter(None, hits)]
+
+
 def registered_loads(bundle, skill, roots):
-    """[(md module, supporting files)] when a registration of `skill` loads a bundled SKILL_MD, itself or in a
-    unit it calls; [] when it does not. Raises if it does but the loader cannot be followed."""
-    scanned = []
+    """[(md module, supporting files)] when a registration of `skill` loads a bundled SKILL_MD. Its unit, or a unit
+    it calls, reads SKILL_MD, and the loader is an import() of a module exporting SKILL_MD in that unit or in a unit
+    that one calls. [] when no unit reads it. Raises when the registration unit itself reads SKILL_MD and no loader
+    is found."""
+    loaders = set()
     for chunk, i in roots:
-        scanned.append(chunk.s[slice(*chunk.units[i])])
-        for ident in chunk.refs(i):
-            hit = lookup(bundle, chunk, ident)
-            if hit:
-                scanned.append(hit[0].s[slice(*hit[0].units[hit[1].unit])])
-    if not any("SKILL_MD" in text for text in scanned):
-        return []
-    loaders = {m for text in scanned for m in re.findall(r'import\("(/\$bunfs/root/[^"]+\.js)"\)', text)
-               if m in bundle.mods and "SKILL_MD" in bundle.chunk(m).exports}
-    if not loaders:
-        raise RuntimeError(f"{skill}: its registration loads a bundled SKILL_MD but no loader module was found")
+        found = set()
+        for c, j in [(chunk, i)] + called_units(bundle, chunk, i):
+            if "SKILL_MD" in unit_text(c, j):
+                for c2, k in [(c, j)] + called_units(bundle, c, j):
+                    found |= {m for m in IMPORT_CALL.findall(unit_text(c2, k)) if m in bundle.mods and "SKILL_MD" in bundle.chunk(m).exports}
+        if not found and "SKILL_MD" in unit_text(chunk, i):
+            raise RuntimeError(f"{skill}: its registration reads SKILL_MD but no loader module was found")
+        loaders |= found
     return [skill_files(bundle, bundle.chunk(m)) for m in sorted(loaders)]
 
 
@@ -864,8 +897,9 @@ def main(argv):
             f.write(text)
     if missing:
         sys.exit(f"error: built-in skill(s) not found in {binary}: {', '.join(missing)}\n"
-                 "If Claude Code dropped them, remove them from the skills list in upstream.json; "
-                 "otherwise the extractor no longer recognises how they are registered.")
+                 "Either Claude Code dropped them (then remove them from the skills list in upstream.json) "
+                 "or the extractor no longer recognises how they are registered (then fix the extractor "
+                 "and keep them in the list).")
 
 
 if __name__ == "__main__":
