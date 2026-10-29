@@ -15,10 +15,8 @@ Multi-wave review by logical code-path units (not files): per-unit deep review �
 
 ## Step 1: Determine Scope
 
-Precedence (first match wins):
-1. Git range argument provided → `git diff <range> --name-only`
-2. Working tree has changes → `git diff --name-only HEAD` (unstaged + staged)
-3. PR exists (`gh pr view`) → use `base..head` as range
+1. Git range argument provided → that range (`git diff <range>`).
+2. Otherwise, the union of the branch's unpushed commits and the working tree: `git diff @{upstream}...HEAD` (an open PR, `gh pr view`, supplies its `base...head` instead; no upstream and no PR → `git diff $(git merge-base origin/HEAD HEAD)...HEAD`), plus `git diff HEAD` when there are uncommitted changes. Either half alone misses the other: a dirty tree hides committed work, and a clean branch with no PR otherwise has no scope.
 
 Read the full diff for context.
 

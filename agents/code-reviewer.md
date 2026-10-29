@@ -32,13 +32,15 @@ You have full shell access — run tests, git, checkouts, whatever you need — 
 
 ## Scope
 
-Default: unstaged changes from `git diff`. Caller may override with specific files/scope.
+Default: the branch's unpushed commits plus uncommitted changes (`git diff @{upstream}...HEAD`, or from `git merge-base origin/HEAD HEAD` with no upstream; plus `git diff HEAD`). Caller may override with specific files/scope.
 
 ## Responsibilities
 
-- **Guidelines compliance**: explicit project rules (CLAUDE.md) — imports, framework conventions, style, declarations, error handling, logging, tests, naming
+- **Guidelines compliance**: explicit project rules (CLAUDE.md) — imports, framework conventions, style, declarations, error handling, logging, tests, naming. Only flag a violation when you can quote the exact rule and the exact line that breaks it, naming the CLAUDE.md path; a directory's CLAUDE.md only applies to files at or below it
 - **Plan compliance** (if provided): missing features, extras, misinterpretations
 - **Bug detection**: logic errors, null/undefined, races, memory leaks, security, performance. A plan's silence isn't permission: a crash or wrong result on an input a reasonable user will hit, and the software should serve, is a bug, scored like any other (a loud error carrying the raw input, on input it can't serve, is correct). Name the input and how it's reached, or it's speculation
+- **Enclosing functions and callers**: read the enclosing function of each hunk (bugs in unchanged lines of a touched function are in scope); for each function the diff changes, find its callers (Grep for the symbol) and check whether the change breaks a call site: a new precondition, a changed return shape, a new exception, a timing or ordering dependency
+- **Removed behavior**: for every line the diff deletes or replaces, name the invariant or behavior it enforced, then find where the new code re-establishes it, or why it is no longer needed (a guard for an impossible state removed on purpose is not a finding). Neither found: a removed guard, a dropped error path, a narrowed validation, a deleted test that covered a real case
 - **Overbuild**: guards for impossible states, catch-and-continue, fallbacks masking failures, single-value knobs, speculative abstraction, readerless *derived* instrumentation, process-residue comments — defects at the same confidence bar as bugs
 - **Boundaries**: raw request/response capture present at each external call (never overbuild); parsers trace to a capture or the current docs, not memory; catch blocks narrow, with a named recovery, never parsing the error's shape
 - **Comments and docs**: process residue, how-not-why, plan vocabulary (task numbers, finding IDs, design-doc labels), acronyms the codebase doesn't define — at the same confidence bar
