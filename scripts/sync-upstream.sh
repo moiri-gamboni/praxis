@@ -12,7 +12,9 @@
 # binary. They are extracted (scripts/extract-builtin-skills.py) from the newest
 # version in $CLAUDE_VERSIONS_DIR (default ~/.local/share/claude/versions) into
 # <source>/<skill>.md, and the version string is recorded where other sources
-# record a commit hash.
+# record a commit hash. With no install, or only a version older than the
+# recorded one, the files and recorded version are left as they are (a warning).
+# An extraction error with an install present aborts the sync.
 #
 # Usage: scripts/sync-upstream.sh
 # Requires: jq, python3, zstd (for built-in sources)
@@ -97,19 +99,33 @@ for entry in "${PLUGINS[@]}"; do
 done
 
 # --- Extract built-in skill prompts from the installed Claude Code binary ---
+# With no install, or only one older than the version the last sync recorded, the
+# source's files and recorded version stay as the upstream branch has them.
 VERSIONS_DIR="${CLAUDE_VERSIONS_DIR:-$HOME/.local/share/claude/versions}"
 for builtin_name in "${BUILTINS[@]}"; do
-  version=$(ls "$VERSIONS_DIR" | grep -E '^[0-9]+(\.[0-9]+)+$' | sort -V | tail -1 || true)
-  if [ -z "$version" ]; then
-    echo "Error: no Claude Code version found in $VERSIONS_DIR" >&2
-    exit 1
+  recorded=""
+  if [ -f "$WORK_DIR/_source_commits.json" ]; then
+    recorded=$(jq -r --arg s "$builtin_name" '.[$s] // empty' "$WORK_DIR/_source_commits.json")
   fi
-  readarray -t skills < <(jq -r --arg s "$builtin_name" '.sources[$s].skills[]' "$UPSTREAM_JSON")
+  version=""
+  if [ -d "$VERSIONS_DIR" ]; then
+    version=$(ls "$VERSIONS_DIR" | grep -E '^[0-9]+(\.[0-9]+)+$' | sort -V | tail -1 || true)
+  fi
 
-  echo "Extracting $builtin_name $version (${#skills[@]} skills)..."
-  rm -rf "${WORK_DIR:?}/$builtin_name"
-  python3 -I "$REPO_ROOT/scripts/extract-builtin-skills.py" "$VERSIONS_DIR/$version" "$WORK_DIR/$builtin_name" "${skills[@]}"
-  SOURCE_COMMITS[$builtin_name]=$version
+  if [ -z "$version" ]; then
+    echo "WARNING: no Claude Code install found in $VERSIONS_DIR; $builtin_name stays at ${recorded:-nothing recorded yet}." >&2
+  elif [ -n "$recorded" ] && [ "$(printf '%s\n%s\n' "$version" "$recorded" | sort -V | tail -1)" != "$version" ]; then
+    echo "WARNING: newest installed Claude Code is $version, older than the recorded $recorded; $builtin_name stays at $recorded." >&2
+  else
+    readarray -t skills < <(jq -r --arg s "$builtin_name" '.sources[$s].skills[]' "$UPSTREAM_JSON")
+    echo "Extracting $builtin_name $version (${#skills[@]} skills)..."
+    rm -rf "${WORK_DIR:?}/$builtin_name"
+    python3 -I "$REPO_ROOT/scripts/extract-builtin-skills.py" "$VERSIONS_DIR/$version" "$WORK_DIR/$builtin_name" "${skills[@]}"
+    recorded=$version
+  fi
+  if [ -n "$recorded" ]; then
+    SOURCE_COMMITS[$builtin_name]=$recorded
+  fi
 done
 
 # --- Write per-source commit hashes ---

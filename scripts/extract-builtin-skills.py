@@ -33,7 +33,11 @@ then UTF-8), strictly. Two kinds of skill:
   Minified identifiers never reach the output: an interpolation that is a
   string or number constant is replaced by its value, any other becomes
   `${...}` with its identifiers replaced by `_`, so a release that only renames
-  identifiers produces the same text.
+  identifiers produces the same text. A name a unit binds itself (parameter,
+  local) never resolves to a top-level name of the same spelling; one bound
+  anywhere in a unit counts as bound throughout it, so a top-level name shadowed
+  in a nested function of the same unit shows as `${_}` and its edge is not
+  followed.
 
 Requires the zstd command-line tool (the standard library has no zstd before
 Python 3.14).
@@ -243,6 +247,10 @@ class Decl:
         self.init: tuple[int, int] | None = init
 
 
+BLOCK_STATEMENTS = {"if", "for", "while", "try", "switch", "do", "with"}
+CONTINUATIONS = {"if": {"else"}, "try": {"catch", "finally"}, "do": {"while"}}  # what may follow a block's closing brace
+
+
 def split_units(s):
     """Cut top-level code into units: a function/class/expression statement, or one declarator of a
     var/let/const statement. Returns (units, decls): units is [(start, end)], decls maps a declared name to a Decl."""
@@ -255,6 +263,8 @@ def split_units(s):
     split = False    # the current statement was cut into declarator units
     state = None     # var/let/const declarator tracking: name, eq, init
     pending = name_start = init_start = None
+    block_end = None  # where a top-level block statement closed; it ends there unless else/catch/finally/while follows
+    first = ""
 
     def end_statement(end):
         nonlocal start
@@ -263,6 +273,12 @@ def split_units(s):
         start = None
 
     for kind, a, b in tokens(s, 0, len(s)):
+        if block_end is not None:
+            if s[a:b] in CONTINUATIONS.get(first, ()):
+                block_end = None
+            else:
+                end_statement(block_end)
+                block_end = None
         if start is None:
             start, toks, count, split, state = a, [], 0, False, None
         count += 1
@@ -293,9 +309,11 @@ def split_units(s):
             depth += 1
         elif c in ")]}":
             depth -= 1
-            ends_on_brace = first in ("function", "class", "export") or (first == "async" and toks[1][1] == "function")
-            if depth == 0 and c == "}" and ends_on_brace:
-                end_statement(b)
+            if depth == 0 and c == "}":
+                if first in ("function", "class", "export") or (first == "async" and toks[1][1] == "function"):
+                    end_statement(b)
+                elif first in BLOCK_STATEMENTS or first == "{":
+                    block_end = b
         elif depth == 0 and c in ",;":
             if state == "init":
                 decls[pending] = Decl(len(units), (init_start, a))
@@ -304,7 +322,9 @@ def split_units(s):
                 state = "name" if c == "," else None
             if c == ";":
                 end_statement(b)
-    if start is not None:
+    if block_end is not None:
+        end_statement(block_end)
+    elif start is not None:
         end_statement(len(s))
     return units, decls
 
@@ -313,8 +333,27 @@ def split_units(s):
 
 # A skill registration: fn({name:"literal",...}) or fn({name:CONSTANT,...})
 REGISTRATION = re.compile(r'[\w$]\(\{name:("(?:[^"\\]|\\.)*"|[\w$]+),')
-IMPORT_RE = re.compile(r'import(?:\{([^}]*)\}from)?"([^"]+)";?')
+IMPORT_RE = re.compile(r'import\s*(?:([^"]*?)\s*from\s*)?"([^"]+)"\s*;?')
 EXPORT_RE = re.compile(r"export\{([^}]*)\}")
+
+
+def import_bindings(clause):
+    """[(exported name, local name)] for an import clause: default, namespace (exported name `*`) and named bindings."""
+    out = []
+    named = re.search(r"\{([^}]*)\}", clause)
+    if named:
+        out += specifiers(named.group(1))
+        clause = clause[:named.start()] + clause[named.end():]
+    namespace = re.search(r"\*\s*as\s+([\w$]+)", clause)
+    if namespace:
+        out.append(("*", namespace.group(1)))
+        clause = clause[:namespace.start()] + clause[namespace.end():]
+    default = clause.strip(" ,\t\r\n")
+    if default:
+        if not re.fullmatch(r"[\w$]+", default):
+            raise RuntimeError(f"unrecognised import clause `{clause.strip()}`")
+        out.append(("default", default))
+    return out
 
 
 def specifiers(text):
@@ -334,14 +373,14 @@ class Chunk:
         self.s = bundle.text(name)
         self.imports = {}   # local name -> (module name, exported name)
         pos = self.s.find("\nimport") + 1
-        while pos > 0:
+        while pos > 0 and self.s.startswith("import", pos) and self.s[pos + 6:pos + 7] not in ("(", "."):
             m = IMPORT_RE.match(self.s, pos)
             if not m:
-                break
-            for exported, local in specifiers(m.group(1) or ""):
+                raise RuntimeError(f"{name}: unrecognised import statement `{self.s[pos:pos + 80]}`")
+            for exported, local in import_bindings(m.group(1) or ""):
                 self.imports[local] = (m.group(2), exported)
             pos = m.end()
-            while self.s[pos].isspace():
+            while pos < len(self.s) and self.s[pos].isspace():
                 pos += 1
         self.exports = {}   # exported name -> local name
         e = self.s.rfind("export{")
@@ -353,6 +392,7 @@ class Chunk:
         self.registrations = [(m.start(), m.group(1)) for m in REGISTRATION.finditer(self.s)]
         self._parsed = None
         self._refs = {}
+        self._bound = {}
         self._longest = {}
 
     def parse(self):
@@ -377,11 +417,17 @@ class Chunk:
     def unit_at(self, pos):
         return bisect.bisect_right([a for a, _ in self.units], pos) - 1
 
+    def bound(self, i):
+        """Names unit i binds itself (parameters, locals), which never mean the top-level name of the same spelling."""
+        if i not in self._bound:
+            self._bound[i] = bound_names(self.s, *self.units[i])
+        return self._bound[i]
+
     def refs(self, i):
-        """Identifiers referenced in unit i (not property names), first-occurrence order."""
+        """Top-level names unit i may reference, first-occurrence order (no property names, no names it binds itself)."""
         if i not in self._refs:
             a, b = self.units[i]
-            self._refs[i] = list(dict.fromkeys(identifiers(self.s, a, b)))
+            self._refs[i] = [n for n in dict.fromkeys(identifiers(self.s, a, b)) if n not in self.bound(i)]
         return self._refs[i]
 
     def longest_literal(self, i):
@@ -415,6 +461,92 @@ def identifiers(s, a, b):
             for p, q in exprs:
                 out.extend(identifiers(s, p, q))
     return out
+
+
+NOT_METHODS = {"if", "for", "while", "switch", "with", "catch", "function", "return", "typeof", "new", "await", "yield", "in", "of", "do", "else", "case", "delete", "void", "throw", "instanceof"}
+
+
+def bound_names(s, a, b):
+    """Names the code in s[a:b] binds itself: function, method, arrow and catch parameters, and let/const/var
+    declarations. A name bound anywhere in the span counts as bound throughout it."""
+    toks = list(tokens(s, a, b))
+    match = {}  # index of an opening bracket -> index of its closing one
+    stack = []
+    for k, (kind, x, y) in enumerate(toks):
+        if kind == "p" and s[x] in "([{":
+            stack.append(k)
+        elif kind == "p" and s[x] in ")]}" and stack:
+            match[stack.pop()] = k
+    bound = set()
+
+    def punct(k, ch):
+        return 0 <= k < len(toks) and toks[k][0] == "p" and s[toks[k][1]] == ch
+
+    def arrow(k):
+        return punct(k, "=") and punct(k + 1, ">") and toks[k][2] == toks[k + 1][1]
+
+    def pattern(j, e):
+        bound.update(s[x:y] for kind, x, y in toks[j:e] if kind == "id")
+
+    def params(k):
+        end, j, expect = match.get(k, len(toks)), k + 1, True
+        while j < end:
+            kind, x, y = toks[j]
+            if kind == "p" and s[x] in "([{":
+                if expect and s[x] in "{[":
+                    pattern(j, match.get(j, end))
+                    expect = False
+                j = match.get(j, j)
+            elif kind == "p" and s[x] == ",":
+                expect = True
+            elif expect and kind == "id":
+                bound.add(s[x:y])
+                expect = False
+            j += 1
+
+    def declaration(k):
+        j, expect = k + 1, True
+        while j < len(toks):
+            kind, x, y = toks[j]
+            if kind == "p" and s[x] in "([{":
+                if expect and s[x] in "{[":
+                    pattern(j, match.get(j, len(toks)))
+                    expect = False
+                j = match.get(j, j)
+            elif kind == "p" and s[x] in ")]};":
+                break
+            elif kind == "p" and s[x] == ",":
+                expect = True
+            elif expect and kind == "id":
+                bound.add(s[x:y])
+                expect = False
+            j += 1
+
+    for k, (kind, x, y) in enumerate(toks):
+        t = s[x:y]
+        if kind == "tpl":
+            exprs = []
+            skip_tpl(s, x + 1, exprs)
+            for p, q in exprs:
+                bound |= bound_names(s, p, q)
+        elif kind == "p" and t == "(" and k in match and arrow(match[k] + 1):
+            params(k)
+        elif kind != "id":
+            continue
+        elif t in ("var", "let", "const"):
+            declaration(k)
+        elif t == "function":
+            j = k + 1 + punct(k + 1, "*")
+            j += toks[j][0] == "id" if j < len(toks) else 0
+            if punct(j, "("):
+                params(j)
+        elif t == "catch" and punct(k + 1, "("):
+            params(k + 1)
+        elif t not in NOT_METHODS and punct(k + 1, "(") and k + 1 in match and punct(match[k + 1] + 1, "{"):
+            params(k + 1)
+        elif arrow(k + 1):
+            bound.add(t)
+    return bound
 
 
 def lookup(bundle, chunk, ident, depth=0):
@@ -471,7 +603,7 @@ KEEP = {"true", "false", "null", "undefined", "void", "typeof", "new", "this", "
         "Math", "JSON", "Object", "Array", "String", "Number", "Boolean", "Set", "Map", "Date", "Promise", "RegExp", "Symbol", "Error", "process", "Infinity", "NaN", "let", "const", "var"}
 
 
-def normalize_expr(bundle, chunk, a, b):
+def normalize_expr(bundle, chunk, a, b, bound):
     """Source of chunk.s[a:b] with minified identifiers replaced by `_`; string and template
     literals inside it are decoded like top-level ones (constants inlined, nested expressions normalised)."""
     s = chunk.s
@@ -485,7 +617,7 @@ def normalize_expr(bundle, chunk, a, b):
         elif kind == "str":
             out.append(s[x] + cook(s[x + 1:y - 1]) + s[x])
         elif kind == "tpl":
-            out.append("`" + render_template(bundle, chunk, x, y) + "`")
+            out.append("`" + render_template(bundle, chunk, x, y, bound) + "`")
         else:
             out.append(s[x:y])
         pos = y
@@ -494,21 +626,21 @@ def normalize_expr(bundle, chunk, a, b):
     return "".join(out)
 
 
-def interpolation(bundle, chunk, p, q):
+def interpolation(bundle, chunk, p, q, bound):
     """Text standing for the ${...} body chunk.s[p:q]: a string literal or short constant inline, else the normalised expression."""
     toks = list(tokens(chunk.s, p, q))
     if len(toks) == 1:
         kind, x, y = toks[0]
         if kind == "str":
             return cook(chunk.s[x + 1:y - 1])
-        if kind == "id":
+        if kind == "id" and chunk.s[x:y] not in bound:
             value = constant_value(bundle, chunk, chunk.s[x:y])
             if value is not None and len(value) <= CONST_MAX and "\n" not in value:
                 return value
-    return "${" + normalize_expr(bundle, chunk, p, q) + "}"
+    return "${" + normalize_expr(bundle, chunk, p, q, bound) + "}"
 
 
-def render_template(bundle, chunk, a, b):
+def render_template(bundle, chunk, a, b, bound):
     """Cooked text of the template literal chunk.s[a:b] (backticks included)."""
     s = chunk.s
     exprs = []
@@ -517,7 +649,7 @@ def render_template(bundle, chunk, a, b):
     pos = a + 1
     for p, q in exprs:
         out.append(cook(s[pos:p - 2]))
-        out.append(interpolation(bundle, chunk, p, q))
+        out.append(interpolation(bundle, chunk, p, q, bound))
         pos = q + 1
     out.append(cook(s[pos:b - 1]))
     return "".join(out)
@@ -562,11 +694,12 @@ def object_entries(s, a, b):
             c = s[x]
             if c in "([{":
                 depth += 1
-            elif c in ")]}" or (c == "," and depth == 1):
-                depth -= c != ","
-                if depth <= 1 and key is not None:
+            elif c in ")]}":
+                depth -= 1
+            if (c == "," and depth == 1) or (c == "}" and depth == 0):
+                if key is not None and start is not None:
                     out.append((key, start, x))
-                    key = start = None
+                key = start = None
             elif c == ":" and depth == 1 and key is not None and start is None:
                 start = y
         elif depth == 1 and key is None and kind in ("str", "id"):
@@ -693,7 +826,7 @@ def inline_text(bundle, skill, roots):
             if kind == "str":
                 text = cook(chunk.s[x + 1:y - 1])
             elif kind == "tpl":
-                text = render_template(bundle, chunk, x, y)
+                text = render_template(bundle, chunk, x, y, chunk.bound(i))
             else:
                 continue
             if len(text) >= LITERAL_MIN:
