@@ -1,6 +1,6 @@
 ---
 name: implement
-description: Use when a large task is ready to build and decomposes into independent units — dispatches sub-agents in worktrees, merges incrementally, ships one PR.
+description: Use when a large task, or a /praxis:design plan, is ready to build. Not while scope is still unclear (praxis:design first) or for a small change (praxis:iterate).
 argument-hint: "<task description or path to plan file>"
 allowed-tools: Agent, SendMessage, Bash, Read, Write, Edit, Glob, Grep, Skill, AskUserQuestion, Task
 ---

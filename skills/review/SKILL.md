@@ -1,6 +1,6 @@
 ---
 name: review
-description: Use when a body of code changes needs deep multi-dimensional review (correctness, quality, types, tests, error handling) — organized by logical code-path units, with one verification pass over every finding. Scopes to working tree, git range, or PR.
+description: Use when a body of code changes (a branch, a git range, a PR, or uncommitted work) needs deep multi-dimensional review (correctness, quality, types, tests, error handling). Not for acting on review feedback (praxis:receiving-code-review).
 argument-hint: "[git range, e.g. main..HEAD]"
 allowed-tools: Bash(git diff:*), Bash(git status:*), Bash(git log:*), Bash(git merge-base:*), Bash(git rev-parse:*), Bash(git ls-files:*), Bash(gh pr view:*), Glob, Grep, Read, Agent, Task, Skill, AskUserQuestion
 ---

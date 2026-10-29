@@ -1,6 +1,6 @@
 ---
 name: design
-description: Use when starting a new feature that needs architectural design before implementation — works through competing approaches, adversarial review, test design, and implementation plan.
+description: Use when a new feature or multi-component change needs an architecture and an implementation plan before any code is written. Not for problem-space exploration (praxis:ideate), a fast first version (praxis:prototype), or small changes to existing work (praxis:iterate).
 argument-hint: "<feature description>"
 allowed-tools: Read, Write, Edit, Glob, Grep, Agent, Task, Skill, AskUserQuestion
 ---
