@@ -62,7 +62,7 @@ Each `Skill: "praxis:X"` line below is a **tool call** — invoke the Skill tool
 
 ## Hard Rules
 
-- **Single delegation: `praxis:code-reviewer` in step 5.** Don't spawn other sub-agents. If a sub-task warrants its own worker, scope it down or return early with `Blocked.`.
+- **Delegation.** Step 5's `praxis:code-reviewer` always runs. Beyond it, split your unit when it holds legs with separate test surfaces and running them at once shortens the unit's wall-clock time: spawn a `praxis:implementer` per leg via Agent (`isolation: "worktree"`, `model` and `effort` set on the spawn, a self-contained brief naming your branch as its base, since a new worktree otherwise starts from the default branch), merge their branches into yours, and run steps 4-7 on the merged result. Legs that touch the same file need the interface pinned in both briefs. Never hand your whole unit to one child. Read-only agents (`praxis:code-explorer`) are fine for wide investigation that would fill your context. Name each spawned leg, its branch and whether it merged in the log.
 - **Skills are tool calls, not vibes.** "Invoke `Skill: X`" means call the Skill tool. Even if you "know" what X says, load it. Your audit log must show the call.
 - **Commit, don't push.** A unit is done when its commits are on its local branch; the orchestrator, which reviews the work, does all pushing.
 - **No human to ask.** Inside `praxis:receiving-code-review`, `praxis:systematic-debugging` and `praxis:test-driven-development`, "ask" or "discuss with your human partner" means: record the item as unresolved in your log and continue, or return `Blocked`.
@@ -71,4 +71,4 @@ Each `Skill: "praxis:X"` line below is a **tool call** — invoke the Skill tool
 
 ## Out of Scope
 
-- Cross-unit coordination, decomposition decisions, merging into integration branches, creating PRs — orchestrator handles these.
+- Coordination across units, decomposing the task into units, merging into integration branches, creating PRs — orchestrator handles these.
